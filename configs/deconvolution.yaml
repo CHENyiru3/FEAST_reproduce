@@ -1,0 +1,31 @@
+# Figure 2 Deconvolution Configuration
+# Last updated: 2026-06-11
+#
+# Slices: MERFISH ABCA-1 dataset, three representative sections.
+# Resolutions: 0.1 and 0.25 downsampling factors for simulated low-res spots.
+
+slices:
+  - "007"
+  - "050"
+  - "100"
+
+resolutions:
+  - 0.1
+  - 0.25
+
+grid_type: "hexagonal"
+alpha: 0.01
+cell_type_key: "cell_type"
+seed: 2026
+parameter_mode: "hungarian"
+spatial_mode: "reference_rank"
+
+cell2location:
+  max_epochs: 25000
+  detection_alpha: 20
+  use_gpu: false
+
+rctd:
+  mode: "full"
+  max_cores: 1
+  cache_dir: "/tmp/rctd_bioc_cache"
