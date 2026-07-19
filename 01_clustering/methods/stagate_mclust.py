@@ -1,170 +1,74 @@
 #!/usr/bin/env python3
-"""STAGATE + mclust clustering for Figure 2 clustering benchmark.
-
-Usage:
-    conda run -p /maiziezhou_lab2/yiru/envs/STAGATE \\
-    python scripts/methods/clustering_STAGATE_mclust.py \\
-      --input outputs/hvg_inputs/151670/mean_0.10.h5ad \\
-      --output-dir outputs/methods/STAGATE_mclust/151670/mean_0.10 \\
-      --rad-cutoff 150 \\
-      --n-epochs 500 \\
-      --n-clusters auto
-"""
+"""Run one single-process STAGATE+mclust fixed-panel job."""
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
+import platform
 import sys
 import time
-import warnings
 from pathlib import Path
-
-# Point rpy2 at the conda env's R (which has mclust), not the system R
-if "R_HOME" not in os.environ:
-    os.environ["R_HOME"] = "/maiziezhou_lab2/yiru/envs/STAGATE/lib/R"
 
 import numpy as np
 import pandas as pd
 import scanpy as sc
-import scipy.sparse
-
-# Disable TF eager execution before any TF import (required by STAGATE)
+import scipy.sparse as sp
 import tensorflow as tf
+
+from output_integrity import atomic_write_h5ad
+
+os.environ.setdefault("R_HOME", str(Path(sys.prefix) / "lib" / "R"))
 tf.compat.v1.disable_eager_execution()
 
-warnings.filterwarnings("ignore")
 
-
-def run_stagate_mclust(
-    adata: sc.AnnData,
-    rad_cutoff: int = 150,
-    n_epochs: int = 500,
-    latent_key: str = "STAGATE",
-    n_clusters: int | None = None,
-    seed: int = 2026,
-) -> tuple[np.ndarray, dict]:
-    """Run STAGATE -> mclust pipeline. Returns (labels, metadata)."""
-    import STAGATE
-
-    t0 = time.time()
-
-    if n_clusters is None:
-        if "ground_truth" in adata.obs.columns:
-            n_clusters = len(adata.obs["ground_truth"].unique())
-        else:
-            n_clusters = 7
-
-    STAGATE.Cal_Spatial_Net(adata, rad_cutoff=rad_cutoff)
-    adata = STAGATE.train_STAGATE(
-        adata,
-        alpha=0,
-        n_epochs=n_epochs,
-        key_added=latent_key,
-        random_seed=seed,
-        save_attention=False,
-        save_loss=False,
-    )
-
-    adata = STAGATE.mclust_R(
-        adata,
-        used_obsm=latent_key,
-        num_cluster=n_clusters,
-        random_seed=seed,
-    )
-    labels = adata.obs["mclust"].astype(int).values
-
-    elapsed = time.time() - t0
-    meta = {
-        "method": "STAGATE_mclust",
-        "rad_cutoff": rad_cutoff,
-        "n_epochs": n_epochs,
-        "latent_key": latent_key,
-        "n_clusters_target": n_clusters,
-        "n_clusters_mclust": len(np.unique(labels)),
-        "mclust_model": "auto",
-        "random_seed": seed,
-        "input_preprocessing": "hvg_inputs_normalized_log1p",
-        "elapsed_seconds": round(elapsed, 2),
-    }
-
-    return labels, meta
-
-
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--seed", type=int, default=2026)
     parser.add_argument("--rad-cutoff", type=int, default=150)
     parser.add_argument("--n-epochs", type=int, default=500)
-    parser.add_argument("--latent-key", type=str, default="STAGATE")
-    parser.add_argument("--n-clusters", type=str, default="auto")
-    parser.add_argument("--seed", type=int, default=2026)
     args = parser.parse_args()
+    inherited_ld_library_path = os.environ.get("LD_LIBRARY_PATH", "")
+    import STAGATE
 
-    if not args.input.exists():
-        print(f"ERROR: input not found: {args.input}", file=sys.stderr)
-        return 1
-
-    sc.settings.verbosity = 0
     np.random.seed(args.seed)
-
-    adata = sc.read_h5ad(str(args.input))
-    if not scipy.sparse.issparse(adata.X):
-        adata.X = scipy.sparse.csr_matrix(adata.X)
-    print(f"STAGATE: {args.input.name} ({adata.n_obs} spots x {adata.n_vars} genes)")
-
-    n_clusters = None if args.n_clusters == "auto" else int(args.n_clusters)
-
-    try:
-        labels, meta = run_stagate_mclust(
-            adata, rad_cutoff=args.rad_cutoff,
-            n_epochs=args.n_epochs, latent_key=args.latent_key,
-            n_clusters=n_clusters, seed=args.seed,
-        )
-
-        args.output_dir.mkdir(parents=True, exist_ok=True)
-        fail_file = args.output_dir / "FAILED.txt"
-        if fail_file.exists():
-            fail_file.unlink()
-
-        adata.obs["predicted_cluster"] = labels.astype(str)
-        adata.obs["predicted_cluster"] = adata.obs["predicted_cluster"].astype("category")
-
-        clusters = pd.DataFrame({
-            "spot_barcode": adata.obs.index,
-            "predicted_cluster": labels,
-        })
-        clusters.to_csv(args.output_dir / "clusters.csv", index=False)
-
-        # Clean uns of non-serializable keys (TF tensors, spatial nets, etc.)
-        for k in list(adata.uns.keys()):
-            if k not in ("log1p",):
-                try:
-                    del adata.uns[k]
-                except Exception:
-                    pass
-
-        try:
-            adata.write_h5ad(str(args.output_dir / "result.h5ad"), compression="gzip")
-        except Exception:
-            print(f"  -> WARNING: result.h5ad write failed, clusters.csv is fine")
-
-        with open(args.output_dir / "metadata.json", "w") as f:
-            json.dump(meta, f, indent=2)
-
-        print(f"  -> {meta['n_clusters_mclust']} clusters in {meta['elapsed_seconds']:.1f}s")
-        return 0
-
-    except Exception as e:
-        import traceback
-        fail_file = args.output_dir / "FAILED.txt"
-        fail_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(fail_file, "w") as f:
-            f.write(traceback.format_exc())
-        print(f"  -> FAILED: {e}", file=sys.stderr)
-        return 1
+    tf.compat.v1.set_random_seed(args.seed)
+    gpu_devices = tf.config.list_physical_devices("GPU")
+    if not gpu_devices:
+        raise RuntimeError("CUDA GPU was requested for STAGATE but is not available")
+    data = sc.read_h5ad(args.input)
+    if not sp.issparse(data.X):
+        data.X = sp.csr_matrix(data.X)
+    n_clusters = int(data.obs["ground_truth"].astype(str).nunique())
+    started = time.time()
+    STAGATE.Cal_Spatial_Net(data, rad_cutoff=args.rad_cutoff)
+    result = STAGATE.train_STAGATE(data, alpha=0, n_epochs=args.n_epochs, key_added="STAGATE", random_seed=args.seed, save_attention=False, save_loss=False)
+    logical_gpu_devices = tf.config.list_logical_devices("GPU")
+    if not logical_gpu_devices:
+        raise RuntimeError("STAGATE completed without a visible logical CUDA device")
+    gpu_memory_info = {
+        key: int(value)
+        for key, value in tf.config.experimental.get_memory_info("GPU:0").items()
+    }
+    if gpu_memory_info.get("peak", 0) <= 0:
+        raise RuntimeError("STAGATE completed without positive CUDA memory allocation")
+    result = STAGATE.mclust_R(result, used_obsm="STAGATE", num_cluster=n_clusters, random_seed=args.seed)
+    labels = result.obs["mclust"].astype(str).to_numpy()
+    result.obs["predicted_cluster"] = pd.Categorical(labels)
+    result.uns.clear()
+    atomic_write_h5ad(result, args.output_dir / "result.h5ad")
+    pd.DataFrame({"spot_barcode": result.obs_names, "predicted_cluster": labels}).to_csv(args.output_dir / "clusters.csv", index=False)
+    numpy_supported = bool(
+        np.lib.NumpyVersion(np.__version__) >= np.lib.NumpyVersion("1.24.0")
+        and np.lib.NumpyVersion(np.__version__) < np.lib.NumpyVersion("2.0.0")
+    )
+    metadata = {"status": "validated_success", "method": "STAGATE_mclust", "public_seed": args.seed, "accelerator_requested": "cuda", "actual_accelerator": "cuda", "cuda_execution_verified": gpu_memory_info.get("peak", 0) > 0, "gpu_memory_info_bytes": gpu_memory_info, "gpu_devices": [device.name for device in gpu_devices], "logical_gpu_devices": [device.name for device in logical_gpu_devices], "rad_cutoff": args.rad_cutoff, "n_epochs": args.n_epochs, "n_clusters_target": n_clusters, "n_clusters_actual": int(pd.Series(labels).nunique()), "elapsed_seconds": round(time.time() - started, 2), "environment": {"python": platform.python_version(), "numpy": np.__version__, "tensorflow": tf.__version__, "executable": str(Path(sys.executable).absolute()), "prefix": sys.prefix, "ld_library_path": inherited_ld_library_path, "ld_library_path_sha256": hashlib.sha256(inherited_ld_library_path.encode("utf-8")).hexdigest()}, "feast_imported_in_method_worker": False, "feast_numpy_support_range": ">=1.24,<2", "numpy_supported_by_feast": numpy_supported, "external_environment_limitation": None if numpy_supported else "This external STAGATE worker uses a NumPy version unsupported by FEAST; FEAST is not imported or executed in this process."}
+    (args.output_dir / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
+    return 0
 
 
 if __name__ == "__main__":

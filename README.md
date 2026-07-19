@@ -1,178 +1,86 @@
-# FEAST Reproduction Experiments
+# FEAST publication reruns
 
-Reproducibility package for the FEAST spatial transcriptomics simulator benchmark
-(Figure 2) and de novo conditional transfer experiments (2D cross-slice / mask-complete,
-3D semi-reference stack).
+Current execution counts and scientific dispositions are tracked in
+[`RUN_STATUS.md`](RUN_STATUS.md).
 
-## Quick Start
+This repository is the clean execution copy for the final FEAST article
+reruns. The historical workspace at `FEAST_experiments` remains the audit
+record; its repair attempts, archives, logs, and prior FEAST outputs are not
+inputs to these workflows.
 
-### Prerequisites
+The original Git history is retained on `archive/legacy-experiments` and at
+the annotated tag `legacy-experiments-20260630`. This clean line is a normal
+descendant, so the cleanup is reviewable without rewriting the archive. See
+[`ARCHIVE_POLICY.md`](ARCHIVE_POLICY.md) and the machine-readable
+[`PUBLICATION_MANIFEST.json`](PUBLICATION_MANIFEST.json).
 
-- Linux x86_64
-- Conda (Miniconda or Anaconda)
-- ~100 GB disk space (simulation outputs)
-- No GPU required (all experiments run CPU-only)
+## Active studies
 
-### Setup
+| Study | Workflow | Fresh work required |
+|---|---|---|
+| 00 | Simulator benchmark | 12 reference-rank FEAST simulations and all metrics |
+| 01 | Clustering | 81 simulations, 84 fixed-panel inputs, 252 method outputs |
+| 02 | Alignment | 20 rotation inputs and 40 method outputs |
+| 03 | Deconvolution | 6 simulations and 12 method outputs |
+| 04 | Batch-effect removal | 12 batch inputs and 36 method outputs |
+
+Study 04 is the clean name for legacy Study 08. Publication figure builders
+live in [`visualization/`](visualization/); only studies with complete,
+validated clean outputs are added there.
+
+## What may be reused
+
+Only processed source datasets and the frozen external-simulator outputs used
+by Study 00 may be materialized from the old workspace. The historical 12
+FEAST OT-spatial outputs are removed from scope rather than regenerated or
+relabelled. Each reused file must
+match its declared SHA-256 before it is used. All FEAST-generated data,
+downstream method outputs, metrics, and reports are regenerated under this
+repository.
+
+Local input hardlinks belong below each study's `data/local/` directory and
+are ignored by Git. Publication cloud locations can replace those hardlinks
+later without changing the scientific scripts.
+
+## FEAST environment
+
+Use a wheel built from the exact clean source recorded in
+[`FEAST_BUILD.txt`](FEAST_BUILD.txt). The supported execution environment is
+Python 3.11.15 with NumPy 1.26.4. External methods use the environments listed
+in [`environments/README.md`](environments/README.md); those environments do
+not expand FEAST's supported dependency range.
+
+Before any full rerun:
 
 ```bash
-# 1. Create FEAST environment
-conda env create -f environments/feast-py311-conda.yml
-
-# 2. Install FEAST
-cd /path/to/FEAST
-conda run -p /path/to/feast-py311-conda python -m pip install --no-deps -e .
-
-# 3. Create external method environments
-conda env create -f environments/stagate.yml      # Python 3.8 + TF 1.x
-conda env create -f environments/graphst.yml
-conda env create -f environments/spacel.yml
-conda env create -f environments/cell2loc.yml
+python scripts/check_repository.py
+python scripts/verify_feast_install.py
+python -m pip check
+python scripts/verify_rng.py \
+  --input /path/to/one/real/article_input.h5ad \
+  --input-artifact-id MERFISH_007 \
+  --seed 2026 \
+  --output validation/rng_article_gate_20260718.json
 ```
 
-### Reproduce All Experiments
+The RNG check launches three fresh processes with ambient NumPy seeds 1,
+99991, and repeated 1. It requires identical output matrices from the fixed
+public FEAST seed.
 
-```bash
-# Set data root
-export FEAST_DATA_ROOT=/path/to/processed_datasets
+The unified FEAST package refactor is deliberately separate from these frozen
+article runs. Completed outputs retain their recorded v1.0.2 provenance;
+migrating a study to the current release requires a fresh output root and a new
+impact decision.
 
-# Run everything
-make all
+## Execution
 
-# Or run individual pipelines
-make subtask_01
-make subtask_02
-make subtask_03
-make subtask_04
-make subtask_05
-make subtask_06
-```
+There is no global experiment launcher. Follow each study README and run its
+existing-style entry points in numerical order. Every command requires a new
+output directory. Resume commands may skip only outputs that pass that study's
+validation script.
 
----
+Studies 00 and 01 use reference-rank spatial assignment and exact global gene
+assignment. They must not use OT or the historical `PrefitSimulator` shortcut.
 
-## Repository Structure
-
-```
-feast-reproduce/
-├── README.md
-├── Makefile
-├── environments/                    # Conda environment exports
-├── configs/                         # YAML experiment configs
-├── data/
-│   └── manifests/                   # Required dataset manifests
-├── 01_2d_conditional_transfer/      # Subtask: cross-slice + mask-complete
-│   ├── README.md
-│   ├── run.py
-│   └── results/{dlpfc,merfish}/
-├── 02_3d_stack/                     # Subtask: 3D semi-reference stack
-│   ├── README.md
-│   ├── run.py
-│   └── results/
-├── 03_clustering/                   # Subtask: Figure 2 clustering
-│   ├── README.md
-│   ├── run_simulation.py
-│   ├── run_hvg.py
-│   ├── methods/                     # GraphST, STAGATE_mclust, Leiden
-│   ├── run_pipeline.sh
-│   ├── benchmark.py
-│   ├── plot_metrics.py
-│   └── results/
-├── 04_alignment/                    # Subtask: Figure 2 alignment
-│   ├── README.md
-│   ├── run_simulation.py
-│   ├── run_methods.sh               # Spateo + SPACEL
-│   ├── benchmark.py
-│   ├── plot_metrics.py
-│   └── results/
-├── 05_deconvolution/                # Subtask: Figure 2 deconvolution
-│   ├── README.md
-│   ├── run_deconvolution.py
-│   ├── benchmark.py
-│   └── results/
-├── 06_simulator_benchmark/          # Subtask: Multi-simulator quality
-│   ├── README.md
-│   ├── run.sh
-│   ├── scripts/
-│   ├── tests/
-│   └── results/
-└── SPEC/                            # Design documents (reference)
-    └── Reproduce_SPEC/
-```
-
-## Results Summary
-
-### 3D Stack Reconstruction (Zhuang-ABCA-1, 150 slices)
-
-| Density | Targets | mean_corr | moran_corr |
-|---------|---------|-----------|------------|
-| dense (gap=3) | 49 | 0.962 | 0.760 |
-| medium (gap=5) | 29 | 0.963 | 0.747 |
-| sparse (gap=10) | 15 | 0.964 | 0.729 |
-
-### 2D De Novo — DLPFC (151675↔151676, 3000 HVG)
-
-| Mode | mean_corr | moran_corr |
-|------|-----------|------------|
-| Cross-slice | 0.999 | 0.82 |
-| Mask-complete | 0.996 | 0.64 |
-
-### 2D De Novo — MERFISH (Zhuang-ABCA-1 006↔007, 1122 genes)
-
-| Mode | mean_corr | moran_corr |
-|------|-----------|------------|
-| Cross-slice | 0.985 | 0.65 |
-| Mask-complete | 0.995 | 0.65 |
-
-### Figure 2 — Clustering (DLPFC, 3 slices × 23 alterations)
-
-| Method | Mean ARI |
-|--------|----------|
-| STAGATE_mclust | 0.324 |
-| GraphST | 0.310 |
-| Leiden | 0.162 |
-
-### Figure 2 — Alignment (DLPFC 151675, 5 angles)
-
-| Angle | SPACEL nn_region_acc | Spateo nn_region_acc |
-|-------|---------------------|---------------------|
-| 1° | 0.95 | **1.00** |
-| 5° | **0.90** | 0.89 |
-| 10° | **0.94** | 0.66 |
-| 30° | **0.87** | 0.04 |
-| 45° | **0.89** | 0.00 |
-
-### Figure 2 — Deconvolution (Allen_Zhuang ABCA-1, 3 slices)
-
-| Method | Mean JSD | Mean RMSE |
-|--------|----------|-----------|
-| cell2location | 0.917 | 0.032 |
-| RCTD | 0.784 | 0.066 |
-
-### Simulator Quality Benchmark (8 datasets)
-
-| Simulator | Composite | Zero Pres. | Novelty |
-|-----------|-----------|------------|---------|
-| FEAST_Rank | **0.816** | 0.941 | **0.893** |
-| Splatter | 0.640 | 0.858 | 0.501 |
-| FEAST_OT | 0.556 | 0.729 | 0.068 |
-| SRTsim | 0.539 | **0.984** | 0.000 |
-
-## Datasets Required
-
-Processed `.h5ad` files must be available at `$FEAST_DATA_ROOT`:
-
-| Dataset | Slices | Key |
-|---------|--------|-----|
-| spatialLIBD DLPFC Visium | 151508, 151670, 151675, 151676 | `ground_truth` |
-| Allen_Zhuang ABCA-1 (MERFISH) | 001–150 (3D), 006, 007 (2D), 007, 050, 100 (deconv) | `class` |
-| Allen_Zhuang ABCA-1 scRNA-seq ref | Single-cell reference | `class` |
-
-See `data/manifests/` for exact file lists.
-
-## Citation
-
-If you use these experiments in your research, please cite the FEAST paper and this repository.
-
-## License
-
-MIT
+If a fresh table materially changes a reported conclusion, preserve that
+study's run and stop before integrating it into the publication results.

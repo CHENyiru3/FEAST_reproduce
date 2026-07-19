@@ -1,0 +1,4 @@
+artifact_id,relative_path,sha256,size_bytes,n_obs,n_vars,n_cell_types,matrix_format,obs_ids_unique,gene_ids_unique,cell_type_nonmissing,spatial_shape_valid,spatial_finite,counts_finite,counts_nonnegative,counts_integer_compatible
+zhuang_abca1_007,data/local/Zhuang-ABCA-1.007.h5ad,5afba9d13cd4e0dd2f3bc7683345d9b5ca09b024847550ecc42621a93a0834c6,5207009,9693,1122,166,csr_matrix,true,true,true,true,true,true,true,true
+zhuang_abca1_050,data/local/Zhuang-ABCA-1.050.h5ad,815325ea86da151251e08a3a5c995575f2cd0e727715bb613e9f9476d0e2b823,18672390,24075,1122,574,csr_matrix,true,true,true,true,true,true,true,true
+zhuang_abca1_100,data/local/Zhuang-ABCA-1.100.h5ad,6a32b7f5d0ff6fc9452be4f137ae3881eb95fbf498662e3d827a3492cd7753d3,18863202,29207,1122,912,csr_matrix,true,true,true,true,true,true,true,true

@@ -1,0 +1,2 @@
+slice_id,role,relative_path,sha256,bytes,n_obs,n_vars
+151675,alignment_reference,local/151675.h5ad,3a62bcd92055bfba5fd7a505b46c1f414660cfb554071caad61ee13e692705b9,31497380,3565,18641

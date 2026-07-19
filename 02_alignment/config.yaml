@@ -1,0 +1,46 @@
+seed: 2026
+required_feast_commit: 68816e5c1862a6fa2a49bc30609d617c7fa4b449
+alterations:
+  - baseline
+  - mean_0.5
+  - variance_2.0
+  - sparsity_0.5
+angles: [1, 5, 10, 30, 45]
+geometry_tolerance: 1.0e-8
+
+simulation:
+  min_cells: 30
+  parameter_mode: hungarian
+  spatial_mode: reference_rank
+  assignment_solver: scipy
+  assignment_blocks: false
+  ppf_method: interp
+  beta_n_jobs: 4
+  beta_early_stopping_patience: 2
+  convert_n_jobs: 4
+
+alteration_parameters:
+  baseline: {type: baseline, fold_change: 1.0}
+  mean_0.5: {type: mean, fold_change: 0.5}
+  variance_2.0: {type: variance, fold_change: 2.0}
+  sparsity_0.5: {type: sparsity_logit, logit_shift: -0.6931471805599453}
+
+spateo:
+  device: "0"
+  dissimilarity: cos
+  representation: X_pca
+  min_cells: 1
+  max_iter: 200
+  svi_mode: true
+  mapping_negative_tolerance: 1.0e-10
+
+paste:
+  alpha: 0.1
+  dissimilarity: euclidean
+  n_pcs: 50
+  normalize_spatial_distances: true
+  outer_max_iterations: 200
+  outer_relative_tolerance: 1.0e-9
+  outer_absolute_tolerance: 1.0e-9
+  inner_emd_max_iterations: 1000000
+  marginal_tolerance: 1.0e-8

@@ -1,0 +1,50 @@
+configuration_id: study01-reference-rank-fixed-panel-v1
+public_seed: 2026
+required_feast_commit: 68816e5c1862a6fa2a49bc30609d617c7fa4b449
+slices: [151508, 151670, 151676]
+annotation_key: ground_truth
+
+feast:
+  parameter_mode: hungarian
+  spatial_mode: reference_rank
+  assignment_method: hybrid
+  assignment_solver: scipy
+  assignment_blocks: false
+  use_distributional_alteration: true
+  ppf_method: interp
+  beta_n_jobs: 4
+  beta_early_stopping_patience: 2
+  convert_n_jobs: 4
+  n_jobs: -1
+
+alterations:
+  mean:
+    levels: [0.5, 0.67, 0.8, 1.0, 1.25, 1.5, 2.0]
+    variance_coupling: fano
+  variance:
+    levels: [0.5, 0.67, 0.8, 1.0, 1.25, 1.5, 2.0]
+    heterogeneity_scale: 1.0
+  variance_heterogeneity:
+    levels: [0.75, 1.0, 1.25, 1.5]
+  sparsity_logit_shift:
+    levels: [-1.0, -0.5, -0.25, 0.0, 0.25, 0.5, 1.0]
+  combined:
+    mild_activation: {mean: 1.25, variance: 1.25, sparsity: -0.25}
+    strong_activation: {mean: 2.0, variance: 2.0, sparsity: -0.5}
+    mild_dropout: {mean: 1.0, variance: 1.0, sparsity: 0.5}
+    noisy_tissue: {mean: 1.0, variance: 2.0, sparsity: 0.25}
+    suppressed: {mean: 0.5, variance: 0.67, sparsity: 0.5}
+
+fixed_panel:
+  n_top_genes: 3000
+  flavor: seurat_v3
+  target_sum: 10000
+
+methods:
+  graphst: {epochs: 600, radius: 50, device: cuda}
+  stagate: {rad_cutoff: 150, n_epochs: 500}
+  leiden:
+    resolutions: [0.2, 0.4, 0.6, 0.8, 1.0]
+    n_pcs: 50
+    n_neighbors: 15
+

@@ -1,10 +1,26 @@
 __pycache__/
+*.py[cod]
 .pytest_cache/
-*.pyc
-*.pyo
 .DS_Store
-outputs/
-logs/
-data/
-*.h5ad
-*.h5
+
+# Machine-local configuration and materialized inputs.
+site.local.toml
+**/data/local/
+**/data/**/*.h5ad
+**/data/**/*.h5
+**/data/**/*.hdf5
+**/data/**/*.pt
+**/data/**/*.pth
+**/data/**/*.ckpt
+
+# Scientific runs are always fresh, local artifacts.
+**/outputs/
+**/runs/
+**/logs/
+*.log
+
+# Build artifacts.
+dist/
+build/
+*.whl
+*.tar.gz

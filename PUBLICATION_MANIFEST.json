@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "status": "in_progress",
+  "release_authorized": false,
+  "final_tag": null,
+  "legacy_history": {
+    "commit": "a582b9b0e42681fcd5f6c52918b4123322f930a2",
+    "archive_branch": "archive/legacy-experiments",
+    "archive_tag": "legacy-experiments-20260630"
+  },
+  "active_line": {
+    "branch": "publication-clean-rerun",
+    "policy": "normal descendant of the archived legacy commit"
+  },
+  "article_feast_build": {
+    "version": "1.0.2",
+    "source_commit": "68816e5c1862a6fa2a49bc30609d617c7fa4b449",
+    "python": "3.11.15",
+    "numpy": "1.26.4",
+    "wheel_file": "dist/feast_py-1.0.2-py3-none-any.whl",
+    "wheel_sha256": "9dd912d883a03d51ed7105cecd914cf8f7f25f5355f57dfde1c77b6fef0b056b",
+    "sdist_file": "dist/feast_py-1.0.2.tar.gz",
+    "sdist_sha256": "e301b1d767eaf05a9f5bc8a5c14176af47ac22f31badaef4a367cee8bacce599",
+    "artifact_policy": "ignored local files or immutable release assets; never rebuilt under the same version"
+  },
+  "studies": {
+    "00_simulator_benchmark": {
+      "status": "validated_complete",
+      "remaining": "final cross-study integration"
+    },
+    "01_clustering": {
+      "status": "validated_complete",
+      "remaining": "final cross-study integration"
+    },
+    "02_alignment": {
+      "status": "in_progress",
+      "remaining": "Spateo jobs, combined scoring, and decision"
+    },
+    "03_deconvolution": {
+      "status": "in_progress",
+      "remaining": "remaining RCTD/Cell2location jobs, scoring, and decision"
+    },
+    "04_batch_effect_removal": {
+      "status": "in_progress",
+      "remaining": "remaining STAMP/scVI jobs, report, and validation"
+    }
+  },
+  "unified_release_policy": "The unified package refactor is a separate lineage. Existing article artifacts retain v1.0.2 provenance and are not relabelled."
+}

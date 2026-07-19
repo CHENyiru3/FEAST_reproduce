@@ -1,94 +1,68 @@
-# Subtask: Simulator Quality Benchmark
+# Study 00: simulator benchmark
 
-Compares FEAST (Rank decode, OT decode) against external simulators (Splatter, SRTsim)
-on single-slice simulation quality. Evaluates across 8 datasets using three metric
-categories: distribution fidelity, spatial structure preservation, and structured novelty.
+This clean workflow creates 12 new FEAST reference-rank simulations and
+compares them with four retained external simulators. The historical FEAST OT
+arm is deliberately absent, so the fresh atomic metric table has 60 rows:
+12 samples times 5 simulators.
 
-## Simulators compared
+## Inputs
 
-| Simulator | Decode method | Description |
-|-----------|--------------|-------------|
-| FEAST_Rank | rank + reference_rank calibration | Rank-based decode with reference calibration |
-| FEAST_OT | quantile (hybrid_ot) | Default OT-based transport + quantile decode |
-| Splatter | — | Bioconductor Splatter (Poisson-Gamma model) |
-| SRTsim | — | SRTsim spatial simulator |
+Materialize files below `data/local/` using the standardized paths declared in
+`data/input_checksums.csv`:
 
-## Datasets (8)
-
-DLPFC Visium, MERFISH (006, 007), OpenST, Stereo-seq, Slide-seq, Xenium
-
-## Pipeline
-
-```
-prepare_inputs → run_feast → run_external → build_inventory → build_metrics → plot
+```text
+data/local/reference/<sample>.h5ad
+data/local/external/<simulator>/<sample>.h5ad
 ```
 
-## Quick Run
+The 12 reference datasets and 48 external outputs must match the recorded
+SHA-256 values. No earlier FEAST output is a permitted input. The external
+outputs are read-only; the scripts never modify them.
+
+Verify the materialized inputs before running:
 
 ```bash
-export FEAST_DATA_ROOT=/path/to/processed_datasets
-export PYTHONPATH=$(pwd)/../../FEAST/src:$PYTHONPATH
-
-# 1. Prepare simulator inputs
-python scripts/prepare_simulator_inputs.py \
-  --data-root $FEAST_DATA_ROOT \
-  --output-dir outputs/sim_inputs
-
-# 2. Run FEAST simulators
-bash scripts/run_feast_simulator_benchmark.sh
-
-# 3. Run external simulators
-bash scripts/external_simulators/run_external_simulators.sh
-
-# 4. Build inventory
-python scripts/build_simulator_inventory.py \
-  --sim-dir outputs/simulations \
-  --exper-data $FEAST_DATA_ROOT \
-  --output outputs/benchmarks/simulator_inventory.csv
-
-# 5. Build quality metrics
-python scripts/build_simulator_quality_metrics.py \
-  --inventory outputs/benchmarks/simulator_inventory_available.csv \
-  --exper-data $FEAST_DATA_ROOT \
-  --metrics outputs/benchmarks/simulator_quality_metrics.csv \
-  --summary outputs/benchmarks/simulator_quality_summary.csv
-
-# Or run everything at once
-bash run.sh
+python validate.py --stage inputs --data-root data/local
 ```
 
-## Results
+## Run
 
-| Simulator | Composite Score | Zero Pres. | Struct. Score | Novelty | Identity Flags |
-|-----------|----------------|------------|---------------|---------|----------------|
-| FEAST_Rank | **0.816** | 0.941 | 0.709 | **0.893** | 0 |
-| Splatter | 0.640 | 0.858 | 0.426 | 0.501 | 0 |
-| FEAST_OT | 0.556 | 0.729 | 0.580 | 0.068 | 0 |
-| SRTsim | 0.539 | **0.984** | **0.965** | 0.000 | 9/10 |
-
-**Key finding**: FEAST_Rank leads on composite score. SRTsim excels at preservation
-metrics but 9/10 outputs are flagged as near-identity (copies input too faithfully).
-
-## Tests
+Use the supported FEAST environment and a new output path:
 
 ```bash
-pytest tests/ -v
+python run.py \
+  --config config.yaml \
+  --reference-dir data/local/reference \
+  --output-dir outputs/release_candidate
+
+python score.py \
+  --config config.yaml \
+  --data-root data/local \
+  --simulation-dir outputs/release_candidate \
+  --output-dir outputs/release_candidate_metrics
+
+python validate.py \
+  --stage all \
+  --data-root data/local \
+  --simulation-dir outputs/release_candidate \
+  --metrics-dir outputs/release_candidate_metrics
 ```
 
-Covers: metric identity, spatial structure, distribution fidelity, output contract,
-zero structure.
+`run.py --dry-run` prints the 12-job matrix without importing FEAST or writing
+files. Every scientific output directory must initially be new. If a run is
+interrupted, repeat the command with `--resume`; only outputs matching their
+recorded configuration, runner-source, input, and output hashes are skipped,
+while invalid partial H5ADs are
+preserved under the run's `failures/` directory.
 
-## Environments
+The FEAST call is fixed to public `FEAST.simulate()` with seed 2026,
+`spatial_mode="reference_rank"`, global SciPy assignment, and no assignment
+blocking. There is no OT configuration or internal simulator shortcut.
 
-| Stage | Conda Env |
-|-------|-----------|
-| FEAST simulation, metrics, plotting | `feast-py311-conda` |
-| Splatter | R with Splatter Bioconductor package |
-| SRTsim | R with SRTsim package |
-| scCube | `scCube` (Python) |
+## Outputs
 
-## Known Issue
-
-squidpy ≥1.4 breaks on `anndata.io` import with anndata ≥0.11. The `build_simulator_quality_metrics.py`
-script imports squidpy for spatial autocorrelation (Moran's I). Fix: pin `squidpy==1.3.0` or
-patch the import to use scanpy's Moran's I directly.
+The simulation root contains 12 H5AD files plus `simulation_manifest.csv` and
+`provenance.json`. Scoring produces `simulator_quality_metrics.csv`,
+`moran_gene_panel.csv`, and `provenance.json`. Metrics use exact gene joins,
+exact named spot support where available, one ordered reference-derived Moran
+panel, and no composite score.

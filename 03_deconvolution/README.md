@@ -1,73 +1,84 @@
-# Subtask: Deconvolution Benchmark
+# Study 03: deconvolution
 
-Benchmarks Cell2location and RCTD deconvolution methods on FEAST-simulated pseudo-bulk
-spots from Allen_Zhuang ABCA-1 MERFISH data (slices 007, 050, 100). Measures JSD,
-Pearson correlation, and RMSE between predicted and ground-truth cell-type proportions.
+This workflow regenerates six FEAST simulations and then runs RCTD and
+Cell2location on the exact same H5AD files. No previous FEAST simulation,
+prediction, score, or truth artifact is used; fresh truth is generated from
+the declared aggregation during this run.
 
-## Pipeline
+The input directory must contain the three raw, integer-count references named
+`Zhuang-ABCA-1.007.h5ad`, `Zhuang-ABCA-1.050.h5ad`, and
+`Zhuang-ABCA-1.100.h5ad`. The `cell_type` annotation and `obsm['spatial']` are
+required. Local hardlinks may be placed in `data/local/`; their expected hashes
+and verified input contracts are recorded in `data/input_checksums.csv`.
 
-```
-run_deconvolution.py  →  benchmark.py  →  visualization.py
-```
-
-| Step | Script | Input | Output |
-|------|--------|-------|--------|
-| 1. Simulate | `run_deconvolution.py` | Raw h5ad + scRNA-seq reference | Pseudo-bulk spots (2 resolutions × 3 slices) |
-| 2. Deconvolve | `run_deconvolution.py` (--cell2loc) | Pseudo-bulk spots | Cell2location proportions (25000 epochs) |
-| 3. Benchmark | `benchmark.py` | Proportions + ground truth | `deconvolution_benchmark_results.csv` |
-| 4. Plot | `visualization.py` | Benchmark CSV | Figure 2 deconvolution panels |
-
-## Quick Run
+## Run
 
 ```bash
-export FEAST_DATA_ROOT=/path/to/processed_datasets
-export PYTHONPATH=$(pwd)/../../FEAST/src:$PYTHONPATH
+FEAST_PY=/path/to/supported-feast-env/bin/python
+CELL2LOC_PY=/path/to/cell2location-env/bin/python
+RSCRIPT=/path/to/rctd-env/bin/Rscript
+FEAST_COMMIT=$(git -C /path/to/FEAST rev-parse HEAD)
+INPUTS=$(pwd)/data/local
+OUTPUT=/path/to/new/study03_run
 
-# Generate pseudo-bulk spots (1-2 hours)
-python run_deconvolution.py --seed 2026 --output-dir outputs/ --simulate-only
+$FEAST_PY run.py \
+  --input-dir "$INPUTS" \
+  --output-dir "$OUTPUT" \
+  --feast-commit "$FEAST_COMMIT" \
+  --rscript "$RSCRIPT" \
+  --cell2location-python "$CELL2LOC_PY"
 
-# Run Cell2location (4-10 hours — longest step)
-for slice in 007 050 100; do
-  for res in 0.1 0.25; do
-    conda run -p /path/to/cell2loc_env python run_deconvolution.py \
-      --input outputs/simulations/${slice}/resolution_${res}.h5ad \
-      --reference $FEAST_DATA_ROOT/Allen_Zhuang_ABCA_1/sc_ref.h5ad \
-      --cell-type-key class \
-      --output outputs/cell2location/${slice}/resolution_${res}_proportions.csv \
-      --seed 2026
-  done
-done
+$FEAST_PY score.py \
+  --run-dir "$OUTPUT" \
+  --output-dir "$OUTPUT/scores"
 
-# Benchmark (1 min)
-python benchmark.py \
-  --truth-dir outputs/ground_truth \
-  --prediction-dirs outputs/cell2location \
-  --slices 007 050 100 \
-  --resolutions 0.1 0.25 \
-  --output outputs/deconvolution_benchmark_results.csv
+$FEAST_PY validate.py \
+  --run-dir "$OUTPUT" \
+  --scores-dir "$OUTPUT/scores" \
+  --output "$OUTPUT/validation.csv"
 ```
 
-## Results
+`run.py` requires a new output root and stops on the first method failure while
+preserving its logs and failure metadata. RCTD allows six hours for the known
+slow full-mode jobs and uses the declared writable cache. The Cell2location environment may use
+an unsupported NumPy version; its metadata states explicitly that FEAST is not
+imported or executed in that external method process.
 
-| Method | Mean JSD | Mean RMSE | N |
-|--------|----------|-----------|---|
-| cell2location | 0.917 | 0.032 | 6 |
-| RCTD | 0.784 | 0.066 | 6 |
+Cell2location must run on CUDA. A successful row records the actual CUDA
+device and a positive peak GPU allocation. Its exported abundance columns use
+the package's exact `<summary>cell_abundance_w_sf_<cell_type>` prefix; the
+wrapper validates that complete ordered schema before removing the prefix and
+writing the named cell-type table. Positional or partial column matching is not
+accepted.
 
-## Environments
+After an interruption, rerun the same command with `--resume`. A simulation or
+method row is skipped only when its configuration, FEAST build, public seed,
+input hash, output hashes, and validated-success metadata still match. Any
+stale partial artifacts are moved below the run's `failures/` directory before
+that row is regenerated.
 
-| Script | Conda Env |
-|--------|-----------|
-| `run_deconvolution.py`, `benchmark.py`, `visualization.py` | `feast-py311-conda` |
-| Cell2location training | `cell2loc_env` |
-| RCTD | R in `feast-py311-conda` |
+Scoring requires exact spot identity/order, raw integer counts, common named
+cell types plus `__other__`, and distinct prediction/truth hashes. Zero-library
+spots are retained in Cell2location output but excluded from both methods'
+biological scores because RCTD legitimately omits them.
 
-## Known Issues
+RCTD receives exact reference and spatial library sizes; the wrapper never
+inflates low-UMI reference cells. Cell2location's `N_cells_per_location` is the
+mean number of high-resolution source cells assigned to each aggregate
+location during the fresh simulation—not mean UMI count. This construction
+quantity uses geometry only, not cell-type labels, and is recorded in every
+simulation and method artifact. The score stage emits side-by-side atomic
+metrics and a historical-direction audit. The historical aggregate majority is
+context only; the gate itself is atomic and stops if any declared metric
+direction changes, ties, or is indeterminate. It never authorizes an aggregate
+method-ranking or publication claim.
 
-**Cell2location column prefix**: `export_posterior` prepends `meanscell_abundance_w_sf_`
-to cell-type column names. `benchmark.py` strips this prefix before comparison.
+This study explicitly sets FEAST's public `clip_overshoot_factor=0.0`. The
+optional post-decoding 1.1x clip can create fractional maxima (for example,
+19.8) even though the count decoder itself returns integers. Disabling that
+second clip preserves the raw-integer input contract required by both
+deconvolution methods; FEAST's decoder-level boundary constraint remains
+active. No rounding or silent count coercion is performed downstream.
 
-**Low Pearson**: Both methods produce near-zero Pearson — cell-type proportions don't
-linearly correlate with ground truth at this resolution. The Allen_Zhuang ABCA-1 reference
-has 574–1000+ cell types; pseudo-bulk spots at 0.1–0.25 downsampling may not preserve
-enough signal.
+Use `run.py --dry-run ...` to check paths and the 6-simulation/12-method matrix
+without creating output or starting a method.

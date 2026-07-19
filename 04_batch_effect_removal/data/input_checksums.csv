@@ -1,0 +1,3 @@
+slice_id,role,relative_path,sha256,bytes,n_obs,n_vars
+151673,clean_reference_and_panel_source,local/151673.h5ad,1135a2d6f2008a05170d15238b92bbe4cd26eeada241c5c71b4337141839e93e,38211341,3611,19140
+151508,deformation_fit_query,local/151508.h5ad,eb9b09731d3460f02e50fd0f7e2a321c27491d73651dbf06efc8c3b7b2a85088,26084746,4380,18064

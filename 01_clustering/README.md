@@ -1,74 +1,80 @@
-# Subtask: Clustering Benchmark
+# Study 01: fixed-panel clustering
 
-Validates FEAST empirical-mode simulation quality by running three clustering methods
-(GraphST, STAGATE+mclust, Leiden) on simulated DLPFC Visium slices and measuring ARI,
-NMI, AMI, CHAOS, and PAS against ground-truth cortical layer labels.
+This workflow regenerates every active result: 81 FEAST simulations (3 slices
+times 27 non-OT conditions), 84 fixed-panel inputs after adding one real
+baseline per slice, and 252 clustering outputs from GraphST, STAGATE+mclust,
+and publication-valid unsupervised Leiden.
 
-## Pipeline
+Place the three checked source slices at `data/local/<slice>.h5ad`; their
+expected hashes are in `data/input_checksums.csv`. No previous FEAST
+simulation, fixed-panel file, or method result is used.
 
-```
-run_simulation.py  →  run_hvg.py  →  run_pipeline.sh  →  benchmark.py  →  plot_metrics.py
-```
+## Run order
 
-| Step | Script | Input | Output |
-|------|--------|-------|--------|
-| 1. Simulate | `run_simulation.py` | Raw h5ad (151508, 151670, 151676) | 69 `.h5ad` (3 slices × 23 alterations) |
-| 2. Select HVGs | `run_hvg.py` | Simulation `.h5ad` files | 3000-gene `.h5ad` per simulation |
-| 3. Cluster | `run_pipeline.sh` | HVG `.h5ad` files | `clusters.csv` per method/slice/simulation |
-| 4. Benchmark | `benchmark.py` | Method outputs + simulations | `clustering_benchmark_results.csv` |
-| 5. Plot | `plot_metrics.py` | Benchmark CSV | Figure 2 clustering panels |
-
-## Quick Run
+Use a new directory for each stage:
 
 ```bash
-export FEAST_DATA_ROOT=/path/to/processed_datasets
-export PYTHONPATH=$(pwd)/../../FEAST/src:$PYTHONPATH
+python run_simulations.py \
+  --config config.yaml --input-dir data/local \
+  --output-dir outputs/simulations
 
-# Generate simulations (4-6 hours)
-python run_simulation.py \
-  --input-dir $FEAST_DATA_ROOT/spatialLIBD_DLPFC_Visium/h5ad \
-  --slices 151508,151670,151676 \
-  --output-dir outputs/simulations \
-  --simulation-mode empirical \
-  --seed 2026
+python build_fixed_panels.py \
+  --config config.yaml --raw-dir data/local \
+  --simulation-dir outputs/simulations \
+  --output-dir outputs/fixed_panels
 
-# Select HVGs (5-10 min)
-python run_hvg.py \
-  --simulation-manifest outputs/simulation_manifest.csv \
-  --output-dir outputs/hvg_inputs \
-  --n-top-genes 3000
+python run_methods.py \
+  --config config.yaml --manifest outputs/fixed_panels/fixed_panel_manifest.csv \
+  --panel-dir outputs/fixed_panels --method GraphST \
+  --python "$GRAPHST_PYTHON" --output-dir outputs/methods
 
-# Run methods (3-6 hours)
-FIG2_CLUSTER_METHODS="GraphST STAGATE_mclust Leiden" bash run_pipeline.sh
+python run_methods.py \
+  --config config.yaml --manifest outputs/fixed_panels/fixed_panel_manifest.csv \
+  --panel-dir outputs/fixed_panels --method STAGATE_mclust \
+  --python "$STAGATE_PYTHON" --output-dir outputs/methods
 
-# Benchmark (5 min)
-python benchmark.py \
-  --input-dir outputs/methods \
-  --simulation-manifest outputs/simulation_manifest.csv \
-  --output outputs/clustering_benchmark_results.csv
+python run_methods.py \
+  --config config.yaml --manifest outputs/fixed_panels/fixed_panel_manifest.csv \
+  --panel-dir outputs/fixed_panels --method Leiden_unsupervised \
+  --python "$FEAST_PYTHON" --output-dir outputs/methods
 
-# Plot
-python plot_metrics.py --benchmark outputs/clustering_benchmark_results.csv
+python score.py \
+  --panel-dir outputs/fixed_panels --method-dir outputs/methods \
+  --output-dir outputs/report
+
+python validate.py --config config.yaml --raw-dir data/local \
+  --simulation-dir outputs/simulations --panel-dir outputs/fixed_panels \
+  --method-dir outputs/methods --report-dir outputs/report
 ```
 
-## Results
+`run_simulations.py --dry-run` prints the exact 81 simulations and
+`run_methods.py --dry-run` prints the selected 84-job method matrix. Scientific
+output roots are never overwritten. If a method process is interrupted, rerun
+that same command with `--resume`; a candidate is skipped only when its
+configuration, runner and wrapper sources, interpreter binary, seed,
+parameters, input, outputs, runner log, and method diagnostics all validate.
+Incomplete or stale candidates are preserved under
+`outputs/methods/failures/`.
 
-| Method | Mean ARI | N |
-|--------|----------|---|
-| STAGATE_mclust | 0.324 | 75 |
-| GraphST | 0.310 | 75 |
-| Leiden | 0.162 | 75 |
+FEAST simulations use public `FEAST.simulate()` independently for every
+condition, seed 2026, reference-rank spatial assignment, and the full global
+SciPy assignment. The old fitted-object shortcut is not present.
+An interrupted simulation stage can be continued by repeating its command with
+`--resume`; verified H5ADs are not regenerated.
 
-## Environments
+The 3,000-gene Seurat-v3 panel is selected once from each raw slice and applied
+in identical order to all corresponding simulations and the real baseline.
+Every input receives exactly one `normalize_total(target_sum=1e4)` and `log1p`.
 
-| Script | Conda Env |
-|--------|-----------|
-| `run_simulation.py`, `run_hvg.py`, `benchmark.py`, `plot_metrics.py`, `leiden.py` | `feast-py311-conda` |
-| `stagate_mclust.py` | `STAGATE` (Python 3.8 + TF 1.x) |
-| `graphst.py` | `GraphST` |
-
-## Known Issue
-
-`mean_0_10` alteration (fold_change=0.1) produces near-zero expression, causing scanpy HVG
-to fail with singularity errors. Workaround: select top-3000 genes by raw variance.
-See `run_hvg.py --flavor seurat` or bypass scanpy entirely for this edge case.
+GraphST and STAGATE both require a visible CUDA GPU and positive peak GPU
+memory allocation during the method run; they fail rather than silently
+falling back to CPU. The STAGATE run also records and hashes the inherited
+`LD_LIBRARY_PATH` used to load CUDA libraries. Their external method
+environments use NumPy
+1.23.x, which is below FEAST's supported range; FEAST is neither imported nor
+executed in those workers, and the limitation is retained in each candidate's
+metadata. STAGATE jobs run sequentially to prevent shared-R state races. Both
+methods use the true slice cluster count as the declared clustering target.
+Leiden selects the maximum weighted Newman-Girvan modularity at fixed gamma 1,
+breaking exact ties toward the lower resolution; labels are never read during
+its resolution sweep.

@@ -1,0 +1,76 @@
+configuration_id: "study04-final-rerun-v2"
+legacy_study_id: "08"
+public_seed: 42
+required_feast_commit: "68816e5c1862a6fa2a49bc30609d617c7fa4b449"
+
+paths:
+  feast_repo: "../../FEAST"
+  data_dir: "data/local"
+  output_dir: "outputs/final_rerun"
+
+simulation:
+  reference_slice: "151673"
+  deformation_fit_slice: "151508"
+  modes: ["shift_only", "diagonal_affine"]
+  alpha_levels: [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5]
+
+fixed_panel:
+  n_genes: 2000
+  source_layer: "counts"
+  flavor: "seurat_v3"
+
+method_contract:
+  expected_jobs_per_method: 12
+  graph_schema_version: 3
+  graph_cross_batch_edges: 0
+  alpha_above_one: "extrapolation"
+
+metric_contract:
+  expected_rows: 60
+  common_support_cells:
+    - ["diagonal_affine", 1.25]
+    - ["diagonal_affine", 1.50]
+    - ["shift_only", 1.50]
+  composite_score: "prohibited"
+  winner_ranking: "prohibited"
+
+methods:
+  GraphST:
+    python: "../../envs/GraphST/bin/python"
+    script: "methods/graphst.py"
+    environment:
+      R_HOME: "../../envs/GraphST/lib/R"
+    kwargs:
+      expected_panel_size: 2000
+      epochs: 600
+      device: "cuda"
+
+  STAMP:
+    python: "../../miniconda3/envs/sctm-pub-20260718/bin/python"
+    script: "methods/stamp.py"
+    kwargs:
+      expected_panel_size: 2000
+      n_topics: 10
+      n_layers: 1
+      hidden_size: 128
+      mode: "sgc"
+      learning_rate: 0.005
+      max_epochs: 800
+      min_epochs: 100
+      patience: 20
+      device: "cuda:0"
+      zero_library_strategy: "raw_zero_likelihood_within_batch_sgc_encoder_v1"
+
+  scVI:
+    python: "../../miniconda3/envs/scvi-tools/bin/python"
+    script: "methods/scvi.py"
+    kwargs:
+      expected_panel_size: 2000
+      n_latent: 10
+      n_layers: 1
+      n_hidden: 128
+      dropout_rate: 0.1
+      max_epochs: 400
+      learning_rate: 0.001
+      accelerator: "gpu"
+      devices: 1

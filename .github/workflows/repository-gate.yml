@@ -1,0 +1,38 @@
+name: Repository gate
+
+on:
+  push:
+    branches: [main, publication-clean-rerun]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  provenance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Reject machine-local and historical material
+        run: python scripts/check_repository.py
+      - name: Validate publication status and build provenance
+        run: python scripts/check_release_manifest.py
+      - name: Compile active Python entry points
+        run: >-
+          python -m compileall -q
+          00_simulator_benchmark
+          01_clustering
+          02_alignment
+          03_deconvolution
+          04_batch_effect_removal
+          scripts
+          visualization
+      - name: Parse active shell scripts
+        run: git ls-files -z '*.sh' | xargs -0 -r bash -n
