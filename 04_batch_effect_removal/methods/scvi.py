@@ -10,6 +10,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import importlib
 import importlib.metadata
 import json
 import os
@@ -33,6 +34,27 @@ from fixed_panel import (
 from provenance import build_provenance, sha256_file
 
 warnings.filterwarnings("ignore")
+
+
+def _import_scvi_tools():
+    """Import scvi-tools without resolving this wrapper as ``scvi``."""
+
+    wrapper_path = Path(__file__).resolve()
+    wrapper_directory = wrapper_path.parent
+    original_sys_path = list(sys.path)
+    try:
+        sys.path[:] = [
+            entry
+            for entry in sys.path
+            if Path(entry or os.getcwd()).resolve() != wrapper_directory
+        ]
+        module = importlib.import_module("scvi")
+    finally:
+        sys.path[:] = original_sys_path
+    module_path = Path(module.__file__).resolve()
+    if module_path == wrapper_path or not hasattr(module, "settings"):
+        raise ImportError(f"scvi-tools import resolved to an invalid module: {module_path}")
+    return module
 
 
 def _distribution_version(name: str) -> str:
@@ -100,7 +122,7 @@ def run_scvi_batch_correction(
 
     Uses scVI defaults: zinb likelihood, 1 hidden layer, 10-dim latent space.
     """
-    import scvi
+    scvi = _import_scvi_tools()
     import torch
 
     if accelerator in {"gpu", "cuda"} and not torch.cuda.is_available():
@@ -305,6 +327,8 @@ def run_scvi_batch_correction(
             "scanpy": sc.__version__,
             "torch": torch.__version__,
             "scvi_tools": scvi.__version__,
+            "scvi_module_path": str(Path(scvi.__file__).resolve()),
+            "scvi_module_sha256": sha256_file(Path(scvi.__file__).resolve()),
             "lightning": _distribution_version("lightning"),
             "anndata": _distribution_version("anndata"),
             "feast_numpy_support_range": ">=1.24,<2",
@@ -487,6 +511,7 @@ def main():
                 Path(__file__).with_name("provenance.py"),
                 Path(__file__).resolve().parents[1] / "run.py",
                 args.config_path.resolve(),
+                Path(meta["execution_environment"]["scvi_module_path"]),
             ],
         )
 

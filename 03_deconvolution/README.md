@@ -20,6 +20,9 @@ RSCRIPT=/path/to/rctd-env/bin/Rscript
 FEAST_COMMIT=$(git -C /path/to/FEAST rev-parse HEAD)
 INPUTS=$(pwd)/data/local
 OUTPUT=/path/to/new/study03_run
+HISTORICAL_SCORES=/path/to/frozen/deconvolution_benchmark_results.csv
+PRIOR_SCORES=/path/to/frozen/deconvolution_same_expression_scores.csv
+DIRECTION_AUDIT=/path/to/frozen/headline_direction_assessment.csv
 
 $FEAST_PY run.py \
   --input-dir "$INPUTS" \
@@ -30,12 +33,18 @@ $FEAST_PY run.py \
 
 $FEAST_PY score.py \
   --run-dir "$OUTPUT" \
-  --output-dir "$OUTPUT/scores"
+  --output-dir "$OUTPUT/scores" \
+  --historical-scores "$HISTORICAL_SCORES" \
+  --prior-scores "$PRIOR_SCORES" \
+  --direction-audit "$DIRECTION_AUDIT"
 
 $FEAST_PY validate.py \
   --run-dir "$OUTPUT" \
   --scores-dir "$OUTPUT/scores" \
-  --output "$OUTPUT/validation.csv"
+  --output "$OUTPUT/validation.csv" \
+  --historical-scores "$HISTORICAL_SCORES" \
+  --prior-scores "$PRIOR_SCORES" \
+  --direction-audit "$DIRECTION_AUDIT"
 ```
 
 `run.py` requires a new output root and stops on the first method failure while
@@ -68,10 +77,20 @@ mean number of high-resolution source cells assigned to each aggregate
 location during the fresh simulation—not mean UMI count. This construction
 quantity uses geometry only, not cell-type labels, and is recorded in every
 simulation and method artifact. The score stage emits side-by-side atomic
-metrics and a historical-direction audit. The historical aggregate majority is
-context only; the gate itself is atomic and stops if any declared metric
-direction changes, ties, or is indeterminate. It never authorizes an aggregate
-method-ranking or publication claim.
+metrics, a six-pair support audit, and an exact 12-key old-versus-new table. The
+comparison binds the frozen article scores, the prior repaired same-expression
+scores, and the fresh rerun by SHA-256. Its deltas are classified as mixed
+workflow changes and are not attributed to a single cause. The historical
+aggregate majority is context only; the gate itself is atomic and stops if any
+declared metric direction changes, ties, or is indeterminate. It never
+authorizes an aggregate method-ranking or publication claim. `provenance.json`
+binds the scorer, config, manifests, historical inputs, every scored input, and
+every scientific output by SHA-256.
+
+Both `score.py` and `validate.py` require explicit `--historical-scores`,
+`--prior-scores`, and `--direction-audit` paths. This keeps the reproduction
+repository portable while each file must still match its declared frozen
+SHA-256 before it can enter comparison or provenance.
 
 This study explicitly sets FEAST's public `clip_overshoot_factor=0.0`. The
 optional post-decoding 1.1x clip can create fractional maxima (for example,

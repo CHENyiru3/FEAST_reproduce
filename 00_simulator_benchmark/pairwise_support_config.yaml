@@ -1,0 +1,6 @@
+configuration_id: study00-pairwise-coordinate-support-repair-v1
+coordinate_pairing_decimals: 8
+identifier_policy: prefer_exact_observation_identifiers
+coordinate_fallback: complete_unique_spatial_coordinate_bijection
+partial_support: reject
+duplicate_coordinates: reject

@@ -1,0 +1,121 @@
+job_id,method,alteration,angle_degrees,metric,metric_label,direction,value,solver_evidence_disposition
+baseline__paste__angle_1,paste,baseline,1.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.0,positive_convergence_evidence
+baseline__paste__angle_5,paste,baseline,5.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,2.842170943040401e-14,positive_convergence_evidence
+baseline__paste__angle_10,paste,baseline,10.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.0,positive_convergence_evidence
+baseline__paste__angle_30,paste,baseline,30.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,5.684341886080802e-14,positive_convergence_evidence
+baseline__paste__angle_45,paste,baseline,45.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,8.526512829121202e-14,positive_convergence_evidence
+baseline__spateo__angle_1,spateo,baseline,1.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.00010885779059321976,fixed_schedule_complete_no_convergence_claim
+baseline__spateo__angle_5,spateo,baseline,5.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.00011164765615490069,fixed_schedule_complete_no_convergence_claim
+baseline__spateo__angle_10,spateo,baseline,10.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.00011761396996234907,fixed_schedule_complete_no_convergence_claim
+baseline__spateo__angle_30,spateo,baseline,30.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.00011494698466663067,fixed_schedule_complete_no_convergence_claim
+baseline__spateo__angle_45,spateo,baseline,45.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.00012137763650343913,fixed_schedule_complete_no_convergence_claim
+baseline__paste__angle_1,paste,baseline,1.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,2.1365082438755465e-11,positive_convergence_evidence
+baseline__paste__angle_5,paste,baseline,5.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,2.4700574961754094e-11,positive_convergence_evidence
+baseline__paste__angle_10,paste,baseline,10.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,2.161098689022093e-11,positive_convergence_evidence
+baseline__paste__angle_30,paste,baseline,30.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,1.90868193052342e-11,positive_convergence_evidence
+baseline__paste__angle_45,paste,baseline,45.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,2.6214617043750366e-11,positive_convergence_evidence
+baseline__spateo__angle_1,spateo,baseline,1.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.00715350614550445,fixed_schedule_complete_no_convergence_claim
+baseline__spateo__angle_5,spateo,baseline,5.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.007237859727028317,fixed_schedule_complete_no_convergence_claim
+baseline__spateo__angle_10,spateo,baseline,10.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.007612249389891228,fixed_schedule_complete_no_convergence_claim
+baseline__spateo__angle_30,spateo,baseline,30.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.0074319203153478605,fixed_schedule_complete_no_convergence_claim
+baseline__spateo__angle_45,spateo,baseline,45.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.007873705152931683,fixed_schedule_complete_no_convergence_claim
+baseline__paste__angle_1,paste,baseline,1.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,positive_convergence_evidence
+baseline__paste__angle_5,paste,baseline,5.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,positive_convergence_evidence
+baseline__paste__angle_10,paste,baseline,10.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,positive_convergence_evidence
+baseline__paste__angle_30,paste,baseline,30.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,positive_convergence_evidence
+baseline__paste__angle_45,paste,baseline,45.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,positive_convergence_evidence
+baseline__spateo__angle_1,spateo,baseline,1.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,fixed_schedule_complete_no_convergence_claim
+baseline__spateo__angle_5,spateo,baseline,5.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,fixed_schedule_complete_no_convergence_claim
+baseline__spateo__angle_10,spateo,baseline,10.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,fixed_schedule_complete_no_convergence_claim
+baseline__spateo__angle_30,spateo,baseline,30.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,fixed_schedule_complete_no_convergence_claim
+baseline__spateo__angle_45,spateo,baseline,45.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,fixed_schedule_complete_no_convergence_claim
+mean_0.5__paste__angle_1,paste,mean_0.5,1.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.0,positive_convergence_evidence
+mean_0.5__paste__angle_5,paste,mean_0.5,5.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,2.842170943040401e-14,positive_convergence_evidence
+mean_0.5__paste__angle_10,paste,mean_0.5,10.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.0,positive_convergence_evidence
+mean_0.5__paste__angle_30,paste,mean_0.5,30.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,5.684341886080802e-14,positive_convergence_evidence
+mean_0.5__paste__angle_45,paste,mean_0.5,45.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,8.526512829121202e-14,positive_convergence_evidence
+mean_0.5__spateo__angle_1,spateo,mean_0.5,1.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.0003355956949917527,fixed_schedule_complete_no_convergence_claim
+mean_0.5__spateo__angle_5,spateo,mean_0.5,5.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.00033109557190869054,fixed_schedule_complete_no_convergence_claim
+mean_0.5__spateo__angle_10,spateo,mean_0.5,10.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.00032689388785911433,fixed_schedule_complete_no_convergence_claim
+mean_0.5__spateo__angle_30,spateo,mean_0.5,30.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.00032512502937720456,fixed_schedule_complete_no_convergence_claim
+mean_0.5__spateo__angle_45,spateo,mean_0.5,45.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.00032551380746781433,fixed_schedule_complete_no_convergence_claim
+mean_0.5__paste__angle_1,paste,mean_0.5,1.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,2.1365082438755465e-11,positive_convergence_evidence
+mean_0.5__paste__angle_5,paste,mean_0.5,5.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,2.4700574961754094e-11,positive_convergence_evidence
+mean_0.5__paste__angle_10,paste,mean_0.5,10.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,2.161098689022093e-11,positive_convergence_evidence
+mean_0.5__paste__angle_30,paste,mean_0.5,30.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,1.90868193052342e-11,positive_convergence_evidence
+mean_0.5__paste__angle_45,paste,mean_0.5,45.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,2.6214617043750366e-11,positive_convergence_evidence
+mean_0.5__spateo__angle_1,spateo,mean_0.5,1.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.023327705934457595,fixed_schedule_complete_no_convergence_claim
+mean_0.5__spateo__angle_5,spateo,mean_0.5,5.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.023157972575806613,fixed_schedule_complete_no_convergence_claim
+mean_0.5__spateo__angle_10,spateo,mean_0.5,10.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.022938598891222985,fixed_schedule_complete_no_convergence_claim
+mean_0.5__spateo__angle_30,spateo,mean_0.5,30.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.022831598266249687,fixed_schedule_complete_no_convergence_claim
+mean_0.5__spateo__angle_45,spateo,mean_0.5,45.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.022696422538432313,fixed_schedule_complete_no_convergence_claim
+mean_0.5__paste__angle_1,paste,mean_0.5,1.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,positive_convergence_evidence
+mean_0.5__paste__angle_5,paste,mean_0.5,5.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,positive_convergence_evidence
+mean_0.5__paste__angle_10,paste,mean_0.5,10.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,positive_convergence_evidence
+mean_0.5__paste__angle_30,paste,mean_0.5,30.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,positive_convergence_evidence
+mean_0.5__paste__angle_45,paste,mean_0.5,45.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,positive_convergence_evidence
+mean_0.5__spateo__angle_1,spateo,mean_0.5,1.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,fixed_schedule_complete_no_convergence_claim
+mean_0.5__spateo__angle_5,spateo,mean_0.5,5.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,fixed_schedule_complete_no_convergence_claim
+mean_0.5__spateo__angle_10,spateo,mean_0.5,10.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,fixed_schedule_complete_no_convergence_claim
+mean_0.5__spateo__angle_30,spateo,mean_0.5,30.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,fixed_schedule_complete_no_convergence_claim
+mean_0.5__spateo__angle_45,spateo,mean_0.5,45.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,fixed_schedule_complete_no_convergence_claim
+variance_2.0__paste__angle_1,paste,variance_2.0,1.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.0,positive_convergence_evidence
+variance_2.0__paste__angle_5,paste,variance_2.0,5.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,2.842170943040401e-14,positive_convergence_evidence
+variance_2.0__paste__angle_10,paste,variance_2.0,10.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.0,positive_convergence_evidence
+variance_2.0__paste__angle_30,paste,variance_2.0,30.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,5.684341886080802e-14,positive_convergence_evidence
+variance_2.0__paste__angle_45,paste,variance_2.0,45.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,8.526512829121202e-14,positive_convergence_evidence
+variance_2.0__spateo__angle_1,spateo,variance_2.0,1.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.00011418380168493059,fixed_schedule_complete_no_convergence_claim
+variance_2.0__spateo__angle_5,spateo,variance_2.0,5.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.0001161078656934933,fixed_schedule_complete_no_convergence_claim
+variance_2.0__spateo__angle_10,spateo,variance_2.0,10.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.00012165428586285998,fixed_schedule_complete_no_convergence_claim
+variance_2.0__spateo__angle_30,spateo,variance_2.0,30.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.00012260037385658507,fixed_schedule_complete_no_convergence_claim
+variance_2.0__spateo__angle_45,spateo,variance_2.0,45.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.00012617451233154497,fixed_schedule_complete_no_convergence_claim
+variance_2.0__paste__angle_1,paste,variance_2.0,1.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,2.1365082438755465e-11,positive_convergence_evidence
+variance_2.0__paste__angle_5,paste,variance_2.0,5.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,2.4700574961754094e-11,positive_convergence_evidence
+variance_2.0__paste__angle_10,paste,variance_2.0,10.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,2.161098689022093e-11,positive_convergence_evidence
+variance_2.0__paste__angle_30,paste,variance_2.0,30.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,1.90868193052342e-11,positive_convergence_evidence
+variance_2.0__paste__angle_45,paste,variance_2.0,45.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,2.6214617043750366e-11,positive_convergence_evidence
+variance_2.0__spateo__angle_1,spateo,variance_2.0,1.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.007790338775971896,fixed_schedule_complete_no_convergence_claim
+variance_2.0__spateo__angle_5,spateo,variance_2.0,5.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.0079654552099029,fixed_schedule_complete_no_convergence_claim
+variance_2.0__spateo__angle_10,spateo,variance_2.0,10.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.008134020153207525,fixed_schedule_complete_no_convergence_claim
+variance_2.0__spateo__angle_30,spateo,variance_2.0,30.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.008247342826865463,fixed_schedule_complete_no_convergence_claim
+variance_2.0__spateo__angle_45,spateo,variance_2.0,45.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.008428956464315214,fixed_schedule_complete_no_convergence_claim
+variance_2.0__paste__angle_1,paste,variance_2.0,1.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,positive_convergence_evidence
+variance_2.0__paste__angle_5,paste,variance_2.0,5.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,positive_convergence_evidence
+variance_2.0__paste__angle_10,paste,variance_2.0,10.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,positive_convergence_evidence
+variance_2.0__paste__angle_30,paste,variance_2.0,30.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,positive_convergence_evidence
+variance_2.0__paste__angle_45,paste,variance_2.0,45.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,positive_convergence_evidence
+variance_2.0__spateo__angle_1,spateo,variance_2.0,1.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,fixed_schedule_complete_no_convergence_claim
+variance_2.0__spateo__angle_5,spateo,variance_2.0,5.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,fixed_schedule_complete_no_convergence_claim
+variance_2.0__spateo__angle_10,spateo,variance_2.0,10.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,fixed_schedule_complete_no_convergence_claim
+variance_2.0__spateo__angle_30,spateo,variance_2.0,30.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,fixed_schedule_complete_no_convergence_claim
+variance_2.0__spateo__angle_45,spateo,variance_2.0,45.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,1.0,fixed_schedule_complete_no_convergence_claim
+sparsity_0.5__paste__angle_1,paste,sparsity_0.5,1.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.30098075244839606,positive_convergence_evidence
+sparsity_0.5__paste__angle_5,paste,sparsity_0.5,5.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.30098075244839606,positive_convergence_evidence
+sparsity_0.5__paste__angle_10,paste,sparsity_0.5,10.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.30098075244839606,positive_convergence_evidence
+sparsity_0.5__paste__angle_30,paste,sparsity_0.5,30.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.3009807524484245,positive_convergence_evidence
+sparsity_0.5__paste__angle_45,paste,sparsity_0.5,45.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.3009807524484245,positive_convergence_evidence
+sparsity_0.5__spateo__angle_1,spateo,sparsity_0.5,1.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.0026263149190128843,fixed_schedule_complete_no_convergence_claim
+sparsity_0.5__spateo__angle_5,spateo,sparsity_0.5,5.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.0026047350903013466,fixed_schedule_complete_no_convergence_claim
+sparsity_0.5__spateo__angle_10,spateo,sparsity_0.5,10.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.002604526362404158,fixed_schedule_complete_no_convergence_claim
+sparsity_0.5__spateo__angle_30,spateo,sparsity_0.5,30.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.0026066144331480245,fixed_schedule_complete_no_convergence_claim
+sparsity_0.5__spateo__angle_45,spateo,sparsity_0.5,45.0,rotation_recovery_error,Rotation recovery error (degrees),lower_is_better,0.002606802387560947,fixed_schedule_complete_no_convergence_claim
+sparsity_0.5__paste__angle_1,paste,sparsity_0.5,1.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,15.622004056126666,positive_convergence_evidence
+sparsity_0.5__paste__angle_5,paste,sparsity_0.5,5.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,15.622004056126627,positive_convergence_evidence
+sparsity_0.5__paste__angle_10,paste,sparsity_0.5,10.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,15.62200405612562,positive_convergence_evidence
+sparsity_0.5__paste__angle_30,paste,sparsity_0.5,30.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,15.62200405612797,positive_convergence_evidence
+sparsity_0.5__paste__angle_45,paste,sparsity_0.5,45.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,15.622004056128615,positive_convergence_evidence
+sparsity_0.5__spateo__angle_1,spateo,sparsity_0.5,1.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.23863640288725016,fixed_schedule_complete_no_convergence_claim
+sparsity_0.5__spateo__angle_5,spateo,sparsity_0.5,5.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.23798851444520705,fixed_schedule_complete_no_convergence_claim
+sparsity_0.5__spateo__angle_10,spateo,sparsity_0.5,10.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.23823470479221515,fixed_schedule_complete_no_convergence_claim
+sparsity_0.5__spateo__angle_30,spateo,sparsity_0.5,30.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.23858798097690942,fixed_schedule_complete_no_convergence_claim
+sparsity_0.5__spateo__angle_45,spateo,sparsity_0.5,45.0,mean_spatial_error,Mean spatial error (coordinate units),lower_is_better,0.2389659923552849,fixed_schedule_complete_no_convergence_claim
+sparsity_0.5__paste__angle_1,paste,sparsity_0.5,1.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,0.9155680224403927,positive_convergence_evidence
+sparsity_0.5__paste__angle_5,paste,sparsity_0.5,5.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,0.9155680224403927,positive_convergence_evidence
+sparsity_0.5__paste__angle_10,paste,sparsity_0.5,10.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,0.9155680224403927,positive_convergence_evidence
+sparsity_0.5__paste__angle_30,paste,sparsity_0.5,30.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,0.9155680224403927,positive_convergence_evidence
+sparsity_0.5__paste__angle_45,paste,sparsity_0.5,45.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,0.9155680224403927,positive_convergence_evidence
+sparsity_0.5__spateo__angle_1,spateo,sparsity_0.5,1.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,0.9511921458625526,fixed_schedule_complete_no_convergence_claim
+sparsity_0.5__spateo__angle_5,spateo,sparsity_0.5,5.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,0.9511921458625526,fixed_schedule_complete_no_convergence_claim
+sparsity_0.5__spateo__angle_10,spateo,sparsity_0.5,10.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,0.9511921458625526,fixed_schedule_complete_no_convergence_claim
+sparsity_0.5__spateo__angle_30,spateo,sparsity_0.5,30.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,0.9511921458625526,fixed_schedule_complete_no_convergence_claim
+sparsity_0.5__spateo__angle_45,spateo,sparsity_0.5,45.0,transport_argmax_identity_accuracy,Transport argmax identity accuracy,higher_is_better,0.9511921458625526,fixed_schedule_complete_no_convergence_claim

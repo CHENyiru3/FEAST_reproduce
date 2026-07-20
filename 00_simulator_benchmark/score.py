@@ -70,6 +70,143 @@ def cosine_divergence(left, right) -> float:
     return float(np.median(1.0 - dot / np.maximum(left_norm * right_norm, 1e-12)))
 
 
+def paired_spot_indices(
+    ref: ad.AnnData,
+    sim: ad.AnnData,
+    coordinate_decimals: int = 8,
+) -> tuple[np.ndarray, np.ndarray, dict[str, object]]:
+    """Find defensible paired support, preferring identifiers over coordinates."""
+    diagnostics: dict[str, object] = {
+        "n_reference_spots": int(ref.n_obs),
+        "n_simulated_spots": int(sim.n_obs),
+        "spot_pairing": "unavailable",
+        "n_coordinate_overlap": np.nan,
+        "n_reference_unique_coordinates": np.nan,
+        "n_simulated_unique_coordinates": np.nan,
+        "n_reference_duplicate_coordinate_rows": np.nan,
+        "n_simulated_duplicate_coordinate_rows": np.nan,
+        "pairing_fraction_reference": 0.0,
+        "pairing_fraction_simulated": 0.0,
+        "coordinate_decimals": coordinate_decimals,
+        "coordinate_bijection": False,
+        "coordinate_max_abs_delta": np.nan,
+        "pair_map_sha256": "",
+        "pairing_issue": "",
+    }
+    if not ref.obs_names.is_unique or not sim.obs_names.is_unique:
+        diagnostics["pairing_issue"] = "nonunique_observation_identifier"
+        return np.array([], dtype=int), np.array([], dtype=int), diagnostics
+
+    spots = ref.obs_names[ref.obs_names.isin(sim.obs_names)]
+    if len(spots):
+        reference_indices = ref.obs_names.get_indexer(spots)
+        simulated_indices = sim.obs_names.get_indexer(spots)
+        pair_map = np.column_stack((reference_indices, simulated_indices)).astype("<i8")
+        diagnostics.update(
+            {
+                "spot_pairing": "exact_identifier",
+                "pairing_fraction_reference": float(len(spots) / ref.n_obs),
+                "pairing_fraction_simulated": float(len(spots) / sim.n_obs),
+                "pair_map_sha256": hashlib.sha256(pair_map.tobytes()).hexdigest(),
+            }
+        )
+        return reference_indices, simulated_indices, diagnostics
+
+    if "spatial" not in ref.obsm or "spatial" not in sim.obsm:
+        diagnostics.update(
+            {
+                "spot_pairing": "unavailable",
+                "pairing_issue": "missing_spatial_coordinates",
+            }
+        )
+        return np.array([], dtype=int), np.array([], dtype=int), diagnostics
+
+    ref_coords = np.asarray(ref.obsm["spatial"], dtype=float)
+    sim_coords = np.asarray(sim.obsm["spatial"], dtype=float)
+    if (
+        ref_coords.ndim != 2
+        or sim_coords.ndim != 2
+        or ref_coords.shape[0] != ref.n_obs
+        or sim_coords.shape[0] != sim.n_obs
+        or ref_coords.shape[1] != sim_coords.shape[1]
+    ):
+        diagnostics.update(
+            {
+                "spot_pairing": "unavailable",
+                "pairing_issue": "incompatible_spatial_shapes",
+            }
+        )
+        return np.array([], dtype=int), np.array([], dtype=int), diagnostics
+    if not np.isfinite(ref_coords).all() or not np.isfinite(sim_coords).all():
+        diagnostics.update(
+            {
+                "spot_pairing": "unavailable",
+                "pairing_issue": "nonfinite_spatial_coordinates",
+            }
+        )
+        return np.array([], dtype=int), np.array([], dtype=int), diagnostics
+
+    columns = [f"coordinate_{index}" for index in range(ref_coords.shape[1])]
+    ref_frame = pd.DataFrame(np.round(ref_coords, coordinate_decimals), columns=columns)
+    sim_frame = pd.DataFrame(np.round(sim_coords, coordinate_decimals), columns=columns)
+    ref_frame["reference_index"] = np.arange(ref.n_obs)
+    sim_frame["simulated_index"] = np.arange(sim.n_obs)
+    ref_duplicates = ref_frame.duplicated(columns, keep=False)
+    sim_duplicates = sim_frame.duplicated(columns, keep=False)
+    ref_unique = ref_frame[columns].drop_duplicates()
+    sim_unique = sim_frame[columns].drop_duplicates()
+    unique_overlap = ref_unique.merge(sim_unique, on=columns, how="inner")
+    diagnostics.update(
+        {
+            "n_coordinate_overlap": int(len(unique_overlap)),
+            "n_reference_unique_coordinates": int(len(ref_unique)),
+            "n_simulated_unique_coordinates": int(len(sim_unique)),
+            "n_reference_duplicate_coordinate_rows": int(ref_duplicates.sum()),
+            "n_simulated_duplicate_coordinate_rows": int(sim_duplicates.sum()),
+            "pairing_fraction_reference": float(len(unique_overlap) / ref.n_obs),
+            "pairing_fraction_simulated": float(len(unique_overlap) / sim.n_obs),
+        }
+    )
+    if ref_duplicates.any() or sim_duplicates.any():
+        diagnostics.update(
+            {
+                "spot_pairing": "unavailable",
+                "pairing_issue": "nonunique_spatial_coordinates",
+            }
+        )
+        return np.array([], dtype=int), np.array([], dtype=int), diagnostics
+    overlap = ref_frame.merge(
+        sim_frame, on=columns, how="inner", validate="one_to_one"
+    )
+    if len(overlap) != ref.n_obs or len(overlap) != sim.n_obs:
+        diagnostics.update(
+            {
+                "spot_pairing": "unavailable",
+                "pairing_issue": "incomplete_spatial_coordinate_bijection",
+            }
+        )
+        return np.array([], dtype=int), np.array([], dtype=int), diagnostics
+
+    overlap.sort_values("reference_index", inplace=True)
+    reference_indices = overlap["reference_index"].to_numpy(dtype=int)
+    simulated_indices = overlap["simulated_index"].to_numpy(dtype=int)
+    coordinate_delta = np.abs(
+        ref_coords[reference_indices] - sim_coords[simulated_indices]
+    )
+    pair_map = np.column_stack((reference_indices, simulated_indices)).astype("<i8")
+    diagnostics.update(
+        {
+            "spot_pairing": "unique_spatial_coordinate",
+            "pairing_fraction_reference": 1.0,
+            "pairing_fraction_simulated": 1.0,
+            "coordinate_bijection": True,
+            "coordinate_max_abs_delta": float(coordinate_delta.max(initial=0.0)),
+            "pair_map_sha256": hashlib.sha256(pair_map.tobytes()).hexdigest(),
+        }
+    )
+    return reference_indices, simulated_indices, diagnostics
+
+
 def graph(coords: np.ndarray, neighbors: int) -> sp.csr_matrix:
     model = NearestNeighbors(n_neighbors=neighbors + 1).fit(coords)
     raw = model.kneighbors(coords, return_distance=False)
@@ -93,7 +230,13 @@ def moran(matrix, indices: np.ndarray, weights: sp.csr_matrix) -> np.ndarray:
     return np.asarray(result)
 
 
-def pair_metrics(ref: ad.AnnData, sim: ad.AnnData, max_genes: int, neighbors: int):
+def pair_metrics(
+    ref: ad.AnnData,
+    sim: ad.AnnData,
+    max_genes: int,
+    neighbors: int,
+    coordinate_decimals: int = 8,
+):
     if not ref.var_names.is_unique or not sim.var_names.is_unique:
         raise ValueError("gene identifiers must be unique")
     genes = ref.var_names[ref.var_names.isin(sim.var_names)]
@@ -103,10 +246,8 @@ def pair_metrics(ref: ad.AnnData, sim: ad.AnnData, max_genes: int, neighbors: in
     si = sim.var_names.get_indexer(genes)
     rm, rv, rz = gene_stats(ref.X[:, ri])
     sm, sv, sz = gene_stats(sim.X[:, si])
-    spots = ref.obs_names[ref.obs_names.isin(sim.obs_names)]
-    if len(spots):
-        ro = ref.obs_names.get_indexer(spots)
-        so = sim.obs_names.get_indexer(spots)
+    ro, so, pairing = paired_spot_indices(ref, sim, coordinate_decimals)
+    if len(ro):
         paired_ref = ref.X[ro, :][:, ri]
         paired_sim = sim.X[so, :][:, si]
         jaccard = zero_jaccard(paired_ref, paired_sim)
@@ -134,14 +275,14 @@ def pair_metrics(ref: ad.AnnData, sim: ad.AnnData, max_genes: int, neighbors: in
     variance_corr = log_corr(rv, sv)
     metrics = {
         "identity_flag": bool(
-            len(spots)
+            len(ro)
             and mean_corr >= 0.995
             and variance_corr >= 0.95
             and jaccard >= 0.95
         ),
         "n_common_genes": len(genes),
-        "n_paired_spots": len(spots),
-        "spot_pairing": "exact_identifier" if len(spots) else "unavailable",
+        "n_paired_spots": len(ro),
+        **pairing,
         "n_moran_genes": len(panel),
         "moran_panel_sha256": hashlib.sha256("\n".join(map(str, panel)).encode()).hexdigest(),
         "input_mean_corr": mean_corr,
@@ -204,7 +345,13 @@ def main() -> int:
             candidates.append((simulator, external_path))
         for simulator, path in candidates:
             sim = ad.read_h5ad(path)
-            metric, panel = pair_metrics(ref, sim, int(config["metrics"]["max_moran_genes"]), int(config["metrics"]["spatial_neighbors"]))
+            metric, panel = pair_metrics(
+                ref,
+                sim,
+                int(config["metrics"]["max_moran_genes"]),
+                int(config["metrics"]["spatial_neighbors"]),
+                int(config["metrics"].get("coordinate_pairing_decimals", 8)),
+            )
             rows.append({"simulator": simulator, "sample": sample, **metric})
             panels.extend({"simulator": simulator, "sample": sample, **item} for item in panel)
             print(f"{sample}: {simulator}", flush=True)
@@ -219,7 +366,11 @@ def main() -> int:
         "feast_commit": config["required_feast_commit"],
         "public_seed": config["public_seed"],
         "calculation_randomness": "none",
-        "rules": "exact gene joins; exact named spot joins; ordered reference-derived Moran panel; no composite score",
+        "rules": (
+            "exact gene joins; exact named spot joins preferred; complete unique "
+            "spatial-coordinate bijection at the configured precision used only when identifiers "
+            "do not overlap; ordered reference-derived Moran panel; no composite score"
+        ),
         "row_count": len(rows),
         "input_manifest_sha256": sha256(Path(__file__).parent / "data/input_checksums.csv"),
         "simulation_manifest_sha256": sha256(args.simulation_dir / "simulation_manifest.csv"),

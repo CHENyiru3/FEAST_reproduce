@@ -13,6 +13,9 @@ STUDIES = (
     "02_alignment",
     "03_deconvolution",
     "04_batch_effect_removal",
+    "05_2d_conditional_transfer",
+    "06_3d_stack",
+    "07_3d_transfer",
 )
 TEXT_SUFFIXES = {".md", ".py", ".sh", ".yaml", ".yml", ".json", ".txt", ".csv"}
 FORBIDDEN_ALL = (
@@ -39,7 +42,12 @@ def main() -> int:
     for path in sorted(ROOT.rglob("*")):
         if not path.is_file() or path.suffix.lower() not in TEXT_SUFFIXES:
             continue
-        if "data/local" in path.as_posix() or "outputs" in path.parts:
+        if (
+            "data/local" in path.as_posix()
+            or "outputs" in path.parts
+            or ".work" in path.parts
+            or ".archive" in path.parts
+        ):
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
         relative = path.relative_to(ROOT)

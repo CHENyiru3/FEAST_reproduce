@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "figure_set": "study03_common_support_diagnostic_candidate",
+  "publication_status": "scientific_stop_headline_direction_changed",
+  "scientific_disposition": {
+    "scientific_stop": true,
+    "headline_direction_changed": true,
+    "publication_claim_authorized": false,
+    "aggregate_winner_ranking_authorized": false,
+    "figure_promotion_authorized": false
+  },
+  "sources": {
+    "publication_manifest": {
+      "path": "PUBLICATION_MANIFEST.json",
+      "sha256": "7271bb0e7396c4fe4fbf48929898add3e411538acb067b9d392b931c661cb441"
+    },
+    "decision": {
+      "path": "03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/publication_decision.json",
+      "sha256": "1aae6caed6b9901af2c320f63b945f0b0f3050c8c4c5ecfa35c31687cc357cdb"
+    },
+    "scores": {
+      "path": "03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/deconvolution_scores.csv",
+      "sha256": "13442992ca4b4b5a199b9841bc89f383863d06bca7166e29fe879792a90922ce"
+    },
+    "support_audit": {
+      "path": "03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/support_audit.csv",
+      "sha256": "a8317a61c84020178f9bb913885b7cd2dd8f0c0595e29ce80d1a697be5632b37"
+    },
+    "plot_script": {
+      "path": "visualization/03_deconvolution/plot.py",
+      "sha256": "681b8b0fd7bd3ecb07c4d26e389e1fb38de21004ab01c4e8a976a8175b5b5700"
+    }
+  },
+  "design": {
+    "score_rows": 12,
+    "plot_rows": 36,
+    "support_pairs": 6,
+    "methods": [
+      "RCTD",
+      "Cell2location"
+    ],
+    "metrics": [
+      "jsd_mean",
+      "pearson_mean",
+      "summed_rmse"
+    ],
+    "comparison_scope": "same_expression_exact_spots_common_named_types_plus_other",
+    "ranking_or_composite_used": false
+  },
+  "outputs": {
+    "common_support_audit_plot.csv": "9233c419abe6f5be3e35184dbedefa030e16b3ea8ae50c47301d685cc011a63c",
+    "common_support_diagnostic.pdf": "fcc4f60eafb2547dbd4497cac4ca4ca6dea19562da92c0bcce2fc40ef9248e5d",
+    "common_support_diagnostic.png": "241d60457c2e7bbf96d0c7390cc7c76753ec52971b201b3b1e4758a1c913e5bb",
+    "common_support_diagnostic.svg": "4cb918ba0b0b4f02273f29dcb5e07c80bbd4061672aaa058fd26929653ea60ed",
+    "common_support_scores_plot.csv": "29d1d3b7fc497bb202ee85ffb50e149791cfb1e4ecc2648537d5ba866c53f180",
+    "headline_direction_audit_plot.csv": "f107e8404f70a9b67b33270cb641a51548c578aaf443ad5d25b4cec4dc791518"
+  }
+}

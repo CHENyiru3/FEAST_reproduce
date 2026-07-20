@@ -1,0 +1,29 @@
+{
+  "all_files_rehashed": true,
+  "configuration_id": "final-freeze-20260719-v1-independent-validation",
+  "embedded_references_checked": 3132,
+  "file_count": 3222,
+  "freeze_outputs": {
+    "manifest.csv": "49042f84ce34cf77160664df81e5bc81c1a3d7f31e5b8342e1cf3d8f584d8101",
+    "provenance.json": "0b42b4b23aa5cdb023713ad5a19cc391d14b82f8838d199569ddae54e61cdc8e",
+    "summary.json": "d8f0d0c3f95a5565768fc624e42c4623b155eb03c1d192d5dcbf6831e285d5ec"
+  },
+  "generated_utc": "2026-07-19T14:32:06Z",
+  "independent_validation_passed": true,
+  "release_authorized": false,
+  "schema_version": 1,
+  "total_bytes": 24988647813,
+  "validated_freeze_root": "publication/final_freeze_20260719_v1",
+  "validator": {
+    "path": "publication/validate_final_freeze.py",
+    "sha256": "6e83d6e4ecfa0749def18852d8471e20e0e23547de4741cd508c671f1d0b5738"
+  },
+  "validator_exit_code": 0,
+  "validator_output": [
+    "final freeze validation: OK: publication/final_freeze_20260719_v1",
+    "files: 3222",
+    "bytes: 24988647813",
+    "embedded references checked: 3132",
+    "release_authorized: false"
+  ]
+}

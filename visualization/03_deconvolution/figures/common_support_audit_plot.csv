@@ -1,0 +1,7 @@
+pair_id,slice_id,resolution,n_full_spots,n_scored_spots,n_zero_library_spots,n_common_named_types,exact_positive_spot_support_between_methods,cell2location_full_spot_support_exact,other_residual_included
+007__resolution_0.1,7,0.1,788,749,39,56,True,True,True
+007__resolution_0.25,7,0.25,1959,1758,201,56,True,True,True
+050__resolution_0.1,50,0.1,2085,2071,14,65,True,True,True
+050__resolution_0.25,50,0.25,5133,4952,181,65,True,True,True
+100__resolution_0.1,100,0.1,2514,2454,60,61,True,True,True
+100__resolution_0.25,100,0.25,6318,5952,366,61,True,True,True

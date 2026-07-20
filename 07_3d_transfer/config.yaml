@@ -1,0 +1,87 @@
+configuration_id: "study07-full-devccf-transfer-v2"
+legacy_study_id: "06"
+public_seed: 2026
+required_feast_version: "1.0.2"
+required_feast_commit: "68816e5c1862a6fa2a49bc30609d617c7fa4b449"
+required_wheel_sha256: "9dd912d883a03d51ed7105cecd914cf8f7f25f5355f57dfde1c77b6fef0b056b"
+
+paths:
+  feast_repo: "../../FEAST"
+  feast_wheel: "../dist/feast_py-1.0.2-py3-none-any.whl"
+  dataset_root: "../../Datasets/Processed"
+  reference_dir: "GSE269617/h5ad_region_annotated"
+  devccf_dir: "DevCCFv1_figshare_26377171/coordinate_system/GSE269617_region_merged"
+  blueprint_dir: "data/local/blueprints"
+  work_dir: ".work"
+  final_dir: "outputs/final"
+
+reference_fit:
+  label_key: "region"
+  expected_genes: 550
+  min_gene_spots: 1
+  min_gene_mean: 0.0
+  max_gene_zero_prop: 1.0
+  boundary_neighbors: 6
+  coordinate_scale: null
+
+transport:
+  marginal_model: "empirical_reference"
+  epsilon: 0.05
+  sinkhorn_iter: 1000
+  sinkhorn_tol: 0.00001
+  unbalanced_transport: true
+  reg_m: 5.0
+  transport_nonconvergence: "raise"
+  geometry_weight: 1.0
+  boundary_weight: 0.25
+  latent_clip_eps: 0.000001
+  gene_chunk_size: 512
+  max_transport_pairs: 25000000
+  quantile_field_mode: "latent_reference"
+  rank_scope: "auto"
+  tie_policy: "stable_ordinal"
+  store_latent_scores: false
+  store_quantiles: false
+
+assignment_randomness_calibration:
+  n_genes: 20
+  step: 0.05
+  maximum: 0.5
+  n_neighbors: 6
+
+ages:
+  E15.5:
+    reference_glob: "*E14*.h5ad"
+    expected_references: 10
+    volume: "E15.5_broad_region_annotations.nii.gz"
+    z_start: -4.12
+    z_end: -0.98
+    z_step: 0.02
+    expected_levels: 158
+    expected_spots: 2330927
+    assignment_randomness:
+      mode: "fixed"
+      value: 0.4
+      basis: "author-declared reference-only calibration result"
+  E18.5:
+    reference_glob: "*E18M*.h5ad"
+    expected_references: 5
+    volume: "E18.5_broad_region_annotations.nii.gz"
+    z_start: -5.56
+    z_end: -1.54
+    z_step: 0.02
+    expected_levels: 202
+    expected_spots: 5213461
+    assignment_randomness:
+      mode: "reference_calibration"
+      calibration_file: "data/local/E18.5_assignment_randomness.json"
+
+blueprint:
+  region_schema: "gse269617_region_schema.tsv"
+  excluded_labels: ["Background", "Other"]
+  coordinate_system: "devccf_world"
+  grid_type: "devccf_coronal"
+  technology: "MERFISH"
+  expression_source: "none"
+  spot_id_rule: "devccf-{age}-z{z_index:03d}-j{voxel_j:03d}-i{voxel_i:03d}-k{voxel_k:03d}"
+  smoothing: "none"

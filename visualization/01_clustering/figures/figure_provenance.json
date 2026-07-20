@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "figure_set": "study01_fixed_panel_baseline_comparison",
+  "source": {
+    "publication_manifest": "PUBLICATION_MANIFEST.json",
+    "publication_manifest_sha256": "7271bb0e7396c4fe4fbf48929898add3e411538acb067b9d392b931c661cb441",
+    "metrics_csv": "01_clustering/outputs/final_rerun_20260718_report/fixed_panel_benchmark_metrics.csv",
+    "metrics_sha256": "10abbadbcf8c26d2b85e92a3357a8380fe4f4bc46882e6d42d2388a3d1882fab",
+    "publication_decision": "01_clustering/outputs/final_rerun_20260718_comparison_v2/publication_decision.json",
+    "publication_decision_sha256": "aa7dac0ad2cb41b9fd2c11c89336da14e87e48ab240ab2d7543bad92d74493e9",
+    "plot_script": "visualization/01_clustering/plot.py",
+    "plot_script_sha256": "7602a4c90334eba30fae1857da908ae04156c80b27590d30d48bdc125cf5b1fc"
+  },
+  "design": {
+    "headline_scope": "three_slice_method_means",
+    "slice_level_uniformity_claimed": false,
+    "winner_claimed": false,
+    "methods": [
+      "GraphST",
+      "STAGATE_mclust",
+      "Leiden_unsupervised"
+    ],
+    "metrics": [
+      "ARI",
+      "NMI",
+      "AMI"
+    ],
+    "slice_ids": [
+      "151508",
+      "151670",
+      "151676"
+    ],
+    "n_slices": 3,
+    "maximum_absolute_three_slice_method_mean_gap": 0.007860153270417003,
+    "maximum_absolute_slice_level_gap": 0.07748122448874828
+  },
+  "scientific_disposition": {
+    "figure_promotion_authorized": false,
+    "aggregate_method_ranking_authorized": false,
+    "winner_claim_authorized": false,
+    "slice_level_equivalence_authorized": false,
+    "supported_interpretation": "FEAST-baseline and raw-slice clustering scores are closely matched only as method means across the three registered slices."
+  },
+  "render_environment": {
+    "matplotlib": "3.11.0",
+    "numpy": "1.26.4",
+    "pandas": "2.3.3"
+  },
+  "outputs": {
+    "baseline_clustering_comparison.pdf": "7c2ef87b7b8d536f17619e99de061bb2447a00e2f9d3b52c87b88ec8587283f5",
+    "baseline_clustering_comparison.png": "edd8acd5f9b5fa73359ec9e8f7737d00cd90a616865ca0feddc4fbb8cb12e9dc",
+    "baseline_clustering_comparison.svg": "e990683abe04399aef34160f2edfbd3efb6c5230f6e14c6a9a76f37fdd5902ae",
+    "baseline_method_means.csv": "674e6cc4699c786f71be01417967423fd38aeb7eb437eb73c81b5bbe6d378766",
+    "baseline_slice_gaps.csv": "a2bbd2e614a6a025365f1d6ab6cdd3e8dc0867a1ac02588c6e6082c183fb2a0c",
+    "baseline_slice_values.csv": "143e95b09f9f523e273d431ebab04a099446a7f65ff7f8dd0a2b7e4b3868b35a"
+  }
+}

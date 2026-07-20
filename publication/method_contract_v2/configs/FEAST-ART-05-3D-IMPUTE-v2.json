@@ -1,0 +1,121 @@
+{
+  "$schema": "../workflow.schema.json",
+  "contract_version": "2.0-candidate",
+  "workflow_id": "FEAST-ART-05-3D-IMPUTE-v2",
+  "supersedes": {
+    "workflow_id": "FEAST-ART-05-3D-IMPUTE-v1",
+    "path": "EXP:SPEC/before_publication/method_contract/configs/FEAST-ART-05-3D-IMPUTE-v1.json",
+    "sha256": "94d704283c4dcfcbdeec706cf63f76f3edd844ec853d8566d7ecdde02781ad5e"
+  },
+  "study": "05_3d_stack",
+  "clean_rerun_study": null,
+  "status": "validation_required",
+  "method_name": "conditional_imputation",
+  "article_scope": {
+    "purpose": "conditional expression imputation at observed held-out slice locations and class labels",
+    "density_arms": {"dense_gap_3": 49, "medium_gap_5": 29, "sparse_gap_10": 15},
+    "candidate_outputs": 93,
+    "genes": 1122,
+    "artifact_policy": "all frozen candidates remain noncanonical pending strict article-scope reruns and positive convergence evidence"
+  },
+  "inputs": [
+    {
+      "role": "density_specific_reference_pool",
+      "source": "observed density-schedule reference slices",
+      "required_fields": ["X raw counts", "obs.class", "obsm.spatial", "z", "var_names"]
+    },
+    {
+      "role": "held_out_target_blueprint",
+      "source": "each held-out observed slice",
+      "required_fields": ["obs.class", "obsm.spatial", "z", "stable obs_names"]
+    }
+  ],
+  "observed_target_covariates": [
+    "exact target XY coordinates",
+    "exact target class labels",
+    "target z position",
+    "target expression is evaluation-only"
+  ],
+  "engine": {
+    "entry_point": "fit_reference -> simulate_from_reference",
+    "parameter_cloud": null,
+    "decoder": "label-aware weighted empirical reference-count ranks",
+    "reference_selection": "nearest lower/upper z references with declared nearest-z label donors from the full density pool",
+    "transport": "unbalanced Sinkhorn",
+    "epsilon": 0.05,
+    "sinkhorn_iter": 200,
+    "sinkhorn_tol": 1e-5,
+    "reg_m": 5.0
+  },
+  "rng": {
+    "base_seed": 2026,
+    "target_seed_formula": "2026 + gap * 10000 + target_index",
+    "requirement": "future strict outputs must bind target, references, donors, weights, seed, diagnostics, input hashes, and output hash"
+  },
+  "solver": {
+    "success_gate": "positive tolerance-based convergence evidence for every saved transport record, finite counts, exact target identity, and exact 1122-gene order",
+    "finite_plan_is_convergence": false
+  },
+  "fallback_policy": {
+    "transport_nonconvergence": "raise",
+    "missing_label_support": "only the declared nearest-z density-pool donor is allowed and must be recorded",
+    "target_expression_access": "evaluation only",
+    "output_root": "future strict reruns must use a new root"
+  },
+  "outputs": {
+    "artifacts": [],
+    "noncanonical_frozen_candidates": 93,
+    "study_classification": {"explicit_failure_saved": 30, "failure_tainted": 26, "missing_positive_evidence": 37},
+    "required_action": "strictly rerun retained author-confirmed article-scope targets or remove the claim"
+  },
+  "evidence_binding": {
+    "state": "noncanonical_frozen",
+    "canonical_candidates": 0,
+    "reason": "30 explicit failures, 26 failure-tainted outputs, and 37 outputs without positive convergence evidence"
+  },
+  "conditional_ot_disposition": {
+    "scope": "aggregate legacy studies 04, 05, and 06",
+    "active_outputs": 156,
+    "explicit_failure_saved": 31,
+    "failure_tainted": 26,
+    "missing_positive_convergence_evidence": 99,
+    "verifiably_converged": 0,
+    "canonical_outputs": 0,
+    "publication_status": "noncanonical",
+    "transport_nonconvergence": "raise"
+  },
+  "evidence": [
+    {
+      "role": "v1_predecessor",
+      "path": "EXP:SPEC/before_publication/method_contract/configs/FEAST-ART-05-3D-IMPUTE-v1.json",
+      "sha256": "94d704283c4dcfcbdeec706cf63f76f3edd844ec853d8566d7ecdde02781ad5e"
+    },
+    {
+      "role": "conditional_ot_audit_summary",
+      "path": "EXP:SPEC/before_publication/next_stage_20260717/conditional_ot/audit_summary.json",
+      "sha256": "bcfd275d45f856df703a219ca2c9d186747b2063ea0149463ab8d8a2f9ba705a"
+    },
+    {
+      "role": "conditional_ot_audit_provenance",
+      "path": "EXP:SPEC/before_publication/next_stage_20260717/conditional_ot/provenance.json",
+      "sha256": "1a16db7241a257904f62352b205ea6f7afd316d78bb59f387f1beef14c2e14af"
+    }
+  ],
+  "claim_limits": [
+    "all 93 frozen outputs are noncanonical",
+    "finite transport records must not be described as converged",
+    "the method is conditional imputation, not geometry-free reconstruction",
+    "exact target coordinates, class labels, z, and possible out-of-bracket donors must be disclosed"
+  ],
+  "claim_authorizations": {
+    "publication_claim": false,
+    "composite_score": false,
+    "method_ranking": false,
+    "winner": false
+  },
+  "decision_required": [
+    "confirm which density arms and targets are article scope before strict reruns",
+    "approve disclosure of observed target covariates and out-of-bracket label donors"
+  ],
+  "release": {"authorized": false, "tag": null, "pypi_publication": false}
+}

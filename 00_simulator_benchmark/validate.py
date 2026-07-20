@@ -61,10 +61,57 @@ def validate_metrics(root: Path) -> None:
     forbidden = [column for column in metrics if "composite" in column.casefold()]
     if forbidden:
         raise RuntimeError(f"composite metrics are prohibited: {forbidden}")
+    allowed_pairing = {
+        "exact_identifier",
+        "unique_spatial_coordinate",
+        "unavailable",
+    }
+    if not set(metrics["spot_pairing"]).issubset(allowed_pairing):
+        raise RuntimeError("metric table contains an undeclared spot-pairing method")
+    paired = metrics["spot_pairing"] != "unavailable"
+    finite_pairwise = metrics[["cosine_divergence", "zero_mask_jaccard"]].notna().all(axis=1)
+    if not (metrics.loc[paired, "n_paired_spots"] > 0).all() or not finite_pairwise.equals(paired):
+        raise RuntimeError("pairwise metric availability does not match paired support")
+    if not metrics.loc[~paired, "n_paired_spots"].eq(0).all():
+        raise RuntimeError("unavailable pairwise rows must have zero paired spots")
     panel = pd.read_csv(root / "moran_gene_panel.csv")
     required = {"simulator", "sample", "rank", "gene_id"}
     if not required.issubset(panel.columns):
         raise RuntimeError("Moran panel is missing required columns")
+
+    audit_path = root / "pairing_support_audit.csv"
+    if audit_path.is_file():
+        audit = pd.read_csv(audit_path)
+        keys = ["simulator", "sample"]
+        if audit.empty or audit[keys].duplicated().any():
+            raise RuntimeError("pairing support audit must contain unique affected rows")
+        repaired = audit["repair_status"] == "repaired"
+        if not (
+            audit.loc[repaired, "coordinate_bijection"].astype(bool).all()
+            and audit.loc[repaired, "pairing_fraction_reference"].eq(1.0).all()
+            and audit.loc[repaired, "pairing_fraction_simulated"].eq(1.0).all()
+            and audit.loc[repaired, "pair_map_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
+            and audit.loc[repaired, "n_paired_spots"].eq(
+                audit.loc[repaired, "n_reference_spots"]
+            ).all()
+            and audit.loc[repaired, "n_paired_spots"].eq(
+                audit.loc[repaired, "n_simulated_spots"]
+            ).all()
+        ):
+            raise RuntimeError("repaired coordinate support is not a complete bijection")
+        if not audit.loc[~repaired, "n_paired_spots"].eq(0).all():
+            raise RuntimeError("unresolved support audit rows must remain unpaired")
+        joined = audit.merge(
+            metrics[keys + ["spot_pairing", "n_paired_spots"]],
+            on=keys,
+            validate="one_to_one",
+            suffixes=("_audit", "_metrics"),
+        )
+        if not (
+            joined["spot_pairing_audit"].eq(joined["spot_pairing_metrics"]).all()
+            and joined["n_paired_spots_audit"].eq(joined["n_paired_spots_metrics"]).all()
+        ):
+            raise RuntimeError("pairing support audit and metric table disagree")
 
 
 def main() -> int:

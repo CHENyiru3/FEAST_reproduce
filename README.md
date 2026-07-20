@@ -13,6 +13,8 @@ the annotated tag `legacy-experiments-20260630`. This clean line is a normal
 descendant, so the cleanup is reviewable without rewriting the archive. See
 [`ARCHIVE_POLICY.md`](ARCHIVE_POLICY.md) and the machine-readable
 [`PUBLICATION_MANIFEST.json`](PUBLICATION_MANIFEST.json).
+Current review figures and their exact numerical sources are listed in
+[`FIGURE_SOURCE_MAP.md`](FIGURE_SOURCE_MAP.md).
 
 ## Active studies
 
@@ -23,6 +25,9 @@ descendant, so the cleanup is reviewable without rewriting the archive. See
 | 02 | Alignment | 20 rotation inputs and 40 method outputs |
 | 03 | Deconvolution | 6 simulations and 12 method outputs |
 | 04 | Batch-effect removal | 12 batch inputs and 36 method outputs |
+| 05 | 2D conditional transfer | 40 cross-slice plus 5 half-slice outputs |
+| 06 | Conditional 3D stack | 93 held-out target-slice outputs |
+| 07 | DevCCF 3D transfer | 158 E15.5 and 202 E18.5 z-level outputs |
 
 Study 04 is the clean name for legacy Study 08. Publication figure builders
 live in [`visualization/`](visualization/); only studies with complete,
@@ -54,6 +59,8 @@ Before any full rerun:
 
 ```bash
 python scripts/check_repository.py
+python scripts/check_conditional_workflows.py
+python scripts/test_conditional_workflows.py
 python scripts/verify_feast_install.py
 python -m pip check
 python scripts/verify_rng.py \
@@ -81,6 +88,13 @@ validation script.
 
 Studies 00 and 01 use reference-rank spatial assignment and exact global gene
 assignment. They must not use OT or the historical `PrefitSimulator` shortcut.
+
+Studies 05–07 use the installed public conditional API (`fit_reference` and
+`simulate_from_reference`) with explicit unified-OT settings and fail-closed
+convergence. Their complete scope, configuration changes, canary order, and
+validation rules are recorded in
+[`CONDITIONAL_RERUN_PLAN.md`](CONDITIONAL_RERUN_PLAN.md). Historical
+conditional-OT H5ADs are audit evidence only and are never resumed or promoted.
 
 If a fresh table materially changes a reported conclusion, preserve that
 study's run and stop before integrating it into the publication results.

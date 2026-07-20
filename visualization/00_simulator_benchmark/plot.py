@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 
 os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
+os.environ.setdefault("SOURCE_DATE_EPOCH", "0")
 
 import matplotlib
 
@@ -31,17 +32,24 @@ DEFAULT_METRICS_CSV = (
 )
 DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent / "figures"
 DEFAULT_OUTPUT_STEM = "simulator_benchmark_boxplots"
+DEFAULT_DECISION_JSON = (
+    REPOSITORY_ROOT
+    / "00_simulator_benchmark"
+    / "outputs"
+    / "final_rerun_20260718_comparison"
+    / "publication_decision.json"
+)
 
 METHOD_LABELS = {
-    "FEAST_reference_rank": "FEAST Rank",
+    "FEAST_reference_rank": "FEAST",
     "SRTsim": "SRTsim",
     "Splatter": "Splatter",
     "Splatter_Simple": "Splatter Simple",
     "scCube": "scCube",
 }
-METHOD_ORDER = ["FEAST Rank", "SRTsim", "Splatter", "Splatter Simple", "scCube"]
+METHOD_ORDER = ["FEAST", "SRTsim", "Splatter", "Splatter Simple", "scCube"]
 PALETTE = {
-    "FEAST Rank": "#7B5BA7",
+    "FEAST": "#7B5BA7",
     "SRTsim": "#E75A9C",
     "Splatter": "#F28E73",
     "Splatter Simple": "#7EA6D8",
@@ -53,7 +61,6 @@ METRIC_SPECS = [
     {"column": "input_variance_corr", "label": "Var Corr ↑", "higher_is_better": True},
     {"column": "moran_i_correlation", "label": "Moran I Corr ↑", "higher_is_better": True},
     {"column": "zero_mask_jaccard", "label": "Zero Jaccard ↑", "higher_is_better": True},
-    {"column": "cosine_divergence", "label": "Cosine Div ↓", "higher_is_better": False},
     {
         "column": "relative_error_mean",
         "label": "Rel Error Mean ↓",
@@ -63,12 +70,6 @@ METRIC_SPECS = [
     {
         "column": "gene_zero_fraction_wasserstein",
         "label": "Zero Frac WDist ↓",
-        "higher_is_better": False,
-        "yscale": "log",
-    },
-    {
-        "column": "gene_mean_wasserstein",
-        "label": "Gene Mean WDist ↓",
         "higher_is_better": False,
         "yscale": "log",
     },
@@ -144,6 +145,19 @@ def load_metrics(metrics_csv: Path) -> pd.DataFrame:
     return metrics
 
 
+def load_decision(decision_json: Path) -> dict[str, object]:
+    if not decision_json.is_file():
+        raise FileNotFoundError(f"Decision record does not exist: {decision_json}")
+    decision = json.loads(decision_json.read_text())
+    if decision.get("publication_claim_authorized") is not False:
+        raise ValueError("Study 00 visualization requires an unpromoted decision record")
+    if decision.get("feast_aggregate_metrics_worsened") != [
+        "gene_variance_wasserstein"
+    ]:
+        raise ValueError("Study 00 worsened-metric disposition does not match the figure")
+    return decision
+
+
 def build_long_table(metrics: pd.DataFrame) -> pd.DataFrame:
     rows: list[dict[str, object]] = []
     for spec in METRIC_SPECS:
@@ -166,6 +180,54 @@ def build_long_table(metrics: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def panel_method_order(
+    long_table: pd.DataFrame, spec: dict[str, object]
+) -> list[str]:
+    """Order one panel by its median, best to worst, with unavailable methods last."""
+    label = str(spec["label"])
+    medians = (
+        long_table.loc[long_table["metric"] == label]
+        .groupby("method", sort=False)["score"]
+        .median()
+    )
+    tie_break = {method: index for index, method in enumerate(METHOD_ORDER)}
+    available = [
+        method
+        for method in METHOD_ORDER
+        if method in medians.index and pd.notna(medians[method])
+    ]
+    if bool(spec["higher_is_better"]):
+        available.sort(key=lambda method: (-float(medians[method]), tie_break[method]))
+    else:
+        available.sort(key=lambda method: (float(medians[method]), tie_break[method]))
+    return available + [method for method in METHOD_ORDER if method not in available]
+
+
+def build_median_table(long_table: pd.DataFrame) -> pd.DataFrame:
+    """Record the exact panel-specific ordering used by the renderer."""
+    records: list[dict[str, object]] = []
+    for spec in METRIC_SPECS:
+        label = str(spec["label"])
+        subset = long_table.loc[long_table["metric"] == label]
+        medians = subset.groupby("method", sort=False)["score"].median()
+        counts = subset.groupby("method", sort=False)["score"].count()
+        for rank, method in enumerate(panel_method_order(long_table, spec), start=1):
+            records.append(
+                {
+                    "metric": label,
+                    "source_column": str(spec["column"]),
+                    "higher_is_better": bool(spec["higher_is_better"]),
+                    "panel_rank": rank,
+                    "method": method,
+                    "median_score": (
+                        float(medians[method]) if method in medians.index else np.nan
+                    ),
+                    "n_available": int(counts.get(method, 0)),
+                }
+            )
+    return pd.DataFrame(records)
+
+
 def configure_matplotlib() -> None:
     plt.rcParams.update(
         {
@@ -183,13 +245,14 @@ def configure_matplotlib() -> None:
 def draw_boxplot_panel(ax: plt.Axes, long_table: pd.DataFrame, spec: dict[str, object]) -> None:
     label = str(spec["label"])
     subset = long_table.loc[long_table["metric"] == label]
+    panel_order = panel_method_order(long_table, spec)
     method_rows = [
         subset.loc[subset["method"] == method].sort_values("sample")
-        for method in METHOD_ORDER
+        for method in panel_order
     ]
     plotted = [
         (position, method, rows)
-        for position, (method, rows) in enumerate(zip(METHOD_ORDER, method_rows), start=1)
+        for position, (method, rows) in enumerate(zip(panel_order, method_rows), start=1)
         if not rows.empty
     ]
 
@@ -251,10 +314,10 @@ def draw_boxplot_panel(ax: plt.Axes, long_table: pd.DataFrame, spec: dict[str, o
                 color="#777777",
             )
 
-    ax.set_xlim(0.5, len(METHOD_ORDER) + 0.5)
+    ax.set_xlim(0.5, len(panel_order) + 0.5)
     ax.set_title(label, fontsize=11.5, fontweight="bold", pad=7)
-    ax.set_xticks(range(1, len(METHOD_ORDER) + 1))
-    ax.set_xticklabels(METHOD_ORDER, rotation=36, ha="right", fontsize=7.5)
+    ax.set_xticks(range(1, len(panel_order) + 1))
+    ax.set_xticklabels(panel_order, rotation=36, ha="right", fontsize=7.5)
     ax.tick_params(axis="y", labelsize=8)
     ax.grid(True, axis="y", color="#DDDDDD", linewidth=0.6, alpha=0.65)
     ax.set_axisbelow(True)
@@ -288,7 +351,26 @@ def draw_boxplot_panel(ax: plt.Axes, long_table: pd.DataFrame, spec: dict[str, o
 
 def save_figure(fig: plt.Figure, output_dir: Path, stem: str, dpi: int) -> list[Path]:
     paths: list[Path] = []
-    for suffix, kwargs in {"pdf": {}, "svg": {}, "png": {"dpi": dpi}}.items():
+    formats = {
+        "pdf": {
+            "metadata": {
+                "CreationDate": None,
+                "ModDate": None,
+                "Creator": "FEAST publication visualization",
+            }
+        },
+        "svg": {
+            "metadata": {
+                "Date": None,
+                "Creator": "FEAST publication visualization",
+            }
+        },
+        "png": {
+            "dpi": dpi,
+            "metadata": {"Software": "FEAST publication visualization"},
+        },
+    }
+    for suffix, kwargs in formats.items():
         path = output_dir / f"{stem}.{suffix}"
         fig.savefig(path, bbox_inches="tight", **kwargs)
         print(f"Saved: {path}")
@@ -303,10 +385,10 @@ def draw_consolidated_figure(
     dpi: int,
 ) -> list[Path]:
     configure_matplotlib()
-    fig, axes = plt.subplots(3, 4, figsize=(16, 11.2))
+    fig, axes = plt.subplots(2, 4, figsize=(16, 8.1))
     axes = axes.flatten()
 
-    for panel_index, (ax, spec) in enumerate(zip(axes[:10], METRIC_SPECS)):
+    for panel_index, (ax, spec) in enumerate(zip(axes, METRIC_SPECS)):
         draw_boxplot_panel(ax, long_table, spec)
         ax.text(
             -0.13,
@@ -318,29 +400,13 @@ def draw_consolidated_figure(
             va="top",
         )
 
-    for row_start in (0, 4, 8):
+    for row_start in (0, 4):
         axes[row_start].set_ylabel("Metric value", fontsize=13)
 
-    legend_ax = axes[10]
-    legend_ax.axis("off")
     method_handles = [
         Patch(facecolor=PALETTE[method], edgecolor="none", label=method, alpha=0.85)
         for method in METHOD_ORDER
     ]
-    method_legend = legend_ax.legend(
-        handles=method_handles,
-        loc="upper left",
-        frameon=True,
-        fontsize=9,
-        borderpad=0.6,
-        handlelength=0.8,
-        handletextpad=0.5,
-        title="Simulator",
-        title_fontsize=10,
-    )
-    method_legend.get_frame().set_edgecolor("#CCCCCC")
-    method_legend.get_frame().set_linewidth(0.8)
-
     status_handles = [
         Line2D(
             [0],
@@ -363,39 +429,20 @@ def draw_consolidated_figure(
             label="Near identity",
         ),
     ]
-    legend_ax.legend(
-        handles=status_handles,
-        loc="lower left",
-        frameon=False,
-        fontsize=8.5,
-        title="Dataset point",
-        title_fontsize=9.5,
-    )
-    legend_ax.add_artist(method_legend)
-
-    notes_ax = axes[11]
-    notes_ax.axis("off")
     n_datasets = long_table["sample"].nunique()
-    notes_ax.text(
-        0.02,
-        0.98,
-        f"{n_datasets} datasets per simulator\n\n"
-        "Boxes summarize available values;\n"
-        "each point is one dataset. NA marks\n"
-        "an unavailable pairwise metric.\n\n"
-        "Near identity requires all three:\n"
-        "mean corr ≥ 0.995\n"
-        "variance corr ≥ 0.95\n"
-        "zero-mask Jaccard ≥ 0.95\n\n"
-        "Historical FEAST OT is outside\n"
-        "the clean rerun scope.",
-        transform=notes_ax.transAxes,
-        ha="left",
-        va="top",
-        fontsize=8.5,
-        color="#4F4F4F",
-        linespacing=1.35,
+    legend = fig.legend(
+        handles=method_handles + status_handles,
+        loc="lower center",
+        bbox_to_anchor=(0.5, 0.035),
+        ncol=7,
+        frameon=True,
+        fontsize=9,
+        borderpad=0.6,
+        handlelength=0.9,
+        handletextpad=0.5,
     )
+    legend.get_frame().set_edgecolor("#CCCCCC")
+    legend.get_frame().set_linewidth(0.8)
 
     fig.suptitle(
         f"Simulator benchmark across {n_datasets} spatial transcriptomics datasets",
@@ -403,7 +450,26 @@ def draw_consolidated_figure(
         fontweight="bold",
         y=0.995,
     )
-    fig.tight_layout(rect=(0, 0, 1, 0.98), w_pad=2.0, h_pad=2.2)
+    fig.text(
+        0.5,
+        0.955,
+        "Each panel is ordered by its median (best → worst); unavailable methods are last. "
+        "Orders are panel-specific, not an overall ranking.",
+        ha="center",
+        va="top",
+        fontsize=9.5,
+        color="#4F4F4F",
+    )
+    fig.text(
+        0.5,
+        0.012,
+        "Near identity: mean corr ≥ 0.995, variance corr ≥ 0.95, and zero-mask Jaccard ≥ 0.95.",
+        ha="center",
+        va="bottom",
+        fontsize=8.5,
+        color="#4F4F4F",
+    )
+    fig.tight_layout(rect=(0, 0.12, 1, 0.93), w_pad=2.0, h_pad=2.2)
     paths = save_figure(fig, output_dir, output_stem, dpi)
     plt.close(fig)
     return paths
@@ -429,7 +495,10 @@ def draw_individual_panels(long_table: pd.DataFrame, output_dir: Path, dpi: int)
 
 def write_provenance(
     metrics_csv: Path,
+    decision_json: Path,
+    decision: dict[str, object],
     metrics: pd.DataFrame,
+    long_table: pd.DataFrame,
     output_dir: Path,
     output_paths: list[Path],
 ) -> Path:
@@ -446,6 +515,8 @@ def write_provenance(
             "metrics_provenance_sha256": (
                 sha256(metrics_provenance) if metrics_provenance.is_file() else None
             ),
+            "decision_json": repository_path(decision_json),
+            "decision_sha256": sha256(decision_json),
             "plot_script": repository_path(Path(__file__)),
             "plot_script_sha256": sha256(Path(__file__)),
         },
@@ -454,6 +525,32 @@ def write_provenance(
             "samples": sorted(metrics["sample"].unique().tolist()),
             "simulators": METHOD_ORDER,
             "historical_feast_ot_included": False,
+            "panel_ordering": {
+                "statistic": "median",
+                "direction": "metric-specific higher/lower is better",
+                "unavailable": "last",
+                "tie_break_order": METHOD_ORDER,
+                "overall_ranking_claimed": False,
+                "orders": {
+                    str(spec["label"]): panel_method_order(long_table, spec)
+                    for spec in METRIC_SPECS
+                },
+            },
+            "metric_selection": {
+                "displayed": [str(spec["column"]) for spec in METRIC_SPECS],
+                "excluded": {
+                    "cosine_divergence": "redundant profile-similarity summary with incomplete method support",
+                    "gene_mean_wasserstein": "mean-fidelity redundancy; retained correlation and relative error",
+                },
+                "selection_based_on_method_rank": False,
+            },
+        },
+        "scientific_disposition": {
+            "status": decision.get("status"),
+            "publication_claim_authorized": False,
+            "figure_promotion_authorized": False,
+            "winner_or_composite_authorized": False,
+            "worsened_metric_visible": "gene_variance_wasserstein",
         },
         "outputs": {
             path.name: sha256(path)
@@ -469,6 +566,7 @@ def write_provenance(
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--metrics-csv", type=Path, default=DEFAULT_METRICS_CSV)
+    parser.add_argument("--decision-json", type=Path, default=DEFAULT_DECISION_JSON)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--output-stem", default=DEFAULT_OUTPUT_STEM)
     parser.add_argument("--dpi", type=int, default=600)
@@ -478,18 +576,14 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     metrics = load_metrics(args.metrics_csv)
+    decision = load_decision(args.decision_json)
     long_table = build_long_table(metrics)
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
     long_path = args.output_dir / "plot_data_long.csv"
     medians_path = args.output_dir / "metric_medians.csv"
     long_table.to_csv(long_path, index=False)
-    (
-        long_table.groupby(["metric", "method"], as_index=False)["score"]
-        .median()
-        .rename(columns={"score": "median_score"})
-        .to_csv(medians_path, index=False)
-    )
+    build_median_table(long_table).to_csv(medians_path, index=False)
     print(f"Saved: {long_path}")
     print(f"Saved: {medians_path}")
 
@@ -498,7 +592,15 @@ def main() -> int:
         draw_consolidated_figure(long_table, args.output_dir, args.output_stem, args.dpi)
     )
     output_paths.extend(draw_individual_panels(long_table, args.output_dir, args.dpi))
-    write_provenance(args.metrics_csv, metrics, args.output_dir, output_paths)
+    write_provenance(
+        args.metrics_csv,
+        args.decision_json,
+        decision,
+        metrics,
+        long_table,
+        args.output_dir,
+        output_paths,
+    )
     return 0
 
 

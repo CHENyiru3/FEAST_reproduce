@@ -17,6 +17,19 @@ is a publication candidate only when its study validator accepts it and its
 manifest records the exact input, configuration, runner, environment, and
 output hashes. Ignored output directories are not evidence by themselves.
 
+Superseded local run roots are moved out of publication-facing `outputs/`
+directories and retained below `.archive/`, which is ignored by Git. Their
+original repository-relative layout is preserved beneath the dated archive
+root so provenance can be recovered without confusing an old run with the
+current candidate. The current candidate roots are exactly those declared in
+`PUBLICATION_MANIFEST.json`; cleanup must not rename, rewrite, or silently
+promote archived artifacts.
+
+The terminal freeze deliberately retains 76 failure-evidence files and eight
+noncanonical-evidence files inside selected candidate roots. They are
+path-bound audit evidence, not competing candidate versions, and must remain
+in place unless a new freeze is built and independently validated.
+
 The FEAST v1.0.2 wheel and source distribution are identified by SHA-256 in
 `FEAST_BUILD.txt` and `PUBLICATION_MANIFEST.json`. They may be kept locally or
 attached as immutable release assets, but they are not ordinary source files

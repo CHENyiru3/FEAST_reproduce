@@ -126,6 +126,28 @@ def baseline_gaps(prior: pd.DataFrame, fresh: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def baseline_gaps_by_slice(fresh: pd.DataFrame) -> pd.DataFrame:
+    rows = []
+    for (method, slice_id), group in fresh.groupby(["method", "slice_id"]):
+        feast = group[group["simulation_id"].eq("baseline")]
+        real = group[group["simulation_id"].eq("real_baseline")]
+        if len(feast) != 1 or len(real) != 1:
+            raise RuntimeError(f"fresh {method}/{slice_id} lacks paired baselines")
+        rows.append(
+            {
+                "method": method,
+                "slice_id": slice_id,
+                **{
+                    f"{metric}_feast_minus_real": (
+                        float(feast.iloc[0][metric]) - float(real.iloc[0][metric])
+                    )
+                    for metric in ("ARI", "NMI", "AMI")
+                },
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fresh-report", type=Path, required=True)
@@ -171,9 +193,24 @@ def main() -> int:
     gaps = baseline_gaps(prior, fresh)
     gaps_path = args.output_dir / "baseline_gap_comparison.csv"
     gaps.to_csv(gaps_path, index=False)
+    slice_gaps = baseline_gaps_by_slice(fresh)
+    slice_gaps_path = args.output_dir / "baseline_gap_by_slice.csv"
+    slice_gaps.to_csv(slice_gaps_path, index=False)
     fresh_gaps = gaps[gaps["source"].eq("fresh")]
     max_gap = float(
         fresh_gaps[
+            [
+                "ARI_feast_minus_real",
+                "NMI_feast_minus_real",
+                "AMI_feast_minus_real",
+            ]
+        ]
+        .abs()
+        .to_numpy()
+        .max()
+    )
+    max_slice_gap = float(
+        slice_gaps[
             [
                 "ARI_feast_minus_real",
                 "NMI_feast_minus_real",
@@ -190,10 +227,12 @@ def main() -> int:
         "decision": "validated_publication_candidate",
         "headline_direction": "unchanged",
         "headline_conclusion": (
-            "Under identical raw-derived fixed gene panels, FEAST baseline and "
-            "raw-slice clustering performance remain closely matched."
+            "Averaged across three slices under identical raw-derived fixed gene "
+            "panels, FEAST baseline and raw-slice clustering performance remain "
+            "closely matched; this is not a uniform per-slice equivalence claim."
         ),
-        "maximum_absolute_fresh_baseline_gap_across_ari_nmi_ami": max_gap,
+        "maximum_absolute_three_slice_method_mean_baseline_gap_across_ari_nmi_ami": max_gap,
+        "maximum_absolute_slice_level_baseline_gap_across_ari_nmi_ami": max_slice_gap,
         "leiden_disposition": (
             "Retain only the declared label-free modularity-selection rerun; "
             "the label-informed historical Leiden table is sensitivity evidence."
@@ -217,7 +256,13 @@ def main() -> int:
     decision_path.write_text(json.dumps(decision, indent=2) + "\n")
 
     source_path = Path(__file__).resolve()
-    output_paths = (combined_path, summary_path, gaps_path, decision_path)
+    output_paths = (
+        combined_path,
+        summary_path,
+        gaps_path,
+        slice_gaps_path,
+        decision_path,
+    )
     provenance = {
         "generated_utc": datetime.now(timezone.utc).isoformat(),
         "configuration_id": "study01-reference-rank-fixed-panel-v1",

@@ -1,0 +1,149 @@
+{
+  "$schema": "../workflow.schema.json",
+  "contract_version": "2.0-candidate",
+  "workflow_id": "FEAST-ART-02-ALIGN-v2",
+  "supersedes": {
+    "workflow_id": "FEAST-ART-02-ALIGN-v1",
+    "path": "EXP:SPEC/before_publication/method_contract/configs/FEAST-ART-02-ALIGN-v1.json",
+    "sha256": "61c9d273c76686f9c1d1b46aa4c41c2f4f7c370924b2f339c9f2904eb53f5586"
+  },
+  "study": "02_alignment",
+  "clean_rerun_study": "02_alignment",
+  "status": "validated_candidate",
+  "method_name": "reference_rank",
+  "article_scope": {
+    "purpose": "evaluate PASTE and Spateo on identity-preserving centered rotations of four fresh FEAST conditions",
+    "reference_slice": "151675",
+    "angles_degrees": [1, 5, 10, 30, 45],
+    "alterations": ["baseline", "mean_0.5", "variance_2.0", "sparsity_0.5"],
+    "rotation_rows": 20,
+    "method_rows": 40,
+    "metric_rows": 40,
+    "author_scope_pending": true
+  },
+  "inputs": [
+    {
+      "role": "reference_and_blueprint",
+      "source": "DLPFC 151675",
+      "required_fields": ["X raw counts", "obs.ground_truth", "obsm.spatial", "stable obs_names", "var_names"]
+    }
+  ],
+  "observed_target_covariates": [
+    "simulations retain reference spot identity and coordinate support",
+    "alignment methods observe simulated expression and the centered rotated coordinates"
+  ],
+  "engine": {
+    "feast_version": "1.0.2",
+    "feast_commit": "68816e5c1862a6fa2a49bc30609d617c7fa4b449",
+    "simulation": {
+      "parameter_mode": "hungarian",
+      "spatial_mode": "reference_rank",
+      "assignment_solver": "scipy",
+      "assignment_blocks": false,
+      "public_seed": 2026
+    },
+    "geometry": {
+      "rotation_center": "coordinate centroid",
+      "continuous": true,
+      "preserve_spot_identity": true,
+      "preserve_spot_count": true,
+      "prohibit_grid_snapping": true,
+      "prohibit_collision_deletion": true,
+      "inverse_tolerance": 1e-8
+    },
+    "methods": {
+      "PASTE": {"alpha": 0.1, "outer_max_iterations": 200, "positive_inner_and_outer_convergence_required": true},
+      "Spateo": {"device": "cuda", "iterations": 200, "convergence_claim": false}
+    }
+  },
+  "rng": {
+    "public_seed": 2026,
+    "requirement": "simulation and method provenance retain effective seeds and exact input/output hashes"
+  },
+  "solver": {
+    "PASTE": "all 20 rows have positive inner-EMD and outer conditional-gradient convergence evidence",
+    "Spateo": "all 20 rows completed the declared fixed 200-iteration schedule; completion is not described as convergence",
+    "identity_gate": "all outputs preserve exact spot support/order and pass inverse geometry checks"
+  },
+  "fallback_policy": {
+    "spot_loss_or_duplicate_identity": "fatal",
+    "PASTE_nonconvergence": "fatal",
+    "historical_grid_snap_design": "noncanonical and not directly comparable",
+    "external_method_environment": "Spateo used NumPy 2.4.6, outside FEAST support; FEAST was not imported in that worker"
+  },
+  "outputs": {
+    "artifacts": [
+      {
+        "role": "rotation_manifest",
+        "path": "REPRO:02_alignment/outputs/final_rerun_20260718_v2/rotations/rotation_manifest.csv",
+        "sha256": "fdf3bedff79f4d5f7849e074aec44fbf9295acbdadb49ff46ecc94a6fdb013f0"
+      },
+      {
+        "role": "method_manifest",
+        "path": "REPRO:02_alignment/outputs/final_rerun_20260718_v2/methods/method_manifest.csv",
+        "sha256": "881a221125e804529650e83d96d6e918f97aa069fb80c233fe6029c1215fb220"
+      },
+      {
+        "role": "alignment_metrics",
+        "path": "REPRO:02_alignment/outputs/final_rerun_20260718_v2/scores/alignment_metrics.csv",
+        "sha256": "d405d2b8bea4d834cee729013803d2cb9c3ba2193f25d5c9df08dc1446723e92"
+      },
+      {
+        "role": "validation",
+        "path": "REPRO:02_alignment/outputs/final_rerun_20260718_v2/validation.csv",
+        "sha256": "65266a8c2752e21bd0c3ac74d4e6d5f1c26499095042dad3137c2da97cc67901"
+      },
+      {
+        "role": "scientific_decision",
+        "path": "REPRO:02_alignment/outputs/final_rerun_20260718_v2/comparison_v2/publication_decision.json",
+        "sha256": "bc5d5b48933dc8aee4fecb125a11da3bf7ed053c33c84b432e38d2ea1b418601"
+      }
+    ]
+  },
+  "evidence_binding": {
+    "state": "validated",
+    "validated_rotation_rows": 20,
+    "validated_method_rows": 40,
+    "validated_metric_rows": 40,
+    "figure_promotion_authorized": false
+  },
+  "evidence": [
+    {
+      "role": "v1_predecessor",
+      "path": "EXP:SPEC/before_publication/method_contract/configs/FEAST-ART-02-ALIGN-v1.json",
+      "sha256": "61c9d273c76686f9c1d1b46aa4c41c2f4f7c370924b2f339c9f2904eb53f5586"
+    },
+    {
+      "role": "executed_config",
+      "path": "REPRO:02_alignment/config.yaml",
+      "sha256": "2259ec688f41e9982c24ba0b29f84cc4ba693895cf036631e51a7e40f8509515"
+    },
+    {
+      "role": "old_vs_new",
+      "path": "REPRO:02_alignment/outputs/final_rerun_20260718_v2/comparison_v2/old_vs_new_metrics.csv",
+      "sha256": "b30a18d6df9403cd63abdff6f93e95e312f0fca0be3bc8d9cd1b1ac5518ad18b"
+    },
+    {
+      "role": "scientific_decision",
+      "path": "REPRO:02_alignment/outputs/final_rerun_20260718_v2/comparison_v2/publication_decision.json",
+      "sha256": "bc5d5b48933dc8aee4fecb125a11da3bf7ed053c33c84b432e38d2ea1b418601"
+    }
+  ],
+  "claim_limits": [
+    "no aggregate method ranking or winner is authorized",
+    "historical support-changing grid-snap metrics are noncanonical and not directly comparable",
+    "Spateo schedule completion is not a convergence claim",
+    "the article panel, metric, alteration strata, and claim remain an author decision"
+  ],
+  "claim_authorizations": {
+    "publication_claim": false,
+    "composite_score": false,
+    "method_ranking": false,
+    "winner": false
+  },
+  "decision_required": [
+    "select the article panel, metric, alteration strata, and claim",
+    "reconcile the identity-preserving design and external environment limitation with the manuscript and captions"
+  ],
+  "release": {"authorized": false, "tag": null, "pypi_publication": false}
+}

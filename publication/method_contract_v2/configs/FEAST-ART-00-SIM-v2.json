@@ -1,0 +1,140 @@
+{
+  "$schema": "../workflow.schema.json",
+  "contract_version": "2.0-candidate",
+  "workflow_id": "FEAST-ART-00-SIM-v2",
+  "supersedes": {
+    "workflow_id": "FEAST-ART-00-SIM-v1",
+    "path": "EXP:SPEC/before_publication/method_contract/configs/FEAST-ART-00-SIM-v1.json",
+    "sha256": "fe5ddfd07278a5853bae24863c9480faac554d746a0e064ac0eef474846eecc4"
+  },
+  "study": "00_simulator_benchmark",
+  "clean_rerun_study": "00_simulator_benchmark",
+  "status": "validated_candidate",
+  "method_name": "generative_parameter_assignment",
+  "article_scope": {
+    "purpose": "compare fresh FEAST reference-rank simulations with retained external simulator artifacts across twelve spatial-transcriptomics datasets",
+    "dataset_count": 12,
+    "fresh_feast_rows": 12,
+    "retained_external_rows": 48,
+    "feast_arms": ["reference_rank"],
+    "historical_ot_arm_included": false,
+    "metric_rule": "atomic metrics with exact gene and named-spot joins; ordered reference-derived Moran panel; no composite score"
+  },
+  "inputs": [
+    {
+      "role": "reference",
+      "source": "twelve locally materialized publication input H5ADs",
+      "required_fields": ["X raw counts", "obs", "obsm.spatial", "var_names"]
+    },
+    {
+      "role": "external_simulator_candidates",
+      "source": "48 frozen SRTsim, Splatter, Splatter_Simple, and scCube artifacts",
+      "policy": "retain byte identity; recompute only the declared atomic metrics"
+    }
+  ],
+  "observed_target_covariates": [
+    "reference_rank uses the reference expression and coordinates; no separate biological target is observed"
+  ],
+  "engine": {
+    "configuration_id": "study00-reference-rank-global-v1",
+    "feast_version": "1.0.2",
+    "feast_commit": "68816e5c1862a6fa2a49bc30609d617c7fa4b449",
+    "parameter_mode": "hungarian",
+    "spatial_mode": "reference_rank",
+    "assignment_method": "hybrid",
+    "assignment_solver": "scipy",
+    "assignment_blocks": false,
+    "ppf_method": "interp",
+    "beta_n_jobs": 4,
+    "beta_early_stopping_patience": 2,
+    "convert_n_jobs": 4
+  },
+  "rng": {
+    "public_seed": 2026,
+    "article_gate": "three fixed-seed scoped replays produced identical hashes",
+    "scope_limit": "the gate does not authorize a blanket unseeded or all-mode determinism claim"
+  },
+  "solver": {
+    "assignment": "exact global SciPy linear-sum assignment",
+    "success_gate": "12 readable finite H5ADs with exact manifest-bound spot/gene identity"
+  },
+  "fallback_policy": {
+    "simulation_failure": "fatal; do not replace a dataset",
+    "missing_metric_support": "report exact missingness; never substitute identifiers",
+    "blocked_assignment": "not used by this candidate; no general blocked-versus-global stability claim is made"
+  },
+  "outputs": {
+    "artifacts": [
+      {
+        "role": "simulation_manifest",
+        "path": "REPRO:00_simulator_benchmark/outputs/final_rerun_20260718/simulation_manifest.csv",
+        "sha256": "a7919681f5e376f1f8a7d1435892d0531d143389cf60254e6f9e87e9a658f7eb"
+      },
+      {
+        "role": "atomic_metrics",
+        "path": "REPRO:00_simulator_benchmark/outputs/final_rerun_20260718_metrics_v2/simulator_quality_metrics.csv",
+        "sha256": "b80e01a740ac084867997189ac80c148e4f52ceee79c4f721985d9d98df75879"
+      },
+      {
+        "role": "old_vs_new",
+        "path": "REPRO:00_simulator_benchmark/outputs/final_rerun_20260718_comparison/old_vs_new_metrics.csv",
+        "sha256": "021e5890adea341224285493be88235736954550c0908a6a6a953f2057e7dab3"
+      },
+      {
+        "role": "scientific_decision",
+        "path": "REPRO:00_simulator_benchmark/outputs/final_rerun_20260718_comparison/publication_decision.json",
+        "sha256": "2933fb61c69a70de9d3ab37c035b7704315298b1c413d17a4b8b3a77c11b5250"
+      }
+    ]
+  },
+  "evidence_binding": {
+    "state": "validated",
+    "artifact_binding": "large outputs are bound transitively by the simulation manifest",
+    "headline_direction": "candidate unchanged",
+    "publication_claim_authorized": false
+  },
+  "evidence": [
+    {
+      "role": "v1_predecessor",
+      "path": "EXP:SPEC/before_publication/method_contract/configs/FEAST-ART-00-SIM-v1.json",
+      "sha256": "fe5ddfd07278a5853bae24863c9480faac554d746a0e064ac0eef474846eecc4"
+    },
+    {
+      "role": "executed_config",
+      "path": "REPRO:00_simulator_benchmark/config.yaml",
+      "sha256": "a0fefed4f739e7f001be8cfd96b2c90f467f3e700157296090adc85c1472da9f"
+    },
+    {
+      "role": "simulation_provenance",
+      "path": "REPRO:00_simulator_benchmark/outputs/final_rerun_20260718/provenance.json",
+      "sha256": "6e4e29c4074f03abef3ccb272da7ee46cc38231b6b58b46d8d63b94213446238"
+    },
+    {
+      "role": "metric_provenance",
+      "path": "REPRO:00_simulator_benchmark/outputs/final_rerun_20260718_metrics_v2/provenance.json",
+      "sha256": "5ebefdc07f5afc039b8418ff0b2c5f7b5a32271dd1e2c919ca76fa4898348700"
+    },
+    {
+      "role": "rng_gate",
+      "path": "REPRO:validation/rng_article_gate_20260718_v2.json",
+      "sha256": "482182d689d745098899de0f1e92ee7c2938e3abc2a14179a5ee638b0c6a610f"
+    }
+  ],
+  "claim_limits": [
+    "the historical composite score is prohibited",
+    "the historical OT-spatial arm is not part of this clean candidate",
+    "gene-variance Wasserstein worsened and must remain visible",
+    "fresh exact-global execution does not prove article-scale blocked-assignment stability"
+  ],
+  "claim_authorizations": {
+    "publication_claim": false,
+    "composite_score": false,
+    "method_ranking": false,
+    "winner": false
+  },
+  "decision_required": [
+    "authorize or narrow the simulator-quality claim after reviewing every atomic delta",
+    "reconcile the twelve-dataset scope and metric language with the manuscript and captions"
+  ],
+  "release": {"authorized": false, "tag": null, "pypi_publication": false}
+}

@@ -1,0 +1,282 @@
+{
+  "builder": {
+    "path": "REPRO:publication/build_final_freeze.py",
+    "sha256": "4acd707922ea5350e7e61137db2cf581090a0e75e5add3d293d98d587e9f6e07"
+  },
+  "configuration_ids_by_study": {
+    "00": [
+      "study00-fresh-vs-corrected-historical-v1",
+      "study00-reference-rank-global-v1"
+    ],
+    "01": [
+      "study01-reference-rank-fixed-panel-v1"
+    ],
+    "02": [
+      "study02-alignment-comparison-v1",
+      "study02-alignment-score-v2",
+      "study02-centered-rigid-rotation-v2",
+      "study02-paste-baseline-1",
+      "study02-paste-baseline-10",
+      "study02-paste-baseline-30",
+      "study02-paste-baseline-45",
+      "study02-paste-baseline-5",
+      "study02-paste-mean_0.5-1",
+      "study02-paste-mean_0.5-10",
+      "study02-paste-mean_0.5-30",
+      "study02-paste-mean_0.5-45",
+      "study02-paste-mean_0.5-5",
+      "study02-paste-sparsity_0.5-1",
+      "study02-paste-sparsity_0.5-10",
+      "study02-paste-sparsity_0.5-30",
+      "study02-paste-sparsity_0.5-45",
+      "study02-paste-sparsity_0.5-5",
+      "study02-paste-variance_2.0-1",
+      "study02-paste-variance_2.0-10",
+      "study02-paste-variance_2.0-30",
+      "study02-paste-variance_2.0-45",
+      "study02-paste-variance_2.0-5",
+      "study02-spateo-baseline-1",
+      "study02-spateo-baseline-10",
+      "study02-spateo-baseline-30",
+      "study02-spateo-baseline-45",
+      "study02-spateo-baseline-5",
+      "study02-spateo-mean_0.5-1",
+      "study02-spateo-mean_0.5-10",
+      "study02-spateo-mean_0.5-30",
+      "study02-spateo-mean_0.5-45",
+      "study02-spateo-mean_0.5-5",
+      "study02-spateo-sparsity_0.5-1",
+      "study02-spateo-sparsity_0.5-10",
+      "study02-spateo-sparsity_0.5-30",
+      "study02-spateo-sparsity_0.5-45",
+      "study02-spateo-sparsity_0.5-5",
+      "study02-spateo-variance_2.0-1",
+      "study02-spateo-variance_2.0-10",
+      "study02-spateo-variance_2.0-30",
+      "study02-spateo-variance_2.0-45",
+      "study02-spateo-variance_2.0-5"
+    ],
+    "03": [
+      "study03-common-support-score-v3",
+      "study03-fresh-same-expression-v3",
+      "study03-fresh-same-expression-v3-cell2location",
+      "study03-fresh-same-expression-v3-rctd"
+    ],
+    "04": [
+      "study04-final-rerun-v2",
+      "study04-final-rerun-v2__atomic_metrics",
+      "study04-final-rerun-v2__fixed_panel",
+      "study04-final-rerun-v2__validation"
+    ]
+  },
+  "embedded_references_checked": 3132,
+  "feast": {
+    "commit": "68816e5c1862a6fa2a49bc30609d617c7fa4b449",
+    "version": "1.0.2"
+  },
+  "final_decision_gate": {
+    "claim_promotion_authorized": false,
+    "freeze_candidate_approved": true,
+    "open_blocker_ids": [
+      "unbalanced-transport-nonconvergence",
+      "artifact-freeze-byte-integrity",
+      "study00-simulator-claim-and-variance-disposition",
+      "study01-claim-wording-and-figure-scope",
+      "study02-author-scope-selection",
+      "study03-headline-direction-changed"
+    ],
+    "predecessor_v4_bound": true,
+    "release_authorized": false,
+    "scientific_disposition_sha256": "a4984c414b3ceb7b8a893c1be0ef57af09a7c1aec9018e4057f7cbea7811c07c",
+    "scientific_status": "blocked",
+    "validation_summary": "EXP:SPEC/before_publication/continuation_20260719/publication_decision_record_v5_validation/summary.json",
+    "validation_summary_sha256": "2710feab2cfc5eb522265c63497e1580a67bec22b4295eb5568ccd0cba71f9ea"
+  },
+  "generated_utc": "2026-07-19T14:30:59.648034+00:00",
+  "input_roots": [
+    {
+      "kind": "candidate",
+      "locator": "REPRO:00_simulator_benchmark/outputs/final_rerun_20260718",
+      "source_root": "study00_run",
+      "study": "00"
+    },
+    {
+      "kind": "candidate",
+      "locator": "REPRO:00_simulator_benchmark/outputs/final_rerun_20260718_metrics_v2",
+      "source_root": "study00_metrics",
+      "study": "00"
+    },
+    {
+      "kind": "candidate",
+      "locator": "REPRO:00_simulator_benchmark/outputs/final_rerun_20260718_comparison",
+      "source_root": "study00_comparison",
+      "study": "00"
+    },
+    {
+      "kind": "candidate",
+      "locator": "REPRO:01_clustering/outputs/final_rerun_20260718",
+      "source_root": "study01_run",
+      "study": "01"
+    },
+    {
+      "kind": "candidate",
+      "locator": "REPRO:01_clustering/outputs/final_rerun_20260718_report",
+      "source_root": "study01_report",
+      "study": "01"
+    },
+    {
+      "kind": "candidate",
+      "locator": "REPRO:01_clustering/outputs/final_rerun_20260718_comparison_v2",
+      "source_root": "study01_comparison",
+      "study": "01"
+    },
+    {
+      "kind": "candidate",
+      "locator": "REPRO:02_alignment/outputs/final_rerun_20260718_v2",
+      "source_root": "study02",
+      "study": "02"
+    },
+    {
+      "kind": "candidate",
+      "locator": "REPRO:03_deconvolution/outputs/final_rerun_20260718_v2",
+      "source_root": "study03",
+      "study": "03"
+    },
+    {
+      "kind": "candidate",
+      "locator": "REPRO:04_batch_effect_removal/outputs/final_rerun_20260718_v2",
+      "source_root": "study04",
+      "study": "04"
+    },
+    {
+      "kind": "record",
+      "locator": "REPRO:PUBLICATION_MANIFEST.json",
+      "source_root": "publication_manifest",
+      "study": "publication"
+    },
+    {
+      "kind": "record",
+      "locator": "REPRO:RUN_STATUS.md",
+      "source_root": "run_status",
+      "study": "publication"
+    },
+    {
+      "kind": "record",
+      "locator": "REPRO:validation/rng_article_gate_20260718_v2.json",
+      "source_root": "rng_gate",
+      "study": "publication"
+    },
+    {
+      "kind": "record",
+      "locator": "REPRO:publication/method_contract_v2",
+      "source_root": "method_contract_v2",
+      "study": "publication"
+    },
+    {
+      "kind": "record",
+      "locator": "EXP:SPEC/before_publication/continuation_20260719/publication_decision_record_v5",
+      "source_root": "decision_final",
+      "study": "publication"
+    },
+    {
+      "kind": "record",
+      "locator": "EXP:SPEC/before_publication/continuation_20260719/publication_decision_record_v5_validation",
+      "source_root": "decision_validation_final",
+      "study": "publication"
+    },
+    {
+      "kind": "record",
+      "locator": "EXP:SPEC/before_publication/NEXT_STAGE_STATUS.md",
+      "source_root": "next_stage_status",
+      "study": "publication"
+    },
+    {
+      "kind": "record",
+      "locator": "PKG:validation/publication/scientific_disposition.json",
+      "source_root": "scientific_disposition",
+      "study": "publication"
+    },
+    {
+      "kind": "record",
+      "locator": "PKG:README.md",
+      "source_root": "package_readme",
+      "study": "publication"
+    },
+    {
+      "kind": "record",
+      "locator": "PKG:docs/source",
+      "source_root": "docs",
+      "study": "publication"
+    },
+    {
+      "kind": "record",
+      "locator": "PKG:PUBLICATION_RELEASE_CHECKLIST.md",
+      "source_root": "checklist",
+      "study": "publication"
+    },
+    {
+      "kind": "record",
+      "locator": "PKG:validation/core/prepublication_run_20260719_v4.json",
+      "source_root": "core_v4_declaration",
+      "study": "publication"
+    },
+    {
+      "kind": "record",
+      "locator": "PKG:validation/core/runs/20260719_prepublication_v4/core_validation_results.csv",
+      "source_root": "core_v4_results",
+      "study": "publication"
+    },
+    {
+      "kind": "record",
+      "locator": "PKG:validation/core/runs/20260719_prepublication_v4/run_manifest.json",
+      "source_root": "core_v4_manifest",
+      "study": "publication"
+    },
+    {
+      "kind": "record",
+      "locator": "PKG:validation/core/runs/20260719_prepublication_v4/SUMMARY.md",
+      "source_root": "core_v4_summary",
+      "study": "publication"
+    },
+    {
+      "kind": "record",
+      "locator": "REPRO:publication/outputs/final_gate_20260719_v2/dist",
+      "source_root": "build_evidence",
+      "study": "publication"
+    },
+    {
+      "kind": "record",
+      "locator": "REPRO:publication/outputs/final_gate_20260719_v2",
+      "source_root": "test_evidence",
+      "study": "publication"
+    }
+  ],
+  "outputs": {
+    "manifest.csv": "49042f84ce34cf77160664df81e5bc81c1a3d7f31e5b8342e1cf3d8f584d8101",
+    "summary.json": "d8f0d0c3f95a5565768fc624e42c4623b155eb03c1d192d5dcbf6831e285d5ec"
+  },
+  "public_seeds_by_study": {
+    "00": [
+      "2026"
+    ],
+    "01": [
+      "2026"
+    ],
+    "02": [
+      "2026"
+    ],
+    "03": [
+      "2026"
+    ],
+    "04": [
+      "42"
+    ]
+  },
+  "release_authorized": false,
+  "repository_labels": [
+    "EXP",
+    "PKG",
+    "REPRO"
+  ],
+  "schema_version": 1
+}

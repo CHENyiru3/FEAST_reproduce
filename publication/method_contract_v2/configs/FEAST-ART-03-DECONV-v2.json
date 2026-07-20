@@ -1,0 +1,177 @@
+{
+  "$schema": "../workflow.schema.json",
+  "contract_version": "2.0-candidate",
+  "workflow_id": "FEAST-ART-03-DECONV-v2",
+  "supersedes": {
+    "workflow_id": "FEAST-ART-03-DECONV-v1",
+    "path": "EXP:SPEC/before_publication/method_contract/configs/FEAST-ART-03-DECONV-v1.json",
+    "sha256": "37f612948b32c9a02121f7a269e7cad3e08db327548d1d546ba4b6b9c14e94f8"
+  },
+  "study": "03_deconvolution",
+  "clean_rerun_study": "03_deconvolution",
+  "status": "decision_required",
+  "method_name": "generative_parameter_assignment",
+  "article_scope": {
+    "purpose": "compare RCTD and Cell2location on the same six freshly simulated and hexagonally aggregated expression inputs",
+    "reference_slices": ["007", "050", "100"],
+    "resolutions": [0.1, 0.25],
+    "expected_method_jobs": 12,
+    "artifact_policy": "validated evidence retained at the scientific stop; the changed headline direction blocks a canonical claim pending author decision"
+  },
+  "inputs": [
+    {
+      "role": "single_cell_reference",
+      "source": "MERFISH ABCA-1 sections 007, 050, and 100",
+      "required_fields": ["X raw integer counts", "obs.cell_type", "obsm.spatial", "var_names"]
+    }
+  ],
+  "observed_target_covariates": [
+    "no biological target dataset is used",
+    "low-resolution spots are hexagonal aggregates of the same fresh FEAST cell simulation for both methods",
+    "known proportions are derived from exact simulated assignments"
+  ],
+  "engine": {
+    "feast_version": "1.0.2",
+    "feast_commit": "68816e5c1862a6fa2a49bc30609d617c7fa4b449",
+    "simulation": {
+      "parameter_mode": "hungarian",
+      "spatial_mode": "reference_rank",
+      "assignment_solver": "scipy",
+      "assignment_blocks": false,
+      "clip_overshoot_factor": 0.0,
+      "grid_type": "hexagonal"
+    },
+    "methods": {
+      "RCTD": {"mode": "full", "max_cores": 1, "minimum_reference_cells_per_type": 50},
+      "Cell2location": {"accelerator": "cuda", "reference_epochs": 250, "spatial_epochs": 25000, "detection_alpha": 20.0}
+    },
+    "scoring": {
+      "expression_input": "the same fresh expression matrix is used by RCTD and Cell2location by construction",
+      "spots": "exact named positive-library spot support for both methods",
+      "cell_types": "exact common named support plus explicit __other__ residual mass",
+      "zero_library_spots": "recorded per pair and excluded from both methods symmetrically"
+    }
+  },
+  "rng": {
+    "public_seed": 2026,
+    "requirement": "method-effective seeds and exact simulation/method hashes are bound in the completed manifests and provenance"
+  },
+  "solver": {
+    "assignment": "exact global SciPy linear-sum assignment",
+    "method_gate": "all six RCTD and six Cell2location jobs completed on identical expression matrices",
+    "scoring_gate": "predictions and truth were joined by stable spot ID and validated on common named support plus __other__"
+  },
+  "fallback_policy": {
+    "missing_prediction": "fatal to the complete comparison; never substitute ground truth",
+    "missing_cell_type": "use only the declared common-support residual policy and report support coverage",
+    "headline_change": "triggered: Pearson and RMSE winner directions changed, so the workflow stopped for direct author review"
+  },
+  "outputs": {
+    "artifacts": [
+      {
+        "role": "simulation_manifest",
+        "path": "REPRO:03_deconvolution/outputs/final_rerun_20260718_v2/simulation_manifest.csv",
+        "sha256": "2814086f6b7c5a7deb3b85a14aae7782e731a3e9aa6b1c0e7bb3145c757660c2"
+      },
+      {
+        "role": "method_manifest",
+        "path": "REPRO:03_deconvolution/outputs/final_rerun_20260718_v2/method_manifest.csv",
+        "sha256": "2c64cf60591a49aa6cdee05e766a88a803813ed6f25662b7e3cf1f1293d933ae"
+      },
+      {
+        "role": "run_provenance",
+        "path": "REPRO:03_deconvolution/outputs/final_rerun_20260718_v2/provenance.json",
+        "sha256": "fa2cfb82033623922560928322b3c3a9a821b33b0478d197ac639324721501e6"
+      },
+      {
+        "role": "deconvolution_scores",
+        "path": "REPRO:03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/deconvolution_scores.csv",
+        "sha256": "13442992ca4b4b5a199b9841bc89f383863d06bca7166e29fe879792a90922ce"
+      },
+      {
+        "role": "deconvolution_summary",
+        "path": "REPRO:03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/deconvolution_summary.csv",
+        "sha256": "c2eec9d0bac622b38c596e0e5290f507497b5130d004c5f5b800b95d121eb622"
+      },
+      {
+        "role": "old_vs_new",
+        "path": "REPRO:03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/old_vs_new_deconvolution_scores.csv",
+        "sha256": "506ce9ef328ee30fd46982168da8b54e92752a1c1f69b9f4ea1a0fdf0c2e2915"
+      },
+      {
+        "role": "score_provenance",
+        "path": "REPRO:03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/provenance.json",
+        "sha256": "9a54093ac5ba53f92554403c13108f5821791609140675d035ed0a5f9e240a7f"
+      },
+      {
+        "role": "publication_decision",
+        "path": "REPRO:03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/publication_decision.json",
+        "sha256": "1aae6caed6b9901af2c320f63b945f0b0f3050c8c4c5ecfa35c31687cc357cdb"
+      },
+      {
+        "role": "support_audit",
+        "path": "REPRO:03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/support_audit.csv",
+        "sha256": "a8317a61c84020178f9bb913885b7cd2dd8f0c0595e29ce80d1a697be5632b37"
+      },
+      {
+        "role": "independent_validation",
+        "path": "REPRO:03_deconvolution/outputs/final_rerun_20260718_v2/validation_common_support_20260719_v1/validation.csv",
+        "sha256": "5a10758d54c1186a59aefa77fc9f7e30f7da7ca53009805930d150d64b8b68c5"
+      }
+    ]
+  },
+  "evidence_binding": {
+    "state": "validated",
+    "scientific_disposition": "stop_headline_direction_changed",
+    "publication_claim_authorized": false,
+    "same_expression_by_construction": true,
+    "exact_positive_spot_support_between_methods": true,
+    "support_rule": "common named cell types plus __other__ residual mass",
+    "zero_library_disposition": "recorded by pair and excluded from both methods scoring",
+    "fresh_means": {
+      "RCTD": {"JSD": 0.32044625071102234, "Pearson": 0.7899902967807512, "RMSE": 0.05449979375735901},
+      "Cell2location": {"JSD": 0.5216563847113732, "Pearson": 0.6055193302548733, "RMSE": 0.08527784235311398}
+    },
+    "winner_direction_audit": {
+      "metric_order": ["JSD", "Pearson", "RMSE"],
+      "historical": ["RCTD", "Cell2location", "Cell2location"],
+      "fresh": ["RCTD", "RCTD", "RCTD"],
+      "changed_metrics": ["Pearson", "RMSE"]
+    },
+    "method_superiority_authorized": false,
+    "table_authorized": false,
+    "figure_authorized": false
+  },
+  "evidence": [
+    {
+      "role": "v1_predecessor",
+      "path": "EXP:SPEC/before_publication/method_contract/configs/FEAST-ART-03-DECONV-v1.json",
+      "sha256": "37f612948b32c9a02121f7a269e7cad3e08db327548d1d546ba4b6b9c14e94f8"
+    },
+    {
+      "role": "executed_config",
+      "path": "REPRO:03_deconvolution/config.yaml",
+      "sha256": "e0494a33915c030573e340a8531346c3d45f7f91c0d3becccaaea7d30e8c6ceb"
+    }
+  ],
+  "claim_limits": [
+    "validated numerical evidence does not authorize RCTD superiority, a method ranking, or a winner claim",
+    "the historical JSD/Pearson/RMSE winner directions RCTD/Cell2location/Cell2location changed to RCTD/RCTD/RCTD",
+    "no publication table or figure is authorized at the scientific stop",
+    "do not substitute truth for missing predictions",
+    "Cell2location uses NumPy 2.2.6, unsupported by FEAST; FEAST was not imported in that worker",
+    "zero-library exclusions and common named support plus __other__ must accompany any future description"
+  ],
+  "claim_authorizations": {
+    "publication_claim": false,
+    "composite_score": false,
+    "method_ranking": false,
+    "winner": false
+  },
+  "decision_required": [
+    "authors must review the Pearson and RMSE direction changes before any publication integration",
+    "remove or explicitly narrow the comparative claim; do not convert the fresh means into a superiority statement",
+    "reconcile exact common-support, __other__, zero-library exclusions, and the external Cell2location environment with the manuscript"
+  ],
+  "release": {"authorized": false, "tag": null, "pypi_publication": false}
+}

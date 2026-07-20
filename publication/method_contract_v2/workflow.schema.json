@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FEAST article workflow evidence contract v2 candidate",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "contract_version",
+    "workflow_id",
+    "supersedes",
+    "study",
+    "clean_rerun_study",
+    "status",
+    "method_name",
+    "article_scope",
+    "inputs",
+    "observed_target_covariates",
+    "engine",
+    "rng",
+    "solver",
+    "fallback_policy",
+    "outputs",
+    "evidence_binding",
+    "evidence",
+    "claim_limits",
+    "claim_authorizations",
+    "decision_required",
+    "release"
+  ],
+  "properties": {
+    "contract_version": {"const": "2.0-candidate"},
+    "workflow_id": {"type": "string", "pattern": "^FEAST-ART-[0-9]{2}-[A-Z0-9-]+-v2$"},
+    "study": {"type": "string", "pattern": "^[0-9]{2}_[a-z0-9_]+$"},
+    "clean_rerun_study": {"type": ["string", "null"]},
+    "status": {"enum": ["validated_candidate", "in_progress", "validation_required", "decision_required"]},
+    "method_name": {
+      "enum": [
+        "generative_parameter_assignment",
+        "reference_rank",
+        "conditional_empirical_rank",
+        "conditional_imputation",
+        "batch_parameter_deformation"
+      ]
+    },
+    "inputs": {"type": "array", "minItems": 1},
+    "observed_target_covariates": {"type": "array"},
+    "outputs": {"type": "object"},
+    "evidence": {"type": "array", "minItems": 2},
+    "claim_limits": {"type": "array", "minItems": 1},
+    "decision_required": {"type": "array"}
+  }
+}

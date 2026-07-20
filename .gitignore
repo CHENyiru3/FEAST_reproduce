@@ -3,6 +3,10 @@ __pycache__/
 .pytest_cache/
 .DS_Store
 
+# Preserved superseded local artifacts. Publication-facing paths contain only
+# the current candidates declared in PUBLICATION_MANIFEST.json.
+.archive/
+
 # Machine-local configuration and materialized inputs.
 site.local.toml
 **/data/local/
@@ -17,6 +21,7 @@ site.local.toml
 **/outputs/
 **/runs/
 **/logs/
+**/.work/
 *.log
 
 # Build artifacts.

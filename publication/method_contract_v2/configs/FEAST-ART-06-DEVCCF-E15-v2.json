@@ -1,0 +1,123 @@
+{
+  "$schema": "../workflow.schema.json",
+  "contract_version": "2.0-candidate",
+  "workflow_id": "FEAST-ART-06-DEVCCF-E15-v2",
+  "supersedes": {
+    "workflow_id": "FEAST-ART-06-DEVCCF-E15-v1",
+    "path": "EXP:SPEC/before_publication/method_contract/configs/FEAST-ART-06-DEVCCF-E15-v1.json",
+    "sha256": "d79a4b86da2b767d56774b593879ae550814cbce491a6cafa0136f351e2dccf1"
+  },
+  "study": "06_3d_transfer",
+  "clean_rerun_study": null,
+  "status": "validation_required",
+  "method_name": "conditional_empirical_rank",
+  "article_scope": {
+    "purpose": "candidate E15.5 DevCCF-guided conditional empirical-rank transfer from E14 references",
+    "bounded_candidate_scope": "53 slices from z=-4.12 to -3.08 at 0.02 spacing",
+    "candidate_outputs": 53,
+    "genes": 550,
+    "excluded_scope": ["remaining 105 configured E15.5 levels", "E18.5", "smoothing"],
+    "artifact_policy": "all frozen candidates remain noncanonical pending author scope selection and strict convergence-positive reruns"
+  },
+  "inputs": [
+    {
+      "role": "source_references",
+      "source": "ten E14 spatial-transcriptomics slices",
+      "required_fields": ["X raw counts", "region labels", "obsm.spatial", "z", "550 genes"]
+    },
+    {
+      "role": "target_blueprint",
+      "source": "E15.5 DevCCF blueprint",
+      "required_fields": ["XY", "region labels", "z", "stable spot IDs"]
+    }
+  ],
+  "observed_target_covariates": [
+    "DevCCF target XY coordinates",
+    "DevCCF target region labels",
+    "target z position",
+    "no target expression matrix"
+  ],
+  "engine": {
+    "entry_point": "fit_reference -> simulate_from_reference",
+    "parameter_cloud": null,
+    "decoder": "label-aware empirical reference-count ranks",
+    "assignment_randomness": 0.4,
+    "transport": "unbalanced Sinkhorn",
+    "epsilon": 0.05,
+    "sinkhorn_iter": 200,
+    "sinkhorn_tol": 1e-5,
+    "reg_m": 5.0
+  },
+  "rng": {
+    "base_seed": 2026,
+    "target_seed_formula": "2026 + blueprint_z_index",
+    "requirement": "future strict outputs must bind z, blueprint index, seed, diagnostics, input hashes, and output hash"
+  },
+  "solver": {
+    "success_gate": "positive tolerance-based convergence evidence for every saved transport record, finite counts, exact blueprint identity, and exact 550-gene order",
+    "finite_plan_is_convergence": false
+  },
+  "fallback_policy": {
+    "transport_nonconvergence": "raise",
+    "missing_blueprint_or_reference_label": "fatal unless a support rule is approved before execution",
+    "missing_E18.5_or_smoothing": "remove the claim; do not infer execution from a config",
+    "output_root": "future strict reruns must use a new root"
+  },
+  "outputs": {
+    "artifacts": [],
+    "noncanonical_frozen_candidates": 53,
+    "study_classification": {"explicit_failure_saved": 1, "missing_positive_evidence": 52},
+    "required_action": "choose the bounded article scope, then rerun or remove affected claims"
+  },
+  "evidence_binding": {
+    "state": "noncanonical_frozen",
+    "canonical_candidates": 0,
+    "reason": "z=-3.88 is an explicit failure-saved output and the other 52 lack positive convergence evidence"
+  },
+  "conditional_ot_disposition": {
+    "scope": "aggregate legacy studies 04, 05, and 06",
+    "active_outputs": 156,
+    "explicit_failure_saved": 31,
+    "failure_tainted": 26,
+    "missing_positive_convergence_evidence": 99,
+    "verifiably_converged": 0,
+    "canonical_outputs": 0,
+    "publication_status": "noncanonical",
+    "transport_nonconvergence": "raise"
+  },
+  "evidence": [
+    {
+      "role": "v1_predecessor",
+      "path": "EXP:SPEC/before_publication/method_contract/configs/FEAST-ART-06-DEVCCF-E15-v1.json",
+      "sha256": "d79a4b86da2b767d56774b593879ae550814cbce491a6cafa0136f351e2dccf1"
+    },
+    {
+      "role": "conditional_ot_audit_summary",
+      "path": "EXP:SPEC/before_publication/next_stage_20260717/conditional_ot/audit_summary.json",
+      "sha256": "bcfd275d45f856df703a219ca2c9d186747b2063ea0149463ab8d8a2f9ba705a"
+    },
+    {
+      "role": "conditional_ot_audit_provenance",
+      "path": "EXP:SPEC/before_publication/next_stage_20260717/conditional_ot/provenance.json",
+      "sha256": "1a16db7241a257904f62352b205ea6f7afd316d78bb59f387f1beef14c2e14af"
+    }
+  ],
+  "claim_limits": [
+    "all 53 frozen outputs are noncanonical",
+    "finite transport records must not be described as converged",
+    "complete-volume E15.5, E18.5, and smoothing claims are prohibited without executed validated outputs",
+    "the method observes DevCCF coordinates and region labels"
+  ],
+  "claim_authorizations": {
+    "publication_claim": false,
+    "composite_score": false,
+    "method_ranking": false,
+    "winner": false
+  },
+  "decision_required": [
+    "choose whether the bounded 53-slice E15.5 segment is itself the article result",
+    "rerun or exclude the explicit z=-3.88 failure and strictly validate every retained slice",
+    "remove or execute E18.5 and smoothing claims"
+  ],
+  "release": {"authorized": false, "tag": null, "pypi_publication": false}
+}

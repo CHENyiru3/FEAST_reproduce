@@ -1,0 +1,153 @@
+{
+  "$schema": "../workflow.schema.json",
+  "contract_version": "2.0-candidate",
+  "workflow_id": "FEAST-ART-01-CLUSTER-v2",
+  "supersedes": {
+    "workflow_id": "FEAST-ART-01-CLUSTER-v1",
+    "path": "EXP:SPEC/before_publication/method_contract/configs/FEAST-ART-01-CLUSTER-v1.json",
+    "sha256": "17fb2bce85e43f9cac3f6e955c223caef46ed0d8a8da781938f131fd30729b6a"
+  },
+  "study": "01_clustering",
+  "clean_rerun_study": "01_clustering",
+  "status": "validated_candidate",
+  "method_name": "generative_parameter_assignment",
+  "article_scope": {
+    "purpose": "measure clustering under 81 freshly generated FEAST distributional-alteration simulations",
+    "reference_slices": ["151508", "151670", "151676"],
+    "simulation_rows": 81,
+    "fixed_panel_inputs": 84,
+    "benchmark_methods": ["GraphST", "STAGATE_mclust", "Leiden_unsupervised"],
+    "metric_rows": 252,
+    "headline_scope": "three-slice method means only"
+  },
+  "inputs": [
+    {
+      "role": "reference",
+      "source": "DLPFC slices 151508, 151670, and 151676",
+      "required_fields": ["X raw counts", "obs.ground_truth", "obsm.spatial", "var_names"]
+    }
+  ],
+  "observed_target_covariates": [
+    "no separate target dataset is used",
+    "reference labels and coordinates are retained for scoring each simulated slice"
+  ],
+  "engine": {
+    "configuration_id": "study01-reference-rank-fixed-panel-v1",
+    "feast_version": "1.0.2",
+    "feast_commit": "68816e5c1862a6fa2a49bc30609d617c7fa4b449",
+    "simulation": {
+      "parameter_mode": "hungarian",
+      "spatial_mode": "reference_rank",
+      "assignment_method": "hybrid",
+      "assignment_solver": "scipy",
+      "assignment_blocks": false,
+      "public_seed": 2026
+    },
+    "fixed_panel": {
+      "rule": "one raw-derived Seurat-v3 3000-gene panel per slice, applied unchanged to all simulations and the real baseline",
+      "normalization": "normalize_total(target_sum=1e4) then log1p"
+    },
+    "benchmark": {
+      "GraphST": {"epochs": 600, "device": "cuda"},
+      "STAGATE_mclust": {"rad_cutoff": 150, "epochs": 500},
+      "Leiden_unsupervised": {"resolutions": [0.2, 0.4, 0.6, 0.8, 1.0], "selection": "maximum weighted Newman-Girvan modularity; ties choose lower resolution; labels excluded"}
+    }
+  },
+  "rng": {
+    "public_seed": 2026,
+    "requirement": "effective seeds and output hashes are bound in the simulation and method manifests"
+  },
+  "solver": {
+    "assignment": "exact global SciPy linear-sum assignment",
+    "benchmark_gate": "84 readable exact-support outputs for each declared method and exactly 252 scored rows"
+  },
+  "fallback_policy": {
+    "missing_result": "fatal to the complete comparison",
+    "label_informed_leiden": "historical sensitivity evidence only; prohibited as a publication benchmark",
+    "external_method_environment": "GraphST and STAGATE used NumPy versions unsupported by FEAST; FEAST was not imported in those workers"
+  },
+  "outputs": {
+    "artifacts": [
+      {
+        "role": "simulation_manifest",
+        "path": "REPRO:01_clustering/outputs/final_rerun_20260718/simulations/simulation_manifest.csv",
+        "sha256": "2fa032367383f7369c33f14e9adeed315ceadb02a1443a4349a1864c8807f254"
+      },
+      {
+        "role": "fixed_panel_manifest",
+        "path": "REPRO:01_clustering/outputs/final_rerun_20260718/fixed_panels/fixed_panel_manifest.csv",
+        "sha256": "0316c33b91de5fde8d18b7223631176294e3cae97d32400540a5348f6d2b6dcd"
+      },
+      {
+        "role": "benchmark_metrics",
+        "path": "REPRO:01_clustering/outputs/final_rerun_20260718_report/fixed_panel_benchmark_metrics.csv",
+        "sha256": "10abbadbcf8c26d2b85e92a3357a8380fe4f4bc46882e6d42d2388a3d1882fab"
+      },
+      {
+        "role": "old_vs_new",
+        "path": "REPRO:01_clustering/outputs/final_rerun_20260718_comparison_v2/old_vs_new_metrics.csv",
+        "sha256": "0255857f393955f0ba2bc41a72da47fd700f8dbc099d7e73236ab67cc1e38588"
+      },
+      {
+        "role": "scientific_decision",
+        "path": "REPRO:01_clustering/outputs/final_rerun_20260718_comparison_v2/publication_decision.json",
+        "sha256": "aa7dac0ad2cb41b9fd2c11c89336da14e87e48ab240ab2d7543bad92d74493e9"
+      }
+    ]
+  },
+  "evidence_binding": {
+    "state": "validated",
+    "method_rows": {"GraphST": 84, "STAGATE_mclust": 84, "Leiden_unsupervised": 84},
+    "headline_direction": "unchanged at the declared three-slice mean scope",
+    "slice_level_uniformity_claimed": false
+  },
+  "evidence": [
+    {
+      "role": "v1_predecessor",
+      "path": "EXP:SPEC/before_publication/method_contract/configs/FEAST-ART-01-CLUSTER-v1.json",
+      "sha256": "17fb2bce85e43f9cac3f6e955c223caef46ed0d8a8da781938f131fd30729b6a"
+    },
+    {
+      "role": "executed_config",
+      "path": "REPRO:01_clustering/config.yaml",
+      "sha256": "d7f9b80926881289cd9a85269ac94a634d46b4fbcd63215a1d31ff44da3ef08a"
+    },
+    {
+      "role": "GraphST_manifest",
+      "path": "REPRO:01_clustering/outputs/final_rerun_20260718/methods/GraphST/run_manifest.csv",
+      "sha256": "758652a1f07a414653aac7490a3acd644ce8f8e3d39ae3c42f1d7b0283c73141"
+    },
+    {
+      "role": "STAGATE_manifest",
+      "path": "REPRO:01_clustering/outputs/final_rerun_20260718/methods/STAGATE_mclust/run_manifest.csv",
+      "sha256": "8b21309cf956d0d75adb6689026c63687d0470446af32b3fddd807cc0a297ae6"
+    },
+    {
+      "role": "Leiden_manifest",
+      "path": "REPRO:01_clustering/outputs/final_rerun_20260718/methods/Leiden_unsupervised/run_manifest.csv",
+      "sha256": "34db79052c3f04f52236df11919d4b6319977c044f3a2ef59491ab66d82432c2"
+    },
+    {
+      "role": "report_provenance",
+      "path": "REPRO:01_clustering/outputs/final_rerun_20260718_report/provenance.json",
+      "sha256": "904c481845137c5f863ec849bbfeb878470cb8f65129f5b5f623e3fcf6e21493"
+    }
+  ],
+  "claim_limits": [
+    "the supported comparison is closeness of three-slice method means, not uniform per-slice equivalence",
+    "historical label-informed Leiden is sensitivity evidence only",
+    "no aggregate method winner or ranking is authorized",
+    "fresh exact-global execution does not prove production-scale blocked-assignment stability"
+  ],
+  "claim_authorizations": {
+    "publication_claim": false,
+    "composite_score": false,
+    "method_ranking": false,
+    "winner": false
+  },
+  "decision_required": [
+    "reconcile the mean-scope conclusion and nonuniform slice gaps with the manuscript and captions",
+    "approve disclosure of external method environments using NumPy versions unsupported by FEAST"
+  ],
+  "release": {"authorized": false, "tag": null, "pypi_publication": false}
+}

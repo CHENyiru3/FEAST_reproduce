@@ -208,18 +208,51 @@ def main() -> int:
 
     validation = pd.read_csv(args.validation)
     validation_ok = bool(len(validation) == 61 and validation["valid"].all())
-    reversal = bool(assessment["relation_reversed"].any())
+    prespecified_reversal_count = int(assessment["relation_reversed"].sum())
+    historical_aggregate = historical.groupby("method").apply(
+        lambda group: np.average(
+            group["old_mean_spatial_error"], weights=group["old_n_rows"]
+        ),
+        include_groups=False,
+    )
+    fresh_aggregate = fresh.groupby("method")["mean_spatial_error"].mean()
     decision = {
         "study": "02_alignment",
         "decision": (
-            "validated_publication_candidate"
-            if validation_ok and not reversal
+            "validated_40_row_candidate_author_scope_pending"
+            if validation_ok and prespecified_reversal_count == 0
             else "blocked"
         ),
         "rotation_rows_valid": 20,
         "method_rows_valid": 40,
         "score_table_valid": validation_ok,
-        "headline_direction_reversal_detected": reversal,
+        "prespecified_sparsity_checks": len(assessment),
+        "prespecified_sparsity_relation_reversals": prespecified_reversal_count,
+        "prespecified_sparsity_scope": (
+            "Six PASTE-versus-Spateo relations for sparsity_0.5, compared with "
+            "the prior corrected 40-row candidate."
+        ),
+        "historical_grid_snap_design_directly_comparable": False,
+        "historical_noncomparable_spatial_error_context": {
+            "historical_invalid_grid_snap_paste_mean": float(
+                historical_aggregate["paste"]
+            ),
+            "historical_invalid_grid_snap_spateo_mean": float(
+                historical_aggregate["spateo"]
+            ),
+            "fresh_identity_preserving_paste_mean": float(
+                fresh_aggregate["paste"]
+            ),
+            "fresh_identity_preserving_spateo_mean": float(
+                fresh_aggregate["spateo"]
+            ),
+            "interpretation": (
+                "The aggregate ordering differs, but the old support-changing "
+                "grid-snap benchmark is noncanonical and not directly comparable; "
+                "this is not evidence of a like-for-like headline reversal."
+            ),
+        },
+        "manuscript_or_figure_claim_direction": "author_decision_required",
         "paste_convergence_disposition": (
             "All 20 fresh PASTE rows have positive inner-EMD and outer "
             "conditional-gradient convergence evidence."
@@ -235,7 +268,9 @@ def main() -> int:
         "numerical_change_classification": (
             "Fresh-simulation and stochastic method-rerun sensitivity. The PASTE "
             "sparsity change retains strict convergence and does not reverse any "
-            "declared PASTE-versus-Spateo headline relation."
+            "of the six prespecified sparsity-condition relations versus the prior "
+            "corrected candidate. Historical grid-snap aggregates are not directly "
+            "comparable to this design."
         ),
         "overall_release_authorized": False,
         "reason_overall_release_not_authorized": (

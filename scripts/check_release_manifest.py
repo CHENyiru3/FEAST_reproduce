@@ -18,6 +18,9 @@ STUDIES = (
     "02_alignment",
     "03_deconvolution",
     "04_batch_effect_removal",
+    "05_2d_conditional_transfer",
+    "06_3d_stack",
+    "07_3d_transfer",
 )
 
 

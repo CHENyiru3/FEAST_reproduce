@@ -1,0 +1,116 @@
+{
+  "$schema": "../workflow.schema.json",
+  "contract_version": "2.0-candidate",
+  "workflow_id": "FEAST-ART-04-2D-XSLICE-v2",
+  "supersedes": {
+    "workflow_id": "FEAST-ART-04-2D-XSLICE-v1",
+    "path": "EXP:SPEC/before_publication/method_contract/configs/FEAST-ART-04-2D-XSLICE-v1.json",
+    "sha256": "d2d43fbfa7d8cf0e6d99d5d7485d6e13660c422117b231682d9d0c76e71a87a4"
+  },
+  "study": "04_2d_conditional_transfer",
+  "clean_rerun_study": null,
+  "status": "validation_required",
+  "method_name": "conditional_empirical_rank",
+  "article_scope": {
+    "purpose": "label-aware cross-slice conditional empirical-rank transfer",
+    "directions": ["151675_to_151676", "151676_to_151675"],
+    "assignment_randomness_values": [0.0, 0.1, 0.2, 0.3, 0.5],
+    "candidate_outputs": 10,
+    "artifact_policy": "all frozen candidates remain noncanonical pending strict article-scope reruns and positive convergence evidence"
+  },
+  "inputs": [
+    {
+      "role": "source_reference",
+      "source": "one DLPFC source slice",
+      "required_fields": ["X raw counts", "obs.ground_truth", "obsm.spatial", "var_names"]
+    },
+    {
+      "role": "target_blueprint",
+      "source": "the opposite DLPFC slice",
+      "required_fields": ["obs.ground_truth", "obsm.spatial", "stable obs_names"]
+    }
+  ],
+  "observed_target_covariates": [
+    "exact target XY coordinates",
+    "exact target ground_truth labels",
+    "target expression is evaluation-only"
+  ],
+  "engine": {
+    "entry_point": "fit_reference -> simulate_from_reference",
+    "parameter_cloud": null,
+    "decoder": "label-aware weighted empirical reference-count ranks",
+    "transport": "unbalanced Sinkhorn",
+    "epsilon": 0.05,
+    "sinkhorn_iter": 200,
+    "sinkhorn_tol": 1e-5,
+    "reg_m": 5.0
+  },
+  "rng": {
+    "base_seed": 2026,
+    "requirement": "a future strict rerun must bind direction, assignment-randomness value, seed, input hashes, diagnostics, and output hash"
+  },
+  "solver": {
+    "success_gate": "positive tolerance-based convergence evidence for every saved transport record, finite counts, and exact target identity",
+    "finite_plan_is_convergence": false
+  },
+  "fallback_policy": {
+    "transport_nonconvergence": "raise",
+    "missing_target_label": "fatal unless a declared support rule is approved before execution",
+    "output_root": "future strict reruns must use a new root"
+  },
+  "outputs": {
+    "artifacts": [],
+    "noncanonical_frozen_candidates": 10,
+    "required_action": "rerun only author-confirmed article-scope directions/settings with fail-closed diagnostics"
+  },
+  "evidence_binding": {
+    "state": "noncanonical_frozen",
+    "canonical_candidates": 0,
+    "reason": "no frozen output has positive convergence evidence"
+  },
+  "conditional_ot_disposition": {
+    "scope": "aggregate legacy studies 04, 05, and 06",
+    "active_outputs": 156,
+    "explicit_failure_saved": 31,
+    "failure_tainted": 26,
+    "missing_positive_convergence_evidence": 99,
+    "verifiably_converged": 0,
+    "canonical_outputs": 0,
+    "publication_status": "noncanonical",
+    "transport_nonconvergence": "raise"
+  },
+  "evidence": [
+    {
+      "role": "v1_predecessor",
+      "path": "EXP:SPEC/before_publication/method_contract/configs/FEAST-ART-04-2D-XSLICE-v1.json",
+      "sha256": "d2d43fbfa7d8cf0e6d99d5d7485d6e13660c422117b231682d9d0c76e71a87a4"
+    },
+    {
+      "role": "conditional_ot_audit_summary",
+      "path": "EXP:SPEC/before_publication/next_stage_20260717/conditional_ot/audit_summary.json",
+      "sha256": "bcfd275d45f856df703a219ca2c9d186747b2063ea0149463ab8d8a2f9ba705a"
+    },
+    {
+      "role": "conditional_ot_audit_provenance",
+      "path": "EXP:SPEC/before_publication/next_stage_20260717/conditional_ot/provenance.json",
+      "sha256": "1a16db7241a257904f62352b205ea6f7afd316d78bb59f387f1beef14c2e14af"
+    }
+  ],
+  "claim_limits": [
+    "all ten frozen outputs are noncanonical",
+    "finite transport records must not be described as converged",
+    "the method observes exact target coordinates and labels",
+    "no conditional-OT result claim is authorized"
+  ],
+  "claim_authorizations": {
+    "publication_claim": false,
+    "composite_score": false,
+    "method_ranking": false,
+    "winner": false
+  },
+  "decision_required": [
+    "confirm article-scope directions and assignment-randomness settings before any strict rerun",
+    "reconcile conditional empirical-rank terminology and observed covariates with the manuscript"
+  ],
+  "release": {"authorized": false, "tag": null, "pypi_publication": false}
+}

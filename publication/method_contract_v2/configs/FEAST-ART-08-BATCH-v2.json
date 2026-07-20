@@ -1,0 +1,187 @@
+{
+  "$schema": "../workflow.schema.json",
+  "contract_version": "2.0-candidate",
+  "workflow_id": "FEAST-ART-08-BATCH-v2",
+  "supersedes": {
+    "workflow_id": "FEAST-ART-08-BATCH-v1",
+    "path": "EXP:SPEC/before_publication/method_contract/configs/FEAST-ART-08-BATCH-v1.json",
+    "sha256": "6102357855d6b1cf88334b13ea5fc3c2f883b2143940e9993a198da9f4631888"
+  },
+  "study": "08_batch_effect_removal",
+  "clean_rerun_study": "04_batch_effect_removal",
+  "status": "validated_candidate",
+  "method_name": "batch_parameter_deformation",
+  "article_scope": {
+    "purpose": "benchmark GraphST, STAMP, and scVI over a controlled FEAST parameter-deformation ladder",
+    "reference_slice": "151673",
+    "deformation_fit_slice": "151508",
+    "modes": ["shift_only", "diagonal_affine"],
+    "alpha_levels": [0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5],
+    "expected_method_jobs": {"GraphST": 12, "STAMP": 12, "scVI": 12},
+    "expected_atomic_metric_rows": 60,
+    "artifact_policy": "validated fresh supplementary candidate requiring author review; no active manuscript claim, table, or figure is bound"
+  },
+  "inputs": [
+    {
+      "role": "clean_reference",
+      "source": "DLPFC 151673",
+      "required_fields": ["X raw counts", "obs labels", "obsm.spatial", "stable obs_names", "var_names"]
+    },
+    {
+      "role": "deformation_fit_query",
+      "source": "DLPFC 151508",
+      "required_fields": ["X raw counts", "var_names"]
+    }
+  ],
+  "observed_target_covariates": [
+    "query count-derived theta parameters estimate the deformation",
+    "simulated query preserves reference coordinates and spot identity",
+    "alpha greater than one is extrapolation"
+  ],
+  "engine": {
+    "configuration_id": "study04-final-rerun-v2",
+    "feast_version": "1.0.2",
+    "feast_commit": "68816e5c1862a6fa2a49bc30609d617c7fa4b449",
+    "deformation": "theta_alpha = ((1-alpha) + alpha*D) * theta + alpha*b",
+    "fixed_panel": "one raw-derived Seurat-v3 2000-gene panel",
+    "graph_contract": {
+      "methods": ["GraphST", "STAMP"],
+      "construction": "one graph per batch combined block diagonally",
+      "cross_batch_edges": 0
+    },
+    "methods": {
+      "GraphST": {"epochs": 600, "device": "cuda"},
+      "STAMP": {"device": "cuda:0", "max_epochs": 800, "standard_patience": 20, "declared_retry": "patience-only 20 to 10 after preserved numerical failure"},
+      "scVI": {"accelerator": "gpu", "max_epochs": 400, "n_latent": 10}
+    },
+    "metrics": {
+      "atomic_rows": 60,
+      "old_vs_new_comparable_rows": 60,
+      "GraphST_PCA_sensitivity": "15-row PCA-20 versus PCA-10 sensitivity must accompany future use",
+      "composite_score": "prohibited",
+      "winner_ranking": "prohibited"
+    }
+  },
+  "rng": {
+    "public_seed": 42,
+    "requirement": "public seed, method diagnostics, input hashes, and output hashes are bound through the validated manifests and provenance"
+  },
+  "solver": {
+    "graph_gate": "zero cross-batch edges before training and in serialized outputs",
+    "method_gate": "finite embedding, exact row identity, and successful method status",
+    "metric_gate": "independent recomputation validated all 60 declared rows"
+  },
+  "fallback_policy": {
+    "GraphST_or_STAMP_failure": "fatal unless a predeclared narrow numerical retry is recorded with the failed attempt preserved",
+    "STAMP_retry": "only patience 20 to 10 may change; all other method and data fields remain fixed",
+    "external_method_environments": "GraphST, STAMP, and scVI do not expand FEAST support; GraphST and scVI explicitly use NumPy versions unsupported by FEAST, which is not imported in those workers",
+    "headline_change": "stop and require direct author review"
+  },
+  "outputs": {
+    "artifacts": [
+      {
+        "role": "method_manifest",
+        "path": "REPRO:04_batch_effect_removal/outputs/final_rerun_20260718_v2/method_run_manifest.csv",
+        "sha256": "a12c9133caadb2a3692085a1cc25c0932c23bce7cb8af44f5ab1d8777a1410fe"
+      },
+      {
+        "role": "simulation_manifest",
+        "path": "REPRO:04_batch_effect_removal/outputs/final_rerun_20260718_v2/simulations/manifest.csv",
+        "sha256": "24219ef404d98df4454d754c85ef29ff07045d0c6f7b1ca5e81a5e8a2a6faadd"
+      },
+      {
+        "role": "fixed_panel",
+        "path": "REPRO:04_batch_effect_removal/outputs/final_rerun_20260718_v2/panel/panel.csv",
+        "sha256": "3c961e64bd2c6e4ff706e99fd8d3a6f77bebb3df3a14bf581167a08b9d095b5a"
+      },
+      {
+        "role": "atomic_metrics",
+        "path": "REPRO:04_batch_effect_removal/outputs/final_rerun_20260718_v2/metrics/atomic_metrics.csv",
+        "sha256": "a6c78a602d4b0025628917d2c8a015cb7de19c962dfe14aedac8b333c18a4b2a"
+      },
+      {
+        "role": "old_vs_new_atomic_metrics",
+        "path": "REPRO:04_batch_effect_removal/outputs/final_rerun_20260718_v2/metrics/old_vs_new_atomic_metrics.csv",
+        "sha256": "d75f0e7b7bae57153f548124bc3bb5d41398f69b8721a288f90f8fe0b8529859"
+      },
+      {
+        "role": "metrics_provenance",
+        "path": "REPRO:04_batch_effect_removal/outputs/final_rerun_20260718_v2/metrics/provenance.json",
+        "sha256": "9831a60a262fdeddf9716d98b0acacf1abfa69a4d03a61374dbf68cacc82245c"
+      },
+      {
+        "role": "GraphST_PCA20_vs_PCA10_sensitivity",
+        "path": "REPRO:04_batch_effect_removal/outputs/final_rerun_20260718_v2/metrics/graphst_pca20_vs_pca10_sensitivity.csv",
+        "sha256": "fd370038b0f5938327fa80382d275445ecf585124fde81ca61bbace4552bc1f8"
+      },
+      {
+        "role": "independent_validation_manifest",
+        "path": "REPRO:04_batch_effect_removal/outputs/final_rerun_20260718_v2/validation/manifest.csv",
+        "sha256": "f48b6c4d8284c6710d26ca352a715daee504178d9b19b12e3fd2b7a50066ce1d"
+      },
+      {
+        "role": "independent_validation_provenance",
+        "path": "REPRO:04_batch_effect_removal/outputs/final_rerun_20260718_v2/validation/provenance.json",
+        "sha256": "03b3acf49c469c66b9eb367e7c615ea87598f553bd57bf86e2b46f665fb434fd"
+      },
+      {
+        "role": "independent_validation_summary",
+        "path": "REPRO:04_batch_effect_removal/outputs/final_rerun_20260718_v2/validation/summary.json",
+        "sha256": "3627e25181c64ed18c808a8aa82fc20c8dad1bc4b132e053e8c4fe2ff6215134"
+      }
+    ]
+  },
+  "evidence_binding": {
+    "state": "validated",
+    "decision": "validated_fresh_supplementary_candidate_author_review_required",
+    "simulation_h5ad": 14,
+    "method_candidates": 36,
+    "method_counts": {"GraphST": 12, "STAMP": 12, "scVI": 12},
+    "atomic_metric_rows": 60,
+    "cross_batch_edges": 0,
+    "active_manuscript_claim": null,
+    "table_authorized": false,
+    "figure_authorized": false
+  },
+  "evidence": [
+    {
+      "role": "v1_predecessor",
+      "path": "EXP:SPEC/before_publication/method_contract/configs/FEAST-ART-08-BATCH-v1.json",
+      "sha256": "6102357855d6b1cf88334b13ea5fc3c2f883b2143940e9993a198da9f4631888"
+    },
+    {
+      "role": "executed_config",
+      "path": "REPRO:04_batch_effect_removal/config.yaml",
+      "sha256": "f73d5a4468b236cec9fe53877db2e0bece584108a0683ddfd587e45e8dcf9dc5"
+    },
+    {
+      "role": "declared_STAMP_retry_policy",
+      "path": "REPRO:04_batch_effect_removal/stamp_numerical_retry_v1.yaml",
+      "sha256": "b4466eb3dd50eaa793dcfcc5a63ecfa4c7989271b7d28d995a6344ab37bdb40b"
+    },
+    {
+      "role": "metrics_summary",
+      "path": "REPRO:04_batch_effect_removal/outputs/final_rerun_20260718_v2/metrics/summary.json",
+      "sha256": "efb1617e3e5756641c9834749e4946e955af1cfd159423a999211db6241c2126"
+    }
+  ],
+  "claim_limits": [
+    "the validated result is supplementary evidence requiring author review, not an active manuscript claim",
+    "no composite score, aggregate ranking, winner, table, or figure is authorized",
+    "alpha values above one must be described as extrapolation",
+    "the 15-row GraphST PCA-20/PCA-10 sensitivity must accompany future use",
+    "the STAMP patience-only retry and all external-method NumPy limitations require explicit disclosure"
+  ],
+  "claim_authorizations": {
+    "publication_claim": false,
+    "composite_score": false,
+    "method_ranking": false,
+    "winner": false
+  },
+  "decision_required": [
+    "review all old-versus-new numeric deltas because no active manuscript claim is bound",
+    "review and disclose the STAMP patience-only retry and external method environments",
+    "select any supplementary atomic metrics and reconcile them with the manuscript without creating a composite, ranking, table, figure, or winner claim"
+  ],
+  "release": {"authorized": false, "tag": null, "pypi_publication": false}
+}

@@ -1,0 +1,88 @@
+configuration_id: study05-two-dataset-conditional-half-slice-v2
+required_feast_version: 1.0.2
+required_feast_commit: 68816e5c1862a6fa2a49bc30609d617c7fa4b449
+required_wheel_sha256: 9dd912d883a03d51ed7105cecd914cf8f7f25f5355f57dfde1c77b6fef0b056b
+public_seed: 2026
+
+datasets:
+  dlpfc:
+    artifact_prefix: DLPFC
+    annotation_key: ground_truth
+    slices: ["151670", "151675", "151676"]
+    directions:
+      - ["151670", "151675"]
+      - ["151675", "151670"]
+      - ["151670", "151676"]
+      - ["151676", "151670"]
+      - ["151675", "151676"]
+      - ["151676", "151675"]
+    gene_panel:
+      rule: sorted_exact_intersection_across_dataset_slices
+      expected_genes: 17391
+      sha256: 2b85a701cfb364adfea0d579f3801e9ac47ca64531ff312de3c02978aa3a73d5
+  merfish:
+    artifact_prefix: MERFISH
+    annotation_key: class
+    slices: ["Zhuang-ABCA-1.006", "Zhuang-ABCA-1.007"]
+    directions:
+      - ["Zhuang-ABCA-1.006", "Zhuang-ABCA-1.007"]
+      - ["Zhuang-ABCA-1.007", "Zhuang-ABCA-1.006"]
+    gene_panel:
+      rule: sorted_exact_intersection_across_dataset_slices
+      expected_genes: 1122
+      sha256: 74a8ad243527640259a5c90fcfb71aeeb9a3c429c3f7a3e71c1109b61c986d23
+
+assignment_randomness: [0.0, 0.1, 0.2, 0.3, 0.5]
+primary_assignment_randomness: 0.3
+expected_cross_slice_jobs: 40
+expected_mask_half_jobs: 5
+expected_jobs: 45
+
+label_support:
+  min_source_spots: 20
+  policy: retain_target_labels_with_minimum_source_support
+
+mask_half:
+  split_axis: 0
+  split_quantile: 0.5
+  observed_relation: less_than_or_equal
+  masked_relation: greater_than
+  assignment_randomness: 0.3
+  direction: low_x_to_high_x
+
+target_expression_policy: evaluation_only_never_loaded_by_generation
+blueprint:
+  spot_id_column: target_obs_id
+  allowed_metadata: [target_obs_id, conditional_label, domain]
+
+coordinates:
+  reference_key: spatial
+  target_key: spatial
+  dimensions: 2
+  remove_reference_keys: [spatial_3d]
+
+reference_fit:
+  min_gene_spots: 0
+  min_gene_mean: 0.0
+  max_gene_zero_prop: 1.0
+  boundary_neighbors: 6
+
+transport:
+  epsilon: 0.05
+  sinkhorn_iter: 1000
+  sinkhorn_tol: 1.0e-5
+  unbalanced_transport: true
+  reg_m: 5.0
+  transport_nonconvergence: raise
+  geometry_weight: 1.0
+  boundary_weight: 0.25
+  latent_clip_eps: 1.0e-6
+  gene_chunk_size: 512
+  max_transport_pairs: 25000000
+
+scoring:
+  configuration_id: study05-two-dataset-conditional-scores-v2
+  neighbors_including_self: 6
+  gene_chunk_size: 256
+  variance_ddof: 0
+  zero_definition: counts_less_than_or_equal_to_zero

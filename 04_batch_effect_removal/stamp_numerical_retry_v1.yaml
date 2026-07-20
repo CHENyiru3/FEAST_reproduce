@@ -1,0 +1,32 @@
+configuration_id: study04-stamp-numerical-retry-v1
+parent_configuration_id: study04-final-rerun-v2
+method: STAMP
+activation_rule: >-
+  Apply only after the standard declared STAMP run is preserved as failed
+  because finite training reaches a plateau and then a Pyro variational
+  parameter becomes non-finite before the default early-stop patience fires.
+eligible_conditions:
+  - mode: shift_only
+    alpha: 1.50
+  - mode: diagonal_affine
+    alpha: 1.50
+retry_change:
+  parameter: patience
+  standard_value: 20
+  retry_value: 10
+unchanged_contract:
+  public_seed: 42
+  n_topics: 10
+  n_layers: 1
+  hidden_size: 128
+  mode: sgc
+  learning_rate: 0.005
+  max_epochs: 800
+  min_epochs: 100
+  device: cuda:0
+  zero_library_strategy: raw_zero_likelihood_within_batch_sgc_encoder_v1
+scientific_disposition: >-
+  This is an unsupervised numerical-stability retry. It changes stopping
+  patience only, uses no labels or benchmark metrics, and preserves the
+  original failed attempt as noncanonical evidence. It does not establish
+  bitwise or hyperparameter stability and must remain explicit in provenance.

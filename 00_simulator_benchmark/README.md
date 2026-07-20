@@ -66,3 +66,25 @@ The simulation root contains 12 H5AD files plus `simulation_manifest.csv` and
 `moran_gene_panel.csv`, and `provenance.json`. Metrics use exact gene joins,
 exact named spot support where available, one ordered reference-derived Moran
 panel, and no composite score.
+
+## Pairwise-support repair
+
+The frozen external H5AD files are not modified. When observation identifiers
+do not overlap, scoring may use spatial coordinates only if the coordinates are
+finite and form a complete, unique bijection at the configured eight-decimal
+precision. Partial support and duplicate coordinates are rejected.
+
+The bounded repair command is:
+
+```bash
+python repair_pairwise_support.py
+```
+
+It writes only to the new
+`outputs/final_rerun_20260718_metrics_final/` root. Twenty of the 21 formerly
+unsupported rows have verified coordinate bijections. `scCube/Slideseq_001`
+remains unscored because 35,054 simulated rows contain only 34,598 unique
+coordinates. Pairwise aggregation uses the same 11 complete datasets across
+all five simulators. The prior all-five-method pairwise ranking was
+indeterminate, so publication and figure promotion remain stopped for author
+review.
