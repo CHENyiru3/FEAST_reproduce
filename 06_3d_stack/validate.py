@@ -45,6 +45,14 @@ def load_frozen(output_dir: Path) -> tuple[dict[str, Any], dict[str, Any], dict[
         raise ValueError("plan is not bound to the required FEAST wheel")
     if runtime.get("wheel_sha256") != str(config["required_wheel_sha256"]):
         raise ValueError("validator is not running from the required FEAST wheel")
+    if preflight.get("source_patch_sha256") != str(
+        config["required_source_patch_sha256"]
+    ):
+        raise ValueError("preflight is not bound to the required FEAST source patch")
+    if preflight.get("candidate_provenance_sha256") != str(
+        config["required_feast_provenance_sha256"]
+    ):
+        raise ValueError("preflight FEAST candidate provenance changed")
     return config, plan, preflight
 
 
@@ -157,6 +165,10 @@ def validate_transport_diagnostics(
         policies = column_values(records, "transport_nonconvergence_policy", count)
         references = column_values(records, "reference_name", count)
         masses = column_values(records, "transport_mass", count)
+        methods = column_values(records, "transport_solver_method", count)
+        backends = column_values(records, "transport_backend", count)
+        devices = column_values(records, "transport_device", count)
+        dtypes = column_values(records, "transport_dtype", count)
         for index in range(count):
             error = float(errors[index])
             tolerance = float(tolerances[index])
@@ -172,6 +184,14 @@ def validate_transport_diagnostics(
                 raise ValueError("recorded Sinkhorn iteration contract changed")
             if policies[index] != "raise":
                 raise ValueError("transport nonconvergence policy is not strict")
+            if methods[index] != str(transport["sinkhorn_method"]):
+                raise ValueError("transport solver method differs from the frozen config")
+            if backends[index] != str(transport["transport_backend"]):
+                raise ValueError("transport backend differs from the frozen config")
+            if devices[index] != str(transport["transport_device"]):
+                raise ValueError("transport device differs from the frozen config")
+            if dtypes[index] != str(transport["transport_dtype"]):
+                raise ValueError("transport dtype differs from the frozen config")
             if references[index] not in allowed_references:
                 raise ValueError(f"undeclared logical reference {references[index]!r}")
             mass = float(masses[index])
@@ -288,6 +308,10 @@ def validate_one(
             "feast_version": config["feast_version"],
             "feast_commit": config["required_feast_commit"],
             "wheel_sha256": config["required_wheel_sha256"],
+            "source_patch_sha256": config["required_source_patch_sha256"],
+            "candidate_provenance_sha256": config[
+                "required_feast_provenance_sha256"
+            ],
             "target_slice": int(row["target_slice"]),
             "target_index": int(row["target_index"]),
             "density_gap": int(row["gap"]),

@@ -4,10 +4,12 @@ This directory cleanly regenerates the Allen Zhuang ABCA-1 semi-reference
 stack benchmark. It produces 93 conditional FEAST slices: 49 for gap 3, 29
 for gap 5, and 15 for gap 10. Historical outputs are never read or reused.
 
-Current launch status: blocked before generation by the reproducible full-
-preflight POT failure recorded in [`PREFLIGHT_BLOCKER.md`](PREFLIGHT_BLOCKER.md).
-Do not run canaries or production shards until that versioned solver/estimator
-issue is repaired and a fresh full preflight passes reproducibly.
+Current launch status: the exact POT underflow defect is repaired and the
+historical medium-gap `0.25` value was classified as unpinned and
+nonreproducible. Versioned configuration v5 declares the reproducible `0.30`
+value. Its fresh full preflight passed, freezing 147 inputs and 93 target
+assignments. CUDA canaries are the next gate, as recorded in
+[`PREFLIGHT_BLOCKER.md`](PREFLIGHT_BLOCKER.md).
 
 The target slice contributes only observed identity and geometry (`obs_names`,
 `class`, `z`, `spatial`, `spatial_3d`, and gene names) during generation.
@@ -17,7 +19,7 @@ donors are the sole expression inputs to FEAST.
 
 The scientific contract is fail-closed:
 
-- reference-only assignment-randomness preflight must reproduce 0.35, 0.25,
+- reference-only assignment-randomness preflight must reproduce 0.35, 0.30,
   and 0.35 for gaps 3, 5, and 10;
 - unified OT uses 1,000 iterations, tolerance `1e-5`, a 25-million-pair block
   cap, and `transport_nonconvergence="raise"`;
@@ -33,7 +35,9 @@ repository, not the mutable source checkout. Verify the interpreter first:
 ```bash
 FEAST_PY=/path/to/clean-feast-environment/bin/python
 REPRO_ROOT=..
-"$FEAST_PY" "$REPRO_ROOT/scripts/verify_feast_install.py"
+CANDIDATE="$REPRO_ROOT/../FEAST/validation/package_builds/20260719_ot_log_repair_v2/provenance.json"
+"$FEAST_PY" "$REPRO_ROOT/scripts/verify_feast_install.py" \
+  --candidate-provenance "$CANDIDATE"
 ```
 
 ## 1. Freeze inputs and the target plan

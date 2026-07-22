@@ -20,25 +20,41 @@ No cross-z smoothing is part of the publication candidate.
 
 ## Fixed scientific contract
 
-- FEAST 1.0.2 wheel SHA-256
-  `9dd912d883a03d51ed7105cecd914cf8f7f25f5355f57dfde1c77b6fef0b056b`
-  from source commit `68816e5c1862a6fa2a49bc30609d617c7fa4b449`.
+- Provisional FEAST 1.1.0 wheel SHA-256
+  `3ad31888faf367a91aec9d46902a5e89759837b5c7ea0e45ca93276674e68883`
+  from source commit `68816e5c1862a6fa2a49bc30609d617c7fa4b449` plus the hash-pinned
+  log-domain repair snapshot. This is not a release or canonical article
+  authorization.
 - Conditional public API: `FEAST.de_novo.fit_reference` followed by
   `FEAST.de_novo.simulate_from_reference`.
 - Empirical-reference marginals, public seed `2026 + original sorted z index`.
 - Sinkhorn iterations 1,000, tolerance `1e-5`, pair cap 25,000,000, and
   `transport_nonconvergence="raise"`.
+- Explicit `sinkhorn_log`, float64, Torch/CUDA generation. There is no method
+  fallback and no silent CPU fallback.
 - E15.5 assignment randomness is fixed at the author-declared value 0.4.
 - Both ages use the historical E15.5 permissive reference filter and retain
   the same ordered 550-gene panel.
 - E18.5 assignment randomness must first be estimated from the fitted five-
   reference cohort and frozen in a hash-bound calibration record. The target
   blueprint is not accessible to calibration.
+- Calibration is an explicitly separate Torch/CPU stage. The fresh value is
+  `0.5`, unchanged from the historical calibration; its output and full solver
+  manifest are hash-bound in `OT_LOG_REPAIR_DECISION.md`.
 - Every retained solver record must explicitly report convergence and a finite
   final error below its stop threshold.
 
 Run with the clean wheel interpreter documented in `../environments/README.md`.
 Do not put the mutable FEAST source checkout on `PYTHONPATH`.
+Verify the provisional candidate explicitly before preparation or execution:
+
+```bash
+FEAST_PY=/path/to/clean-feast-environment/bin/python
+REPRO_ROOT=..
+CANDIDATE="$REPRO_ROOT/../FEAST/validation/package_builds/20260719_ot_log_repair_v2/provenance.json"
+"$FEAST_PY" "$REPRO_ROOT/scripts/verify_feast_install.py" \
+  --candidate-provenance "$CANDIDATE"
+```
 
 ## Preparation
 

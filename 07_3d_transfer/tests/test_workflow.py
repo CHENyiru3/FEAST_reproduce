@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import inspect
 import sys
 from pathlib import Path
 
@@ -56,6 +57,12 @@ def test_full_axis_configuration_is_exact():
     assert config["transport"]["sinkhorn_iter"] == 1000
     assert config["transport"]["sinkhorn_tol"] == 1e-5
     assert config["transport"]["max_transport_pairs"] == 25_000_000
+    assert config["transport"]["sinkhorn_method"] == "sinkhorn_log"
+    assert config["transport"]["transport_backend"] == "torch"
+    assert config["transport"]["transport_device"] == "cuda:0"
+    assert config["transport"]["transport_dtype"] == "float64"
+    assert config["assignment_randomness_calibration"]["transport_backend"] == "torch"
+    assert config["assignment_randomness_calibration"]["transport_device"] == "cpu"
 
 
 def test_synthetic_extraction_masks_other_sorts_z_and_assigns_stable_ids():
@@ -148,6 +155,10 @@ def test_transport_requires_positive_convergence_evidence():
                         "transport_max_iterations": ["1000"],
                         "transport_mass": ["0.99"],
                         "transport_nonconvergence_policy": ["raise"],
+                        "transport_solver_method": ["sinkhorn_log"],
+                        "transport_backend": ["torch"],
+                        "transport_device": ["cuda:0"],
+                        "transport_dtype": ["float64"],
                         "transport_iterations": ["42"],
                     }
                 }
@@ -178,6 +189,10 @@ def test_transport_rejects_relaxed_threshold_and_wheel_identity_is_pinned():
                         "transport_max_iterations": ["1000"],
                         "transport_mass": ["1.0"],
                         "transport_nonconvergence_policy": ["raise"],
+                        "transport_solver_method": ["sinkhorn_log"],
+                        "transport_backend": ["torch"],
+                        "transport_device": ["cuda:0"],
+                        "transport_dtype": ["float64"],
                         "transport_iterations": ["42"],
                     }
                 }
@@ -186,18 +201,24 @@ def test_transport_rejects_relaxed_threshold_and_wheel_identity_is_pinned():
 
     with pytest.raises(ValueError, match="threshold"):
         workflow.transport_summary(Result(), contract)
-    identity = workflow.feast_identity(config)
+    assert inspect.signature(workflow.feast_identity).parameters[
+        "require_cuda"
+    ].default is True
+    identity = workflow.feast_identity(config, require_cuda=False)
     assert identity["wheel_sha256"] == config["required_wheel_sha256"]
     assert "site-packages" in identity["import_path"]
+    assert identity["stage_requires_cuda"] == "false"
 
 
 def test_materialized_blueprint_provenance_is_fail_closed():
     config = workflow.load_config()
     for age in workflow.AGE_ORDER:
-        assert workflow.verify_prepared_blueprint(config, age)["configuration_id"] == config["configuration_id"]
+        assert workflow.verify_prepared_blueprint(config, age)[
+            "blueprint_configuration_id"
+        ] == config["blueprint_configuration_id"]
     changed = dict(config)
-    changed["configuration_id"] = "changed-after-blueprint-preparation"
-    with pytest.raises(ValueError, match="configuration_id"):
+    changed["blueprint_configuration_id"] = "changed-blueprint-contract"
+    with pytest.raises(ValueError, match="blueprint_configuration_id"):
         workflow.verify_prepared_blueprint(changed, "E15.5")
 
 
@@ -215,6 +236,10 @@ def test_per_slice_lineage_survives_h5ad_roundtrip(tmp_path):
             "transport_max_iterations": ["1000"],
             "transport_mass": ["0.99"],
             "transport_nonconvergence_policy": ["raise"],
+            "transport_solver_method": ["sinkhorn_log"],
+            "transport_backend": ["torch"],
+            "transport_device": ["cuda:0"],
+            "transport_dtype": ["float64"],
             "transport_iterations": ["42"],
         }
     }
@@ -242,6 +267,10 @@ def test_per_slice_lineage_survives_h5ad_roundtrip(tmp_path):
         "feast_version": config["required_feast_version"],
         "feast_commit": config["required_feast_commit"],
         "feast_wheel_sha256": config["required_wheel_sha256"],
+        "feast_source_patch_sha256": config["required_source_patch_sha256"],
+        "feast_candidate_provenance_sha256": config[
+            "required_feast_provenance_sha256"
+        ],
         "reference_artifacts": references,
         "transport_config": contract,
         "solver_diagnostics": summary,

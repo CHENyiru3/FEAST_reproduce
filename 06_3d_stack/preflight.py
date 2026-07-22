@@ -217,9 +217,29 @@ def plan_density(
 
 
 def estimate_density_ar(spec, reference_ids, slice_infos, config) -> dict[str, Any]:
-    from FEAST import estimate_assignment_randomness
+    from FEAST import TransportConfig, estimate_assignment_randomness
 
     settings = config["assignment_randomness_preflight"]
+    transport_values = config["transport"]
+    transport = TransportConfig(
+        epsilon=float(transport_values["epsilon"]),
+        sinkhorn_iter=int(transport_values["sinkhorn_iter"]),
+        sinkhorn_tol=float(transport_values["sinkhorn_tol"]),
+        unbalanced_transport=bool(transport_values["unbalanced_transport"]),
+        reg_m=float(transport_values["reg_m"]),
+        transport_nonconvergence=str(
+            transport_values["transport_nonconvergence"]
+        ),
+        sinkhorn_method=str(transport_values["sinkhorn_method"]),
+        transport_backend=str(settings["transport_backend"]),
+        transport_device=str(settings["transport_device"]),
+        transport_dtype=str(settings["transport_dtype"]),
+        geometry_weight=float(transport_values["geometry_weight"]),
+        boundary_weight=float(transport_values["boundary_weight"]),
+        latent_clip_eps=float(transport_values["latent_clip_eps"]),
+        gene_chunk_size=int(transport_values["gene_chunk_size"]),
+        max_transport_pairs=int(transport_values["max_transport_pairs"]),
+    )
     selected = representative_reference_ids(reference_ids, int(settings["representative_reference_slices"]))
     estimates: list[dict[str, Any]] = []
     dataset = config["dataset"]
@@ -242,6 +262,7 @@ def estimate_density_ar(spec, reference_ids, slice_infos, config) -> dict[str, A
                 max_ar=float(settings["maximum"]),
                 n_neighbors=int(settings["spatial_neighbors"]),
                 random_seed=seed,
+                transport=transport,
             )
         finally:
             del reference
@@ -292,6 +313,10 @@ def main() -> None:
         "feast_version": FEAST.__version__,
         "feast_commit": runtime["commit"],
         "wheel_sha256": runtime["wheel_sha256"],
+        "source_patch_sha256": runtime["source_patch_sha256"],
+        "candidate_provenance_sha256": runtime[
+            "candidate_provenance_sha256"
+        ],
         "data_dir": str(data_dir),
         "input_manifest_sha256": sha256_file(manifest_path),
         "gene_names": genes,
@@ -336,6 +361,10 @@ def main() -> None:
         "feast_version": FEAST.__version__,
         "feast_commit": runtime["commit"],
         "wheel_sha256": runtime["wheel_sha256"],
+        "source_patch_sha256": runtime["source_patch_sha256"],
+        "candidate_provenance_sha256": runtime[
+            "candidate_provenance_sha256"
+        ],
         "feast_module_path": str(Path(FEAST.__file__).resolve()),
         "verified_package_files": int(runtime["verified_package_files"]),
         "data_dir": str(data_dir),

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import importlib.metadata
 import json
@@ -33,18 +34,40 @@ def fields() -> dict[str, str]:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--candidate-provenance",
+        type=Path,
+        help="verify a provisional wheel and source snapshot instead of FEAST_BUILD.txt",
+    )
+    args = parser.parse_args()
     import FEAST
 
-    record = fields()
-    required_commit = record["Required source commit"]
-    required_version = record["Package version"].split()[0]
-    wheel_hash = record["Wheel SHA-256"]
-    wheels = sorted((ROOT / "dist").glob("feast_py-*.whl"))
-    if len(wheels) != 1:
-        raise RuntimeError(f"expected one recorded FEAST wheel, found {len(wheels)}")
-    wheel = wheels[0]
+    candidate_record: dict | None = None
+    provenance_hash: str | None = None
+    source_patch_hash: str | None = None
+    if args.candidate_provenance is None:
+        record = fields()
+        required_commit = record["Required source commit"]
+        required_version = record["Package version"].split()[0]
+        wheel_hash = record["Wheel SHA-256"]
+        wheels = sorted((ROOT / "dist").glob("feast_py-*.whl"))
+        if len(wheels) != 1:
+            raise RuntimeError(
+                f"expected one recorded FEAST wheel, found {len(wheels)}"
+            )
+        wheel = wheels[0]
+    else:
+        provenance = args.candidate_provenance.resolve()
+        candidate_record = json.loads(provenance.read_text(encoding="utf-8"))
+        required_commit = str(candidate_record["base_commit"])
+        required_version = str(candidate_record["candidate_version"])
+        wheel_hash = str(candidate_record["wheel"]["sha256"])
+        wheel = provenance.parent / str(candidate_record["wheel"]["path"])
+        provenance_hash = sha256(provenance)
+        source_patch_hash = str(candidate_record["source_patch_sha256"])
     if sha256(wheel) != wheel_hash:
-        raise RuntimeError("clean FEAST wheel checksum differs from FEAST_BUILD.txt")
+        raise RuntimeError("FEAST wheel checksum differs from its build record")
 
     imported = Path(FEAST.__file__).resolve()
     source_checkout = (ROOT.parent / "FEAST" / "src").resolve()
@@ -75,6 +98,17 @@ def main() -> int:
         raise RuntimeError(f"installed wheel files differ: {mismatches[:5]}")
 
     feast_repo = (ROOT.parent / "FEAST").resolve()
+    if candidate_record is not None:
+        mismatched_sources = []
+        for relative, expected_hash in candidate_record["source_files"].items():
+            source = feast_repo / str(relative)
+            if not source.is_file() or sha256(source) != str(expected_hash):
+                mismatched_sources.append(str(relative))
+        if mismatched_sources:
+            raise RuntimeError(
+                "candidate source snapshot differs: "
+                f"{mismatched_sources[:5]}"
+            )
     head = subprocess.run(
         ["git", "-C", str(feast_repo), "rev-parse", "HEAD"],
         check=True,
@@ -93,6 +127,13 @@ def main() -> int:
                 "wheel_sha256": wheel_hash,
                 "import_path": str(imported),
                 "verified_package_files": checked,
+                "source_patch_sha256": source_patch_hash,
+                "candidate_provenance_sha256": provenance_hash,
+                "candidate_status": (
+                    None
+                    if candidate_record is None
+                    else str(candidate_record["candidate_status"])
+                ),
             },
             indent=2,
         )

@@ -80,8 +80,11 @@ def load_config(path: Path | str = STUDY_ROOT / "config.yaml") -> dict[str, Any]
     with config_path.open(encoding="utf-8") as handle:
         config = yaml.safe_load(handle)
     required = {
-        "configuration_id", "legacy_study_id", "public_seed", "required_feast_version",
-        "required_feast_commit", "required_wheel_sha256", "paths", "reference_fit", "transport", "ages", "blueprint",
+        "configuration_id", "blueprint_configuration_id", "legacy_study_id",
+        "public_seed", "required_feast_version",
+        "required_feast_commit", "required_wheel_sha256",
+        "required_source_patch_sha256", "required_feast_provenance_sha256",
+        "paths", "reference_fit", "transport", "ages", "blueprint",
     }
     missing = required - set(config)
     if missing:
@@ -107,6 +110,10 @@ def load_config(path: Path | str = STUDY_ROOT / "config.yaml") -> dict[str, Any]
         and float(solver["sinkhorn_tol"]) == 1e-5
         and solver["transport_nonconvergence"] == "raise"
         and int(solver["max_transport_pairs"]) == 25_000_000
+        and solver["sinkhorn_method"] == "sinkhorn_log"
+        and solver["transport_backend"] == "torch"
+        and solver["transport_device"] == "cuda:0"
+        and solver["transport_dtype"] == "float64"
     ):
         raise ValueError("strict publication OT contract changed")
     e15_ar = config["ages"]["E15.5"]["assignment_randomness"]
@@ -129,6 +136,10 @@ def load_config(path: Path | str = STUDY_ROOT / "config.yaml") -> dict[str, Any]
     config["_config_path"] = config_path
     config["_feast_repo"] = resolve_path(config_path, config["paths"]["feast_repo"])
     config["_feast_wheel"] = resolve_path(config_path, config["paths"]["feast_wheel"])
+    config["_feast_provenance"] = resolve_path(
+        config_path,
+        config["paths"]["feast_provenance"],
+    )
     config["_dataset_root"] = resolve_path(config_path, config["paths"]["dataset_root"])
     config["_reference_dir"] = config["_dataset_root"] / config["paths"]["reference_dir"]
     config["_devccf_dir"] = config["_dataset_root"] / config["paths"]["devccf_dir"]
@@ -158,9 +169,41 @@ def blueprint_provenance_path(config: dict[str, Any], age: str) -> Path:
     return config["_blueprint_dir"] / f"{age}.blueprint.provenance.json"
 
 
+def blueprint_contract_sha256(config: dict[str, Any]) -> str:
+    payload = {
+        "blueprint_configuration_id": str(config["blueprint_configuration_id"]),
+        "ages": {
+            age: {
+                key: config["ages"][age][key]
+                for key in (
+                    "volume",
+                    "z_start",
+                    "z_end",
+                    "z_step",
+                    "expected_levels",
+                    "expected_spots",
+                )
+            }
+            for age in AGE_ORDER
+        },
+        "blueprint": config["blueprint"],
+    }
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+
+
 def calibration_path(config: dict[str, Any], age: str = "E18.5") -> Path:
     value = config["ages"][age]["assignment_randomness"]["calibration_file"]
     return resolve_path(config["_config_path"], value)
+
+
+def calibration_manifest_path(
+    config: dict[str, Any],
+    age: str = "E18.5",
+) -> Path:
+    path = calibration_path(config, age)
+    return path.with_name(f"{path.stem}.manifest.json")
 
 
 def input_manifest() -> pd.DataFrame:
@@ -239,13 +282,24 @@ def preflight_inputs(config: dict[str, Any], *, inspect_h5ad: bool = True) -> di
     return summary
 
 
-def feast_identity(config: dict[str, Any]) -> dict[str, str]:
+def feast_identity(
+    config: dict[str, Any],
+    *,
+    require_cuda: bool = True,
+) -> dict[str, str]:
     import FEAST
     import numpy
+    import ot
+    import torch
 
     verifier = STUDY_ROOT.parent / "scripts" / "verify_feast_install.py"
     verified = subprocess.run(
-        [sys.executable, str(verifier)],
+        [
+            sys.executable,
+            str(verifier),
+            "--candidate-provenance",
+            str(config["_feast_provenance"]),
+        ],
         check=True,
         capture_output=True,
         text=True,
@@ -263,20 +317,52 @@ def feast_identity(config: dict[str, Any]) -> dict[str, str]:
     wheel_hash = sha256_file(config["_feast_wheel"])
     if wheel_hash != str(config["required_wheel_sha256"]):
         raise RuntimeError(f"FEAST wheel checksum mismatch: {wheel_hash}")
+    if sha256_file(config["_feast_provenance"]) != str(
+        config["required_feast_provenance_sha256"]
+    ):
+        raise RuntimeError("FEAST candidate provenance checksum mismatch")
+    if verifier_record.get("source_patch_sha256") != str(
+        config["required_source_patch_sha256"]
+    ):
+        raise RuntimeError("FEAST source patch identity mismatch")
+    if verifier_record.get("candidate_provenance_sha256") != str(
+        config["required_feast_provenance_sha256"]
+    ):
+        raise RuntimeError("FEAST verifier provenance identity mismatch")
     import_path = Path(FEAST.__file__).resolve()
     if import_path.is_relative_to(config["_feast_repo"].resolve()) or "site-packages" not in import_path.parts:
         raise RuntimeError(f"FEAST must be imported from the installed wheel, not mutable source: {import_path}")
     if sys.version_info[:2] != (3, 11) or str(numpy.__version__) != "1.26.4":
         raise RuntimeError(f"unsupported execution environment: Python {sys.version.split()[0]}, NumPy {numpy.__version__}")
-    return {
+    if str(ot.__version__) != "0.9.7":
+        raise RuntimeError(f"unsupported POT version: {ot.__version__}")
+    cuda_available = bool(torch.cuda.is_available())
+    if require_cuda and not cuda_available:
+        raise RuntimeError("declared CUDA transport device is unavailable")
+    identity = {
         "version": str(FEAST.__version__),
         "commit": commit,
         "wheel_sha256": wheel_hash,
         "import_path": str(import_path),
         "python": sys.version.split()[0],
         "numpy": str(numpy.__version__),
+        "pot": str(ot.__version__),
+        "torch": str(torch.__version__),
+        "torch_cuda": str(torch.version.cuda),
+        "stage_requires_cuda": str(bool(require_cuda)).lower(),
+        "cuda_available": str(cuda_available).lower(),
+        "gpu": (
+            str(torch.cuda.get_device_name(0))
+            if cuda_available
+            else "not_available_for_this_stage"
+        ),
+        "source_patch_sha256": str(config["required_source_patch_sha256"]),
+        "candidate_provenance_sha256": str(
+            config["required_feast_provenance_sha256"]
+        ),
         "installed_package_files_verified": str(verifier_record["verified_package_files"]),
     }
+    return identity
 
 
 def read_nifti_gz(path: Path) -> tuple[np.ndarray, np.ndarray]:
@@ -478,7 +564,8 @@ def verify_prepared_blueprint(config: dict[str, Any], age: str) -> dict[str, Any
     volume = config["_devccf_dir"] / config["ages"][age]["volume"]
     schema = config["_devccf_dir"] / config["blueprint"]["region_schema"]
     expected = {
-        "configuration_id": str(config["configuration_id"]),
+        "blueprint_configuration_id": str(config["blueprint_configuration_id"]),
+        "blueprint_contract_sha256": blueprint_contract_sha256(config),
         "age": age,
         "n_z_levels": int(config["ages"][age]["expected_levels"]),
         "n_spots": int(config["ages"][age]["expected_spots"]),
@@ -486,9 +573,6 @@ def verify_prepared_blueprint(config: dict[str, Any], age: str) -> dict[str, Any
         "manifest_sha256": sha256_file(manifest),
         "volume_sha256": sha256_file(volume),
         "region_schema_sha256": sha256_file(schema),
-        "config_sha256": sha256_file(config["_config_path"]),
-        "prepare_py_sha256": sha256_file(STUDY_ROOT / "prepare.py"),
-        "workflow_py_sha256": sha256_file(STUDY_ROOT / "workflow.py"),
         "expression_source": "none",
         "smoothing": "none",
     }
@@ -533,6 +617,10 @@ def frozen_transport_config(config: dict[str, Any], assignment_randomness: float
         "unbalanced_transport": bool(values["unbalanced_transport"]),
         "reg_m": float(values["reg_m"]),
         "transport_nonconvergence": str(values["transport_nonconvergence"]),
+        "sinkhorn_method": str(values["sinkhorn_method"]),
+        "transport_backend": str(values["transport_backend"]),
+        "transport_device": str(values["transport_device"]),
+        "transport_dtype": str(values["transport_dtype"]),
         "geometry_weight": float(values["geometry_weight"]),
         "boundary_weight": float(values["boundary_weight"]),
         "assignment_randomness": float(assignment_randomness),
@@ -565,10 +653,39 @@ def transport_summary(adata: Any, expected_transport: dict[str, Any]) -> dict[st
         masses = list(table.get("transport_mass", []))
         policies = list(table.get("transport_nonconvergence_policy", []))
         iteration_values = list(table.get("transport_iterations", []))
-        if not all(len(values) == n_records for values in (converged, final_errors, thresholds, maximums, masses, policies, iteration_values)):
+        methods = list(table.get("transport_solver_method", []))
+        backends = list(table.get("transport_backend", []))
+        devices = list(table.get("transport_device", []))
+        dtypes = list(table.get("transport_dtype", []))
+        if not all(
+            len(values) == n_records
+            for values in (
+                converged,
+                final_errors,
+                thresholds,
+                maximums,
+                masses,
+                policies,
+                iteration_values,
+                methods,
+                backends,
+                devices,
+                dtypes,
+            )
+        ):
             raise ValueError(f"incomplete transport diagnostics for {label}")
-        for ok, error, threshold, maximum, mass, policy, n_iter in zip(
-            converged, final_errors, thresholds, maximums, masses, policies, iteration_values
+        for ok, error, threshold, maximum, mass, policy, n_iter, method, backend, device, dtype in zip(
+            converged,
+            final_errors,
+            thresholds,
+            maximums,
+            masses,
+            policies,
+            iteration_values,
+            methods,
+            backends,
+            devices,
+            dtypes,
         ):
             error_value = float(error)
             threshold_value = float(threshold)
@@ -577,6 +694,14 @@ def transport_summary(adata: Any, expected_transport: dict[str, Any]) -> dict[st
             iteration_value = int(float(n_iter))
             if str(ok).lower() != "true" or str(policy) != "raise":
                 raise ValueError(f"nonconverged or non-strict transport record for {label}")
+            if str(method) != str(expected_transport["sinkhorn_method"]):
+                raise ValueError(f"transport solver method changed for {label}")
+            if str(backend) != str(expected_transport["transport_backend"]):
+                raise ValueError(f"transport backend changed for {label}")
+            if str(device) != str(expected_transport["transport_device"]):
+                raise ValueError(f"transport device changed for {label}")
+            if str(dtype) != str(expected_transport["transport_dtype"]):
+                raise ValueError(f"transport dtype changed for {label}")
             if threshold_value != float(expected_transport["sinkhorn_tol"]):
                 raise ValueError(f"transport stop threshold changed for {label}")
             if maximum_value != int(expected_transport["sinkhorn_iter"]):
@@ -664,6 +789,10 @@ def validate_publication_lineage(
         "feast_version": str(config["required_feast_version"]),
         "feast_commit": str(config["required_feast_commit"]),
         "feast_wheel_sha256": str(config["required_wheel_sha256"]),
+        "feast_source_patch_sha256": str(config["required_source_patch_sha256"]),
+        "feast_candidate_provenance_sha256": str(
+            config["required_feast_provenance_sha256"]
+        ),
     }
     for key, expected in expected_scalars.items():
         observed = record.get(key)
@@ -688,10 +817,13 @@ def validate_publication_lineage(
         }
     else:
         path = calibration_path(config, age)
+        manifest_path = calibration_manifest_path(config, age)
         expected_ar_provenance = {
             "mode": "reference_calibration",
             "path": str(path.relative_to(STUDY_ROOT)),
             "sha256": sha256_file(path),
+            "manifest_path": str(manifest_path.relative_to(STUDY_ROOT)),
+            "manifest_sha256": sha256_file(manifest_path),
         }
     if record.get("assignment_randomness_provenance") != expected_ar_provenance:
         raise ValueError("publication assignment-randomness provenance differs")

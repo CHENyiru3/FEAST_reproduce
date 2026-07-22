@@ -27,7 +27,8 @@ def prepare_age(config: dict, age: str) -> None:
     schema = workflow.load_region_schema(schema_path)
     payload = workflow.extract_blueprint_payload(data, affine, schema, age)
     payload["metadata"].update({
-        "configuration_id": config["configuration_id"],
+        "blueprint_configuration_id": config["blueprint_configuration_id"],
+        "blueprint_contract_sha256": workflow.blueprint_contract_sha256(config),
         "volume_artifact_sha256": workflow.sha256_file(volume),
         "region_schema_sha256": workflow.sha256_file(schema_path),
     })
@@ -39,7 +40,8 @@ def prepare_age(config: dict, age: str) -> None:
     frame.to_csv(manifest_path, index=False)
     provenance = {
         "schema_version": 1,
-        "configuration_id": config["configuration_id"],
+        "blueprint_configuration_id": config["blueprint_configuration_id"],
+        "blueprint_contract_sha256": workflow.blueprint_contract_sha256(config),
         "age": age,
         "generated_utc": datetime.now(timezone.utc).isoformat(),
         "expression_source": "none",
@@ -50,7 +52,10 @@ def prepare_age(config: dict, age: str) -> None:
         "manifest_sha256": workflow.sha256_file(manifest_path),
         "volume_sha256": workflow.sha256_file(volume),
         "region_schema_sha256": workflow.sha256_file(schema_path),
-        "config_sha256": workflow.sha256_file(config["_config_path"]),
+        "execution_configuration_id_at_materialization": config["configuration_id"],
+        "execution_config_sha256_at_materialization": workflow.sha256_file(
+            config["_config_path"]
+        ),
         "prepare_py_sha256": workflow.sha256_file(Path(__file__).resolve()),
         "workflow_py_sha256": workflow.sha256_file(workflow.STUDY_ROOT / "workflow.py"),
     }

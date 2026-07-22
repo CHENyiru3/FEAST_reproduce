@@ -1,18 +1,22 @@
-configuration_id: "study07-full-devccf-transfer-v2"
+configuration_id: "study07-full-devccf-transfer-v5"
+blueprint_configuration_id: "study07-devccf-expression-free-blueprints-v1"
 legacy_study_id: "06"
 public_seed: 2026
-required_feast_version: "1.0.2"
+required_feast_version: "1.1.0"
 required_feast_commit: "68816e5c1862a6fa2a49bc30609d617c7fa4b449"
-required_wheel_sha256: "9dd912d883a03d51ed7105cecd914cf8f7f25f5355f57dfde1c77b6fef0b056b"
+required_wheel_sha256: "3ad31888faf367a91aec9d46902a5e89759837b5c7ea0e45ca93276674e68883"
+required_source_patch_sha256: "1d270cb4421b4f17d5a72b2736e2893d3703593d8d93b1d87f82400f03a2be42"
+required_feast_provenance_sha256: "9fbe12912ab0853d9c637ef0651b55157af2f015e90187947619d7936e42e898"
 
 paths:
   feast_repo: "../../FEAST"
-  feast_wheel: "../dist/feast_py-1.0.2-py3-none-any.whl"
+  feast_wheel: "../../FEAST/validation/package_builds/20260719_ot_log_repair_v2/feast_py-1.1.0-py3-none-any.whl"
+  feast_provenance: "../../FEAST/validation/package_builds/20260719_ot_log_repair_v2/provenance.json"
   dataset_root: "../../Datasets/Processed"
   reference_dir: "GSE269617/h5ad_region_annotated"
   devccf_dir: "DevCCFv1_figshare_26377171/coordinate_system/GSE269617_region_merged"
-  blueprint_dir: "data/local/blueprints"
-  work_dir: ".work"
+  blueprint_dir: "data/local/blueprints_ot110"
+  work_dir: ".work/otlog110_v5"
   final_dir: "outputs/final"
 
 reference_fit:
@@ -32,6 +36,10 @@ transport:
   unbalanced_transport: true
   reg_m: 5.0
   transport_nonconvergence: "raise"
+  sinkhorn_method: "sinkhorn_log"
+  transport_backend: "torch"
+  transport_device: "cuda:0"
+  transport_dtype: "float64"
   geometry_weight: 1.0
   boundary_weight: 0.25
   latent_clip_eps: 0.000001
@@ -48,6 +56,9 @@ assignment_randomness_calibration:
   step: 0.05
   maximum: 0.5
   n_neighbors: 6
+  transport_backend: "torch"
+  transport_device: "cpu"
+  transport_dtype: "float64"
 
 ages:
   E15.5:
@@ -74,7 +85,7 @@ ages:
     expected_spots: 5213461
     assignment_randomness:
       mode: "reference_calibration"
-      calibration_file: "data/local/E18.5_assignment_randomness.json"
+      calibration_file: "data/local/E18.5_assignment_randomness_otlog110_v5.json"
 
 blueprint:
   region_schema: "gse269617_region_schema.tsv"

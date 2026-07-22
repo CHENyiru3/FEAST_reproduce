@@ -53,8 +53,17 @@ def test_frozen_config_declares_strict_public_contract() -> None:
     assert config["transport"]["sinkhorn_tol"] == 1.0e-5
     assert config["transport"]["transport_nonconvergence"] == "raise"
     assert config["transport"]["max_transport_pairs"] == 25_000_000
+    assert config["transport"]["sinkhorn_method"] == "sinkhorn_log"
+    assert config["transport"]["transport_backend"] == "torch"
+    assert config["transport"]["transport_device"] == "cuda:0"
+    assert config["transport"]["transport_dtype"] == "float64"
+    assert config["assignment_randomness_preflight"]["transport_backend"] == "torch"
+    assert config["assignment_randomness_preflight"]["transport_device"] == "cpu"
+    assert [
+        row["expected_assignment_randomness"] for row in config["densities"]
+    ] == [0.35, 0.30, 0.35]
     assert config["required_wheel_sha256"] == (
-        "9dd912d883a03d51ed7105cecd914cf8f7f25f5355f57dfde1c77b6fef0b056b"
+        "3ad31888faf367a91aec9d46902a5e89759837b5c7ea0e45ca93276674e68883"
     )
 
 
@@ -138,6 +147,12 @@ def valid_transport_records() -> dict[str, object]:
         "transport_iterations": np.array(["30", "40"]),
         "transport_max_iterations": np.array(["1000", "1000"]),
         "transport_nonconvergence_policy": np.array(["raise", "raise"]),
+        "transport_solver_method": np.array(
+            ["sinkhorn_log", "sinkhorn_log"]
+        ),
+        "transport_backend": np.array(["torch", "torch"]),
+        "transport_device": np.array(["cuda:0", "cuda:0"]),
+        "transport_dtype": np.array(["float64", "float64"]),
         "reference_name": np.array(["ref-a", "ref-b"]),
         "transport_mass": np.array(["0.8", "0.9"]),
     }

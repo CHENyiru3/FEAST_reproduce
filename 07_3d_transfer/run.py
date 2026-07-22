@@ -47,9 +47,15 @@ def assignment_randomness(config: dict, age: str) -> tuple[float, dict]:
     if declaration["mode"] == "fixed":
         return float(declaration["value"]), {"mode": "fixed", "basis": declaration["basis"]}
     path = workflow.calibration_path(config, age)
+    manifest_path = workflow.calibration_manifest_path(config, age)
     if not path.is_file():
         raise FileNotFoundError(f"run reference-only E18.5 calibration first: {path}")
+    if not manifest_path.is_file():
+        raise FileNotFoundError(
+            f"calibration manifest is missing: {manifest_path}"
+        )
     payload = json.loads(path.read_text(encoding="utf-8"))
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if payload.get("configuration_id") != config["configuration_id"]:
         raise ValueError("E18.5 calibration configuration ID mismatch")
     if payload.get("selection_scope") != "reference_only" or payload.get("target_blueprint_access") is not False:
@@ -60,6 +66,9 @@ def assignment_randomness(config: dict, age: str) -> tuple[float, dict]:
         "ar_step": float(calibration["step"]),
         "max_ar": float(calibration["maximum"]),
         "n_neighbors": int(calibration["n_neighbors"]),
+        "transport_backend": str(calibration["transport_backend"]),
+        "transport_device": str(calibration["transport_device"]),
+        "transport_dtype": str(calibration["transport_dtype"]),
     }
     if (
         int(payload.get("public_seed", -1)) != int(config["public_seed"])
@@ -69,6 +78,10 @@ def assignment_randomness(config: dict, age: str) -> tuple[float, dict]:
         or payload.get("config_sha256") != workflow.sha256_file(config["_config_path"])
         or payload.get("feast", {}).get("wheel_sha256") != config["required_wheel_sha256"]
         or payload.get("feast", {}).get("commit") != config["required_feast_commit"]
+        or payload.get("feast", {}).get("source_patch_sha256")
+        != config["required_source_patch_sha256"]
+        or payload.get("feast", {}).get("candidate_provenance_sha256")
+        != config["required_feast_provenance_sha256"]
     ):
         raise ValueError("E18.5 calibration contract or wheel lineage differs")
     expected_inputs = {path.name: workflow.sha256_file(path) for path in workflow.reference_paths(config, age)}
@@ -78,10 +91,50 @@ def assignment_randomness(config: dict, age: str) -> tuple[float, dict]:
     step = float(calibration["step"])
     if not 0.0 <= value <= float(calibration["maximum"]) or abs(value / step - round(value / step)) > 1e-9:
         raise ValueError("E18.5 calibrated assignment_randomness is outside the declared grid")
+    transport = config["transport"]
+    expected_transport = {
+        "sinkhorn_method": str(transport["sinkhorn_method"]),
+        "epsilon": float(transport["epsilon"]),
+        "sinkhorn_iter": int(transport["sinkhorn_iter"]),
+        "sinkhorn_tol": float(transport["sinkhorn_tol"]),
+        "unbalanced_transport": bool(transport["unbalanced_transport"]),
+        "reg_m": float(transport["reg_m"]),
+        "transport_nonconvergence": str(transport["transport_nonconvergence"]),
+        "transport_backend": str(calibration["transport_backend"]),
+        "transport_device": str(calibration["transport_device"]),
+        "transport_dtype": str(calibration["transport_dtype"]),
+        "geometry_weight": float(transport["geometry_weight"]),
+        "boundary_weight": float(transport["boundary_weight"]),
+        "gene_chunk_size": int(transport["gene_chunk_size"]),
+        "max_transport_pairs": int(transport["max_transport_pairs"]),
+    }
+    expected_manifest = {
+        "configuration_id": config["configuration_id"],
+        "calibration_file": path.name,
+        "calibration_sha256": workflow.sha256_file(path),
+        "assignment_randomness": value,
+        "public_seed": int(config["public_seed"]),
+        "config_sha256": workflow.sha256_file(config["_config_path"]),
+        "reference_inputs": expected_inputs,
+        "transport_config": expected_transport,
+    }
+    for key, expected in expected_manifest.items():
+        if manifest.get(key) != expected:
+            raise ValueError(f"E18.5 calibration manifest differs for {key}")
+    solver_gate = manifest.get("solver_diagnostics", {})
+    if (
+        solver_gate.get("status")
+        != "all_estimator_transport_calls_completed_strictly"
+        or solver_gate.get("positive_residual_gate") is not True
+        or solver_gate.get("nonconvergence_policy") != "raise"
+    ):
+        raise ValueError("E18.5 calibration lacks strict solver evidence")
     return value, {
         "mode": "reference_calibration",
         "path": str(path.relative_to(workflow.STUDY_ROOT)),
         "sha256": workflow.sha256_file(path),
+        "manifest_path": str(manifest_path.relative_to(workflow.STUDY_ROOT)),
+        "manifest_sha256": workflow.sha256_file(manifest_path),
     }
 
 
@@ -136,6 +189,10 @@ def simulation_config(config: dict, ar: float) -> SimulationConfig:
         unbalanced_transport=bool(values["unbalanced_transport"]),
         reg_m=float(values["reg_m"]),
         transport_nonconvergence=str(values["transport_nonconvergence"]),
+        sinkhorn_method=str(values["sinkhorn_method"]),
+        transport_backend=str(values["transport_backend"]),
+        transport_device=str(values["transport_device"]),
+        transport_dtype=str(values["transport_dtype"]),
         geometry_weight=float(values["geometry_weight"]),
         boundary_weight=float(values["boundary_weight"]),
         assignment_randomness=float(ar),
@@ -300,6 +357,10 @@ def main() -> None:
                 "feast_wheel_sha256": feast["wheel_sha256"],
                 "feast_version": feast["version"],
                 "feast_commit": feast["commit"],
+                "feast_source_patch_sha256": feast["source_patch_sha256"],
+                "feast_candidate_provenance_sha256": feast[
+                    "candidate_provenance_sha256"
+                ],
                 "transport_config": transport_contract,
                 "solver_diagnostics": summary,
         }

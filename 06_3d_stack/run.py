@@ -65,6 +65,13 @@ def load_frozen_run(
         raise ValueError("verified FEAST wheel changed after preflight")
     if plan.get("wheel_sha256") != runtime["wheel_sha256"]:
         raise ValueError("target plan is not bound to the verified FEAST wheel")
+    if runtime["source_patch_sha256"] != preflight["source_patch_sha256"]:
+        raise ValueError("verified FEAST source patch changed after preflight")
+    if (
+        runtime["candidate_provenance_sha256"]
+        != preflight["candidate_provenance_sha256"]
+    ):
+        raise ValueError("verified FEAST candidate provenance changed after preflight")
     import FEAST
 
     if FEAST.__version__ != config["feast_version"] or FEAST.__version__ != preflight["feast_version"]:
@@ -257,6 +264,10 @@ def simulation_config(config: Mapping[str, Any], assignment_randomness: float, v
         unbalanced_transport=bool(transport["unbalanced_transport"]),
         reg_m=float(transport["reg_m"]),
         transport_nonconvergence=str(transport["transport_nonconvergence"]),
+        sinkhorn_method=str(transport["sinkhorn_method"]),
+        transport_backend=str(transport["transport_backend"]),
+        transport_device=str(transport["transport_device"]),
+        transport_dtype=str(transport["transport_dtype"]),
         geometry_weight=float(transport["geometry_weight"]),
         boundary_weight=float(transport["boundary_weight"]),
         assignment_randomness=float(assignment_randomness),
@@ -281,7 +292,10 @@ def simulation_config(config: Mapping[str, Any], assignment_randomness: float, v
     )
 
 
-def convergence_summary(generated: ad.AnnData) -> dict[str, Any]:
+def convergence_summary(
+    generated: ad.AnnData,
+    transport: Mapping[str, Any],
+) -> dict[str, Any]:
     diagnostics = generated.uns.get("de_novo", {}).get("transport_diagnostics", {})
     if not isinstance(diagnostics, Mapping) or not diagnostics:
         raise ValueError("generated output lacks transport diagnostics")
@@ -299,6 +313,10 @@ def convergence_summary(generated: ad.AnnData) -> dict[str, Any]:
             "transport_max_iterations",
             "transport_nonconvergence_policy",
             "transport_mass",
+            "transport_solver_method",
+            "transport_backend",
+            "transport_device",
+            "transport_dtype",
         )
         if any(key not in records for key in required):
             raise ValueError(f"label {label!r} lacks positive convergence fields")
@@ -308,6 +326,10 @@ def convergence_summary(generated: ad.AnnData) -> dict[str, Any]:
             tolerance = float(records["transport_stop_threshold"][index])
             policy = str(records["transport_nonconvergence_policy"][index])
             mass = float(records["transport_mass"][index])
+            method = str(records["transport_solver_method"][index])
+            backend = str(records["transport_backend"][index])
+            device = str(records["transport_device"][index])
+            dtype = str(records["transport_dtype"][index])
             if (
                 not converged
                 or not np.isfinite(error)
@@ -315,6 +337,10 @@ def convergence_summary(generated: ad.AnnData) -> dict[str, Any]:
                 or policy != "raise"
                 or not np.isfinite(mass)
                 or mass <= 0.0
+                or method != str(transport["sinkhorn_method"])
+                or backend != str(transport["transport_backend"])
+                or device != str(transport["transport_device"])
+                or dtype != str(transport["transport_dtype"])
             ):
                 raise ValueError(f"label {label!r} transport record {index} lacks positive convergence evidence")
             maximum_error = max(maximum_error, error)
@@ -335,7 +361,12 @@ def dense_counts(adata: ad.AnnData) -> np.ndarray:
     return np.asarray(matrix)
 
 
-def validate_generated_in_memory(generated: ad.AnnData, metadata: Mapping[str, Any], row: Mapping[str, Any]) -> None:
+def validate_generated_in_memory(
+    generated: ad.AnnData,
+    metadata: Mapping[str, Any],
+    row: Mapping[str, Any],
+    transport: Mapping[str, Any],
+) -> None:
     expected_shape = (len(metadata["obs_names"]), len(metadata["var_names"]))
     if generated.shape != expected_shape:
         raise ValueError(f"generated shape {generated.shape} differs from target metadata {expected_shape}")
@@ -359,7 +390,7 @@ def validate_generated_in_memory(generated: ad.AnnData, metadata: Mapping[str, A
         raise ValueError("generated X and counts layer differ")
     if int(generated.uns["study06"]["seed"]) != int(row["seed"]):
         raise ValueError("generated seed metadata changed")
-    convergence_summary(generated)
+    convergence_summary(generated, transport)
 
 
 def generate_target(
@@ -429,6 +460,10 @@ def generate_target(
             "feast_version": str(config["feast_version"]),
             "feast_commit": str(config["required_feast_commit"]),
             "wheel_sha256": str(config["required_wheel_sha256"]),
+            "source_patch_sha256": str(config["required_source_patch_sha256"]),
+            "candidate_provenance_sha256": str(
+                config["required_feast_provenance_sha256"]
+            ),
             "target_slice": int(row["target_slice"]),
             "target_index": int(row["target_index"]),
             "density_gap": int(row["gap"]),
@@ -444,14 +479,27 @@ def generate_target(
             "smoothing": False,
             "z_regularization": False,
         }
-        diagnostics = convergence_summary(generated)
-        validate_generated_in_memory(generated, target_meta, row)
+        diagnostics = convergence_summary(generated, config["transport"])
+        validate_generated_in_memory(
+            generated,
+            target_meta,
+            row,
+            config["transport"],
+        )
         h5ad_path = work_dir / "generated.h5ad"
         generated.write_h5ad(h5ad_path, compression="gzip")
         restored = ad.read_h5ad(h5ad_path)
         try:
-            validate_generated_in_memory(restored, target_meta, row)
-            restored_diagnostics = convergence_summary(restored)
+            validate_generated_in_memory(
+                restored,
+                target_meta,
+                row,
+                config["transport"],
+            )
+            restored_diagnostics = convergence_summary(
+                restored,
+                config["transport"],
+            )
             if restored_diagnostics != diagnostics:
                 raise ValueError("transport diagnostics changed during H5AD round-trip")
             if restored.uns.get("study06", {}).get("wheel_sha256") != str(config["required_wheel_sha256"]):
@@ -468,6 +516,10 @@ def generate_target(
             "feast_version": FEAST.__version__,
             "feast_commit": preflight["feast_commit"],
             "wheel_sha256": preflight["wheel_sha256"],
+            "source_patch_sha256": preflight["source_patch_sha256"],
+            "candidate_provenance_sha256": preflight[
+                "candidate_provenance_sha256"
+            ],
             "public_seed": int(config["public_seed"]),
             "target_seed": int(row["seed"]),
             "target_index": int(row["target_index"]),

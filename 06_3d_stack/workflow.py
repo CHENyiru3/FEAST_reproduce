@@ -19,7 +19,7 @@ import yaml
 STUDY_ROOT = Path(__file__).resolve().parent
 CONFIG_PATH = STUDY_ROOT / "config.yaml"
 ZERO_Z_EPSILON = 1.0e-6
-REQUIRED_WHEEL_SHA256 = "9dd912d883a03d51ed7105cecd914cf8f7f25f5355f57dfde1c77b6fef0b056b"
+REQUIRED_WHEEL_SHA256 = "3ad31888faf367a91aec9d46902a5e89759837b5c7ea0e45ca93276674e68883"
 
 
 @dataclass(frozen=True)
@@ -74,6 +74,9 @@ def load_config(path: Path = CONFIG_PATH) -> dict[str, Any]:
         "feast_version",
         "required_feast_commit",
         "required_wheel_sha256",
+        "required_source_patch_sha256",
+        "required_feast_provenance",
+        "required_feast_provenance_sha256",
         "dataset",
         "densities",
         "reference_fit",
@@ -102,7 +105,7 @@ def validate_fixed_contract(config: Mapping[str, Any]) -> None:
         raise ValueError("reference_fit.min_gene_spots must remain zero to retain all 1,122 genes")
     if str(config["required_wheel_sha256"]) != REQUIRED_WHEEL_SHA256:
         raise ValueError("required_wheel_sha256 differs from the publication wheel")
-    expected = {3: (49, 95, 0.35), 5: (29, 57, 0.25), 10: (15, 16, 0.35)}
+    expected = {3: (49, 95, 0.35), 5: (29, 57, 0.30), 10: (15, 16, 0.35)}
     observed = {
         int(row["gap"]): (
             int(row["expected_targets"]),
@@ -118,6 +121,10 @@ def validate_fixed_contract(config: Mapping[str, Any]) -> None:
         "sinkhorn_tol": 1.0e-5,
         "transport_nonconvergence": "raise",
         "max_transport_pairs": 25_000_000,
+        "sinkhorn_method": "sinkhorn_log",
+        "transport_backend": "torch",
+        "transport_device": "cuda:0",
+        "transport_dtype": "float64",
     }
     for key, expected_value in required_transport.items():
         if transport.get(key) != expected_value:
@@ -280,8 +287,14 @@ def choose_donor(
 
 def verify_clean_wheel(config: Mapping[str, Any]) -> dict[str, Any]:
     verifier = STUDY_ROOT.parent / "scripts" / "verify_feast_install.py"
+    provenance = (STUDY_ROOT / str(config["required_feast_provenance"])).resolve()
     completed = subprocess.run(
-        [sys.executable, str(verifier)],
+        [
+            sys.executable,
+            str(verifier),
+            "--candidate-provenance",
+            str(provenance),
+        ],
         check=True,
         capture_output=True,
         text=True,
@@ -292,6 +305,10 @@ def verify_clean_wheel(config: Mapping[str, Any]) -> dict[str, Any]:
         "version": str(config["feast_version"]),
         "commit": str(config["required_feast_commit"]),
         "wheel_sha256": str(config["required_wheel_sha256"]),
+        "source_patch_sha256": str(config["required_source_patch_sha256"]),
+        "candidate_provenance_sha256": str(
+            config["required_feast_provenance_sha256"]
+        ),
     }
     for key, value in expected.items():
         if record.get(key) != value:
