@@ -189,7 +189,7 @@ def plot_fidelity(ax: plt.Axes, primary: pd.DataFrame) -> None:
     ax.set_ylim(0.68, 1.015)
     ax.set_ylabel("Fidelity (higher is better)")
     ax.set_title("A  Aggregate distribution and spatial-statistic fidelity", loc="left")
-    ax.grid(axis="y", color="#D9D9D9", linewidth=0.6)
+    ax.grid(axis="y", color="#DDDDDD", linewidth=0.5, alpha=0.7)
 
 
 def plot_spotwise(ax: plt.Axes, primary: pd.DataFrame) -> None:
@@ -226,7 +226,7 @@ def plot_spotwise(ax: plt.Axes, primary: pd.DataFrame) -> None:
     ax.set_ylim(-0.012, 0.062)
     ax.set_ylabel("Spotwise correlation")
     ax.set_title("B  Coordinate-wise expression correspondence", loc="left")
-    ax.grid(axis="y", color="#D9D9D9", linewidth=0.6)
+    ax.grid(axis="y", color="#DDDDDD", linewidth=0.5, alpha=0.7)
     ax.text(
         0.02,
         0.96,
@@ -275,7 +275,7 @@ def plot_ar(ax: plt.Axes, ar_summary: pd.DataFrame) -> None:
     ax.set_ylabel("Moran profile correlation")
     ax.set_ylim(0.52, 0.95)
     ax.set_title("C  Cross-slice spatial sensitivity", loc="left")
-    ax.grid(color="#D9D9D9", linewidth=0.6)
+    ax.grid(color="#DDDDDD", linewidth=0.5, alpha=0.7)
 
 
 def plot_support(ax: plt.Axes, support: pd.DataFrame) -> None:
@@ -311,7 +311,7 @@ def plot_support(ax: plt.Axes, support: pd.DataFrame) -> None:
     ax.set_xlim(0.80, 1.005)
     ax.set_xlabel("Fraction of declared support")
     ax.set_title("D  Target support and reference-gene evidence", loc="left")
-    ax.grid(axis="x", color="#D9D9D9", linewidth=0.6)
+    ax.grid(axis="x", color="#DDDDDD", linewidth=0.5, alpha=0.7)
     ax.invert_yaxis()
     ax.legend(loc="lower left", fontsize=7.5, frameon=False)
 
@@ -321,16 +321,20 @@ def build_figure(primary: pd.DataFrame, ar_summary: pd.DataFrame, support: pd.Da
         {
             "font.family": "DejaVu Sans",
             "font.size": 9,
+            "figure.facecolor": "white",
+            "axes.facecolor": "white",
+            "savefig.facecolor": "white",
             "axes.spines.top": False,
             "axes.spines.right": False,
             "axes.linewidth": 0.8,
             "pdf.fonttype": 42,
             "ps.fonttype": 42,
             "svg.fonttype": "none",
+            "svg.hashsalt": "feast-study05-conditional-transfer",
         }
     )
     fig, axes = plt.subplots(2, 2, figsize=(12.4, 9.2), constrained_layout=False)
-    plt.subplots_adjust(left=0.10, right=0.98, bottom=0.08, top=0.86, wspace=0.30, hspace=0.40)
+    plt.subplots_adjust(left=0.10, right=0.98, bottom=0.08, top=0.92, wspace=0.30, hspace=0.40)
     plot_fidelity(axes[0, 0], primary)
     plot_spotwise(axes[0, 1], primary)
     plot_ar(axes[1, 0], ar_summary)
@@ -351,27 +355,10 @@ def build_figure(primary: pd.DataFrame, ar_summary: pd.DataFrame, support: pd.Da
     fig.legend(
         handles=handles,
         loc="upper center",
-        bbox_to_anchor=(0.5, 0.925),
+        bbox_to_anchor=(0.5, 0.96),
         ncol=3,
         frameon=False,
         fontsize=8.5,
-    )
-    fig.suptitle(
-        "FEAST 2D conditional generation: fidelity, sensitivity, and limits",
-        x=0.10,
-        y=0.975,
-        ha="left",
-        fontsize=14,
-        fontweight="bold",
-    )
-    fig.text(
-        0.10,
-        0.945,
-        "Primary AR = 0.3; target XY and labels are observed covariates. Points show directions/slices; filled symbols show stratum means.",
-        ha="left",
-        va="top",
-        fontsize=9,
-        color="#444444",
     )
     return fig
 

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "figure_set": "study01_intervention_profile",
+  "source": {
+    "plot_script": "visualization/01_clustering/plot_intervention_profile.py",
+    "plot_script_sha256": "4c4affff41eb7d9a6a30cf2dab3b870c8c868f4a72c02567c2e80f5c43489cf6",
+    "simulation_manifest": "01_clustering/outputs/final_rerun_20260718/simulations/simulation_manifest.csv",
+    "simulation_manifest_sha256": "2fa032367383f7369c33f14e9adeed315ceadb02a1443a4349a1864c8807f254",
+    "diagnostic_field": "uns.alteration_diagnostics.realized_stage_achieved_change",
+    "n_simulation_files_read": 57
+  },
+  "design": {
+    "slices": [
+      "151508",
+      "151670",
+      "151676"
+    ],
+    "factors": [
+      "mean",
+      "variance",
+      "sparsity"
+    ],
+    "metrics": [
+      "mean",
+      "variance",
+      "zero_prop"
+    ],
+    "baseline_reference": 1.0,
+    "summary_encoding": "thin individual-slice traces; blue three-slice mean"
+  },
+  "outputs": {
+    "intervention_profile.pdf": "96bad3a0857845c8aee51da23dcdf64bf1562725d11c563ea829069644fca873",
+    "intervention_profile.png": "a7618d63bc652acafb371c214388e43ddcbadce644c6ef98c72af0e9edc943b8",
+    "intervention_profile.svg": "9f5968be4668d7100811598d50c6b8eee9e469cd61708523b4c91b4085104932",
+    "intervention_profile_data.csv": "e547c673f4304503f56f739347db921772e8c0ea17979641366b3a8b43ddd015"
+  },
+  "scientific_disposition": {
+    "figure_promotion_authorized": false,
+    "supported_interpretation": "Descriptive profile of FEAST-recorded realized simulation diagnostics across the registered three-slice cohort."
+  }
+}

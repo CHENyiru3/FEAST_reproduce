@@ -109,6 +109,33 @@ def normalize_abundance_columns(
     return normalized, column_schema
 
 
+def labels_retained_by_minimum_size(
+    labels: pd.Series, minimum_size: int | None,
+) -> tuple[pd.Index, np.ndarray]:
+    """Return exact named reference-label support for a declared fair comparison."""
+    label_counts = labels.value_counts()
+    if minimum_size is None:
+        retained = pd.Index(label_counts.index.astype(str))
+    else:
+        if minimum_size < 1:
+            raise ValueError("minimum cell-type size must be positive")
+        retained = pd.Index(label_counts[label_counts >= minimum_size].index.astype(str))
+    keep = labels.astype(str).isin(retained).to_numpy()
+    if retained.empty or not keep.any():
+        raise RuntimeError("reference filtering left no cell types")
+    return retained, keep
+
+
+def abundance_total_summary(abundance: np.ndarray) -> dict[str, float]:
+    totals = abundance.sum(axis=1)
+    return {
+        "min": float(totals.min()),
+        "median": float(np.median(totals)),
+        "mean": float(totals.mean()),
+        "max": float(totals.max()),
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, required=True)
@@ -117,6 +144,16 @@ def main() -> int:
     parser.add_argument("--cell-type-key", required=True)
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument(
+        "--min-cells-per-type", type=int,
+        help="Optionally retain only reference labels with at least this many cells.",
+    )
+    parser.add_argument(
+        "--positive-library-only", action="store_true",
+        help="Fit only spots with nonzero library size and reinsert zero rows in the output.",
+    )
+    parser.add_argument("--a-factors-per-location", type=float)
+    parser.add_argument("--b-groups-per-location", type=float)
     args = parser.parse_args()
     metadata_path = args.output.with_name(args.output.stem + "_metadata.json")
     if args.output.exists() or metadata_path.exists():
@@ -150,30 +187,53 @@ def main() -> int:
             raise RuntimeError(f"unsupported accelerator: {accelerator}")
         scvi.settings.seed = args.seed
 
-        spatial = ad.read_h5ad(args.input)
+        spatial_full = ad.read_h5ad(args.input)
         reference = ad.read_h5ad(args.reference)
         if args.cell_type_key not in reference.obs:
             raise RuntimeError(f"reference lacks {args.cell_type_key!r}")
-        if not spatial.var_names.equals(reference.var_names):
+        if not spatial_full.var_names.equals(reference.var_names):
             raise RuntimeError("simulation/reference gene identity or order differs")
-        spatial_counts = integer_counts(spatial.X, "spatial simulation")
+        spatial_counts_full = integer_counts(spatial_full.X, "spatial simulation")
         reference_counts = integer_counts(reference.X, "reference")
-        if "n_source_cells" not in spatial.obs:
+        if "n_source_cells" not in spatial_full.obs:
             raise RuntimeError(
                 "simulation lacks the declared source-cell count per aggregate location"
             )
-        source_cells = spatial.obs["n_source_cells"].to_numpy(np.float64)
+        source_cells_full = spatial_full.obs["n_source_cells"].to_numpy(np.float64)
         if (
-            not np.isfinite(source_cells).all()
-            or np.any(source_cells < 0)
-            or np.max(np.abs(source_cells - np.rint(source_cells)), initial=0) > 1e-6
+            not np.isfinite(source_cells_full).all()
+            or np.any(source_cells_full < 0)
+            or np.max(np.abs(source_cells_full - np.rint(source_cells_full)), initial=0) > 1e-6
         ):
             raise RuntimeError("source-cell counts per location are invalid")
+        full_spots = pd.Index([f"spot_{index}" for index in range(spatial_full.n_obs)])
+        positive_mask = spatial_counts_full.sum(axis=1) > 0
+        training_mask = positive_mask if args.positive_library_only else np.ones(len(full_spots), dtype=bool)
+        if not training_mask.any():
+            raise RuntimeError("no spots were selected for Cell2location training")
+        training_spots = full_spots[training_mask]
+        spatial = spatial_full[training_mask].copy()
+        spatial_counts = spatial_counts_full[training_mask]
+        source_cells = source_cells_full[training_mask]
         n_cells_per_location = float(source_cells.mean())
         if n_cells_per_location <= 0:
             raise RuntimeError("mean source-cell count per location is not positive")
-        full_spots = pd.Index([f"spot_{index}" for index in range(spatial.n_obs)])
-        positive_mask = spatial_counts.sum(axis=1) > 0
+
+        labels_full = reference.obs[args.cell_type_key].astype(str)
+        retained_types, reference_keep = labels_retained_by_minimum_size(
+            labels_full, args.min_cells_per_type,
+        )
+        reference = reference[reference_keep].copy()
+        reference_counts = reference_counts[reference_keep]
+        if len(reference) != len(reference_counts):
+            raise RuntimeError("reference filter did not preserve count rows")
+
+        if (args.a_factors_per_location is None) != (args.b_groups_per_location is None):
+            raise ValueError("A_factors_per_location and B_groups_per_location must be set together")
+        if args.a_factors_per_location is not None and (
+            args.a_factors_per_location <= 0 or args.b_groups_per_location <= 0
+        ):
+            raise ValueError("Cell2location factor/group priors must be positive")
 
         reference.X = reference_counts
         reference.obs["_cell_type"] = reference.obs[args.cell_type_key].astype(str)
@@ -215,11 +275,16 @@ def main() -> int:
         signatures = signatures.loc[spatial.var_names]
         spatial.obs["_batch"] = "all"
         Cell2location.setup_anndata(spatial, batch_key="_batch")
-        model = Cell2location(
-            spatial, cell_state_df=signatures,
-            N_cells_per_location=n_cells_per_location,
-            detection_alpha=float(config["detection_alpha"]),
-        )
+        model_kwargs = {
+            "N_cells_per_location": n_cells_per_location,
+            "detection_alpha": float(config["detection_alpha"]),
+        }
+        if args.a_factors_per_location is not None:
+            model_kwargs.update({
+                "A_factors_per_location": float(args.a_factors_per_location),
+                "B_groups_per_location": float(args.b_groups_per_location),
+            })
+        model = Cell2location(spatial, cell_state_df=signatures, **model_kwargs)
         with warnings.catch_warnings(record=True) as spatial_warnings:
             warnings.simplefilter("default")
             model.train(
@@ -252,7 +317,7 @@ def main() -> int:
         )
         abundance = abundance.to_numpy()
         abundance = np.asarray(abundance, dtype=np.float64)
-        if abundance.shape != (len(full_spots), len(factor_names)):
+        if abundance.shape != (len(training_spots), len(factor_names)):
             raise RuntimeError(f"unexpected abundance shape: {abundance.shape}")
         if not np.isfinite(abundance).all() or abundance.min(initial=0) < 0:
             raise RuntimeError("posterior abundance is invalid")
@@ -260,7 +325,8 @@ def main() -> int:
         proportions = abundance.copy()
         nonzero = totals[:, 0] > 0
         proportions[nonzero] /= totals[nonzero]
-        prediction = pd.DataFrame(proportions, index=full_spots, columns=factor_names)
+        prediction = pd.DataFrame(0.0, index=full_spots, columns=factor_names)
+        prediction.loc[training_spots] = proportions
         row_sums = prediction.to_numpy().sum(axis=1)
         if np.max(np.abs(row_sums[positive_mask] - 1), initial=0) > 1e-6:
             raise RuntimeError("positive-library prediction rows do not sum to one")
@@ -285,9 +351,14 @@ def main() -> int:
             "reference_path": str(args.reference.resolve()),
             "reference_sha256": sha256_file(args.reference),
             "output_path": str(args.output.resolve()), "output_sha256": sha256_file(args.output),
-            "n_input_spots": len(full_spots), "n_output_spots": len(prediction),
+            "n_input_spots": len(full_spots), "n_training_spots": len(training_spots),
+            "n_output_spots": len(prediction),
             "n_zero_library_spots_excluded_from_scoring": int((~positive_mask).sum()),
-            "zero_library_policy": "preserved in output; excluded from biological scoring",
+            "zero_library_policy": (
+                "excluded from training and reinserted as zero rows; excluded from biological scoring"
+                if args.positive_library_only
+                else "preserved in training/output; excluded from biological scoring"
+            ),
             "reference_model": reference_loss, "spatial_model": spatial_loss,
             "warnings": {
                 "reference": warning_rows(reference_warnings),
@@ -296,16 +367,34 @@ def main() -> int:
             },
             "n_cells_per_location": n_cells_per_location,
             "n_cells_per_location_policy": (
-                "mean exact high-resolution source-cell assignments per aggregate location; "
+                "mean exact high-resolution source-cell assignments per training location; "
                 "derived from simulation geometry without cell-type labels"
             ),
-            "source_cell_count_total": int(np.rint(source_cells).sum()),
-            "source_cell_count_min": int(np.rint(source_cells).min()),
-            "source_cell_count_max": int(np.rint(source_cells).max()),
+            "source_cell_count_total": int(np.rint(source_cells_full).sum()),
+            "source_cell_count_min": int(np.rint(source_cells_full).min()),
+            "source_cell_count_max": int(np.rint(source_cells_full).max()),
+            "reference_label_filter": {
+                "cell_type_key": args.cell_type_key,
+                "min_cells_per_type": args.min_cells_per_type,
+                "n_reference_cells_before": int(len(labels_full)),
+                "n_reference_cells_retained": int(reference_keep.sum()),
+                "n_reference_cell_types_before": int(labels_full.nunique()),
+                "n_reference_cell_types_retained": int(len(retained_types)),
+                "retained_cell_types": list(map(str, retained_types)),
+                "retained_cell_types_sha256": hashlib.sha256(
+                    "\n".join(map(str, retained_types)).encode("utf-8")
+                ).hexdigest(),
+            },
+            "model_prior": {
+                "N_cells_per_location": n_cells_per_location,
+                "A_factors_per_location": model_kwargs.get("A_factors_per_location", 7.0),
+                "B_groups_per_location": model_kwargs.get("B_groups_per_location", 7.0),
+            },
             "abundance_named_columns_validated_and_ordered": (
                 True
             ),
             "abundance_column_schema": abundance_column_schema,
+            "pre_normalization_abundance_total": abundance_total_summary(abundance),
             "environment": {"python": platform.python_version(), "packages": packages},
             "external_environment_limitation": LIMITATION,
         }

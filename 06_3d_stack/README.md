@@ -4,12 +4,17 @@ This directory cleanly regenerates the Allen Zhuang ABCA-1 semi-reference
 stack benchmark. It produces 93 conditional FEAST slices: 49 for gap 3, 29
 for gap 5, and 15 for gap 10. Historical outputs are never read or reused.
 
-Current launch status: the exact POT underflow defect is repaired and the
-historical medium-gap `0.25` value was classified as unpinned and
+Completion status (2026-07-31): the exact POT underflow defect is repaired and
+the historical medium-gap `0.25` value was classified as unpinned and
 nonreproducible. Versioned configuration v5 declares the reproducible `0.30`
-value. Its fresh full preflight passed, freezing 147 inputs and 93 target
-assignments. CUDA canaries are the next gate, as recorded in
-[`PREFLIGHT_BLOCKER.md`](PREFLIGHT_BLOCKER.md).
+value. Its fresh full preflight, three CUDA canaries, all 93 CUDA generations,
+independent validation, and atomic evaluation completed successfully. The
+validation summary reports 93/93 outputs with positive convergence evidence
+(SHA-256
+`c41bb104a06a6711070f1888533422ba11596d7e7bebf4fa044bc1aaeabf4a37`).
+The score provenance SHA-256 is
+`2bb9d66f4fc3ad20c4e9683ba7fc5db4dedbb52c86b06ed515e1e9d5cea6c85b`.
+These are validated candidate artifacts, not automatic article authorization.
 
 The target slice contributes only observed identity and geometry (`obs_names`,
 `class`, `z`, `spatial`, `spatial_3d`, and gene names) during generation.
@@ -102,6 +107,12 @@ per-density metrics, class–gene z trajectories, a deterministic within-slice
 real-data split-half continuity baseline, score provenance, and an artifact
 manifest under `evaluation/`. The 93 targets are ordered z levels, not
 independent biological replicates; no across-target p-values are produced.
+
+The completed editable diagnostic is
+`../visualization/06_3d_stack/figures/conditional_stack_diagnostic.pdf`
+(SHA-256
+`7f018ad5af52557240fd455b4546436204ced627a8f6cb0aa55d3f884bc3bb80`).
+It remains unpromoted and prohibits composite scores and winner rankings.
 
 The historical comparison is a separate, hash-pinned review step. It does not
 import historical code or accept historical H5ADs:

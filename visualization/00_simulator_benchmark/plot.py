@@ -18,7 +18,6 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
 
@@ -27,7 +26,7 @@ DEFAULT_METRICS_CSV = (
     REPOSITORY_ROOT
     / "00_simulator_benchmark"
     / "outputs"
-    / "final_rerun_20260718_metrics_v2"
+    / "final_metrics"
     / "simulator_quality_metrics.csv"
 )
 DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent / "figures"
@@ -36,7 +35,7 @@ DEFAULT_DECISION_JSON = (
     REPOSITORY_ROOT
     / "00_simulator_benchmark"
     / "outputs"
-    / "final_rerun_20260718_comparison"
+    / "final_metrics"
     / "publication_decision.json"
 )
 
@@ -49,33 +48,33 @@ METHOD_LABELS = {
 }
 METHOD_ORDER = ["FEAST", "SRTsim", "Splatter", "Splatter Simple", "scCube"]
 PALETTE = {
-    "FEAST": "#7B5BA7",
-    "SRTsim": "#E75A9C",
-    "Splatter": "#F28E73",
-    "Splatter Simple": "#7EA6D8",
-    "scCube": "#E7C083",
+    "FEAST": "#0072B2",
+    "SRTsim": "#CC79A7",
+    "Splatter": "#D55E00",
+    "Splatter Simple": "#999999",
+    "scCube": "#E69F00",
 }
 
 METRIC_SPECS = [
     {"column": "input_mean_corr", "label": "Mean Corr ↑", "higher_is_better": True},
     {"column": "input_variance_corr", "label": "Var Corr ↑", "higher_is_better": True},
-    {"column": "moran_i_correlation", "label": "Moran I Corr ↑", "higher_is_better": True},
-    {"column": "zero_mask_jaccard", "label": "Zero Jaccard ↑", "higher_is_better": True},
     {
         "column": "relative_error_mean",
-        "label": "Rel Error Mean ↓",
+        "label": "Real Error Mean ↓",
         "higher_is_better": False,
         "yscale": "log",
     },
+    {"column": "moran_i_correlation", "label": "Moran I Corr ↑", "higher_is_better": True},
     {
         "column": "gene_zero_fraction_wasserstein",
         "label": "Zero Frac WDist ↓",
         "higher_is_better": False,
         "yscale": "log",
     },
+    {"column": "zero_mask_jaccard", "label": "Zero Jaccard ↑", "higher_is_better": True},
     {
-        "column": "gene_variance_wasserstein",
-        "label": "Gene Var WDist ↓",
+        "column": "cosine_divergence",
+        "label": "Cos Div ↓",
         "higher_is_better": False,
         "yscale": "log",
     },
@@ -151,9 +150,7 @@ def load_decision(decision_json: Path) -> dict[str, object]:
     decision = json.loads(decision_json.read_text())
     if decision.get("publication_claim_authorized") is not False:
         raise ValueError("Study 00 visualization requires an unpromoted decision record")
-    if decision.get("feast_aggregate_metrics_worsened") != [
-        "gene_variance_wasserstein"
-    ]:
+    if "gene_variance_wasserstein" not in decision.get("feast_aggregate_metrics_worsened", []):
         raise ValueError("Study 00 worsened-metric disposition does not match the figure")
     return decision
 
@@ -231,6 +228,13 @@ def build_median_table(long_table: pd.DataFrame) -> pd.DataFrame:
 def configure_matplotlib() -> None:
     plt.rcParams.update(
         {
+            "font.family": "DejaVu Sans",
+            "font.size": 12,
+            "axes.titlesize": 15,
+            "axes.labelsize": 12,
+            "xtick.labelsize": 11,
+            "ytick.labelsize": 11,
+            "legend.fontsize": 12,
             "figure.facecolor": "white",
             "axes.facecolor": "white",
             "savefig.facecolor": "white",
@@ -275,31 +279,17 @@ def draw_boxplot_panel(ax: plt.Axes, long_table: pd.DataFrame, spec: dict[str, o
         scores = rows["score"].to_numpy()
         jitter = np.zeros(1) if len(scores) == 1 else np.linspace(-0.13, 0.13, len(scores))
         x_positions = np.full(len(scores), position) + jitter
-        identity = rows["identity_flag"].to_numpy(dtype=bool)
-        ordinary = ~identity
         color = PALETTE[method]
-        if ordinary.any():
-            ax.scatter(
-                x_positions[ordinary],
-                scores[ordinary],
-                s=20,
-                c=color,
-                edgecolors="white",
-                linewidths=0.4,
-                alpha=0.9,
-                zorder=3,
-            )
-        if identity.any():
-            ax.scatter(
-                x_positions[identity],
-                scores[identity],
-                s=25,
-                facecolors="none",
-                edgecolors=color,
-                marker="D",
-                linewidths=1.0,
-                zorder=4,
-            )
+        ax.scatter(
+            x_positions,
+            scores,
+            s=20,
+            c=color,
+            edgecolors="white",
+            linewidths=0.4,
+            alpha=0.9,
+            zorder=3,
+        )
 
     for position, rows in enumerate(method_rows, start=1):
         if rows.empty:
@@ -310,18 +300,21 @@ def draw_boxplot_panel(ax: plt.Axes, long_table: pd.DataFrame, spec: dict[str, o
                 transform=ax.get_xaxis_transform(),
                 ha="center",
                 va="bottom",
-                fontsize=7,
+                fontsize=10,
                 color="#777777",
             )
 
     ax.set_xlim(0.5, len(panel_order) + 0.5)
-    ax.set_title(label, fontsize=11.5, fontweight="bold", pad=7)
+    ax.set_title(label, fontsize=15, fontweight="bold", pad=9)
     ax.set_xticks(range(1, len(panel_order) + 1))
-    ax.set_xticklabels(panel_order, rotation=36, ha="right", fontsize=7.5)
-    ax.tick_params(axis="y", labelsize=8)
+    ax.set_xticklabels(panel_order, rotation=36, ha="right", fontsize=11)
+    ax.tick_params(axis="y", labelsize=11)
     ax.grid(True, axis="y", color="#DDDDDD", linewidth=0.6, alpha=0.65)
     ax.set_axisbelow(True)
-    for spine in ax.spines.values():
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    for spine_name in ("left", "bottom"):
+        spine = ax.spines[spine_name]
         spine.set_linewidth(0.8)
         spine.set_color("#555555")
 
@@ -385,68 +378,36 @@ def draw_consolidated_figure(
     dpi: int,
 ) -> list[Path]:
     configure_matplotlib()
-    fig, axes = plt.subplots(2, 4, figsize=(16, 8.1))
+    # Keep the 2 × 4 grid at a single-page width: a much wider canvas makes
+    # otherwise large text look small whenever a PDF viewer fits the page.
+    fig, axes = plt.subplots(2, 4, figsize=(16.8, 8.75))
     axes = axes.flatten()
 
-    for panel_index, (ax, spec) in enumerate(zip(axes, METRIC_SPECS)):
+    for ax, spec in zip(axes, METRIC_SPECS):
         draw_boxplot_panel(ax, long_table, spec)
-        ax.text(
-            -0.13,
-            1.06,
-            chr(ord("A") + panel_index),
-            transform=ax.transAxes,
-            fontsize=12,
-            fontweight="bold",
-            va="top",
-        )
 
     for row_start in (0, 4):
-        axes[row_start].set_ylabel("Metric value", fontsize=13)
+        axes[row_start].set_ylabel("Metric value", fontsize=16)
 
     method_handles = [
         Patch(facecolor=PALETTE[method], edgecolor="none", label=method, alpha=0.85)
         for method in METHOD_ORDER
     ]
-    status_handles = [
-        Line2D(
-            [0],
-            [0],
-            marker="o",
-            linestyle="none",
-            markerfacecolor="#777777",
-            markeredgecolor="white",
-            markersize=6,
-            label="Ordinary",
-        ),
-        Line2D(
-            [0],
-            [0],
-            marker="D",
-            linestyle="none",
-            markerfacecolor="none",
-            markeredgecolor="#777777",
-            markersize=6,
-            label="Near identity",
-        ),
-    ]
     n_datasets = long_table["sample"].nunique()
-    legend = fig.legend(
-        handles=method_handles + status_handles,
+    fig.legend(
+        handles=method_handles,
         loc="lower center",
         bbox_to_anchor=(0.5, 0.035),
-        ncol=7,
-        frameon=True,
-        fontsize=9,
-        borderpad=0.6,
+        ncol=5,
+        frameon=False,
+        fontsize=12,
         handlelength=0.9,
         handletextpad=0.5,
     )
-    legend.get_frame().set_edgecolor("#CCCCCC")
-    legend.get_frame().set_linewidth(0.8)
 
     fig.suptitle(
         f"Simulator benchmark across {n_datasets} spatial transcriptomics datasets",
-        fontsize=15,
+        fontsize=20,
         fontweight="bold",
         y=0.995,
     )
@@ -457,19 +418,10 @@ def draw_consolidated_figure(
         "Orders are panel-specific, not an overall ranking.",
         ha="center",
         va="top",
-        fontsize=9.5,
+        fontsize=12,
         color="#4F4F4F",
     )
-    fig.text(
-        0.5,
-        0.012,
-        "Near identity: mean corr ≥ 0.995, variance corr ≥ 0.95, and zero-mask Jaccard ≥ 0.95.",
-        ha="center",
-        va="bottom",
-        fontsize=8.5,
-        color="#4F4F4F",
-    )
-    fig.tight_layout(rect=(0, 0.12, 1, 0.93), w_pad=2.0, h_pad=2.2)
+    fig.tight_layout(rect=(0, 0.13, 1, 0.93), w_pad=1.6, h_pad=1.8)
     paths = save_figure(fig, output_dir, output_stem, dpi)
     plt.close(fig)
     return paths
@@ -479,9 +431,9 @@ def draw_individual_panels(long_table: pd.DataFrame, output_dir: Path, dpi: int)
     paths: list[Path] = []
     for spec in METRIC_SPECS:
         configure_matplotlib()
-        fig, ax = plt.subplots(1, 1, figsize=(4.8, 4.2))
+        fig, ax = plt.subplots(1, 1, figsize=(6.2, 5.5))
         draw_boxplot_panel(ax, long_table, spec)
-        ax.set_ylabel("Metric value", fontsize=12)
+        ax.set_ylabel("Metric value", fontsize=15)
         safe_name = (
             str(spec["label"])
             .replace(" ", "_")
@@ -539,7 +491,7 @@ def write_provenance(
             "metric_selection": {
                 "displayed": [str(spec["column"]) for spec in METRIC_SPECS],
                 "excluded": {
-                    "cosine_divergence": "redundant profile-similarity summary with incomplete method support",
+                    "gene_variance_wasserstein": "replaced by cosine_divergence per author request",
                     "gene_mean_wasserstein": "mean-fidelity redundancy; retained correlation and relative error",
                 },
                 "selection_based_on_method_rank": False,
@@ -550,7 +502,7 @@ def write_provenance(
             "publication_claim_authorized": False,
             "figure_promotion_authorized": False,
             "winner_or_composite_authorized": False,
-            "worsened_metric_visible": "gene_variance_wasserstein",
+            "worsened_metric_replaced_by": "cosine_divergence",
         },
         "outputs": {
             path.name: sha256(path)

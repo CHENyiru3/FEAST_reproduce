@@ -1,0 +1,59 @@
+{
+  "composite_score": "prohibited",
+  "configuration_id": "study06-allen-abca1-conditional-stack-v5",
+  "donor_support_marker_rule": "x marks targets requiring at least one declared out-of-bracket label donor",
+  "editable_text": {
+    "pdf_fonttype": 42,
+    "svg_fonttype": "none"
+  },
+  "figure_promotion_authorized": false,
+  "inputs": {
+    "continuity_summary": {
+      "path": "06_3d_stack/outputs/final/evaluation/continuity_summary.csv",
+      "sha256": "1d666878cfca6e43f045f1a8211315a9a75cfc279b5f10de56c97b6633eff7be"
+    },
+    "plan": {
+      "path": "06_3d_stack/outputs/final/plan.json",
+      "sha256": "f4a852dafbadef60e6cdffb7616ab2523845cc78f7db89f57ed71f95b1fd0f33"
+    },
+    "score_provenance": {
+      "path": "06_3d_stack/outputs/final/evaluation/score_provenance.json",
+      "sha256": "2bb9d66f4fc3ad20c4e9683ba7fc5db4dedbb52c86b06ed515e1e9d5cea6c85b"
+    },
+    "target_metrics": {
+      "path": "06_3d_stack/outputs/final/evaluation/target_metrics.csv",
+      "sha256": "4226984e86f3165134945fa1b860b35c9972887cc9a0b20a7edbb1a9104897bb"
+    },
+    "validation_summary": {
+      "path": "06_3d_stack/outputs/final/validation_summary.json",
+      "sha256": "c41bb104a06a6711070f1888533422ba11596d7e7bebf4fa044bc1aaeabf4a37"
+    }
+  },
+  "interpretation": "validated atomic fidelity and continuity diagnostic; target slices are ordered z levels, not biological replicates",
+  "outputs": {
+    "continuity_plot_data": {
+      "path": "visualization/06_3d_stack/figures/continuity_plot_data.csv",
+      "sha256": "41ee51a6be003db823a218973a09e078fb93ea8f444492f4fda1d9c62b7bdf58"
+    },
+    "pdf": {
+      "path": "visualization/06_3d_stack/figures/conditional_stack_diagnostic.pdf",
+      "sha256": "7f018ad5af52557240fd455b4546436204ced627a8f6cb0aa55d3f884bc3bb80"
+    },
+    "png": {
+      "path": "visualization/06_3d_stack/figures/conditional_stack_diagnostic.png",
+      "sha256": "04f1bfffc78c2228e4d8932692fbdf4058e0ae26583ec9a9b413b9a4e85dea73"
+    },
+    "svg": {
+      "path": "visualization/06_3d_stack/figures/conditional_stack_diagnostic.svg",
+      "sha256": "626f23bf1216b75c36fd39f38dff81e5762ee710477abc4e09c30ce82cf5e613"
+    },
+    "target_plot_data": {
+      "path": "visualization/06_3d_stack/figures/target_metric_plot_data.csv",
+      "sha256": "5ba30d596823a650a4b388af79032dead16e5567ecf1248f1d22fa6f7bd0f999"
+    }
+  },
+  "schema_version": 1,
+  "script_sha256": "2b32e4d735184877f98eb27f798769a0041581d95035a51f6f13f4ab413cc582",
+  "study": "06_3d_stack",
+  "winner_ranking": "prohibited"
+}

@@ -1,8 +1,21 @@
 # Study 06 log-domain OT repair decision
 
 Decision date: 2026-07-20
-Current status: package repair and full v5 preflight validated; CUDA generation
-canaries pending
+Completion update: 2026-07-31
+Current status: selected repair validated through the complete declared Study
+06 workflow
+
+## Complete workflow result
+
+The pinned repair passed all CUDA canaries, 93/93 fresh generations, strict
+independent validation, and atomic evaluation. Every retained transport record
+has positive convergence evidence. Validation summary SHA-256:
+`c41bb104a06a6711070f1888533422ba11596d7e7bebf4fa044bc1aaeabf4a37`.
+Score provenance SHA-256:
+`2bb9d66f4fc3ad20c4e9683ba7fc5db4dedbb52c86b06ed515e1e9d5cea6c85b`.
+The repair is sufficient for the versioned v5 scope; it is not a claim about
+every FEAST configuration and does not itself promote figures or article
+conclusions.
 
 ## Failure cause
 
@@ -56,7 +69,7 @@ froze 147 inputs plus 93 target assignments under
 `f4a852dafbadef60e6cdffb7616ab2523845cc78f7db89f57ed71f95b1fd0f33`
 and its passed record SHA-256 is
 `8b426b5b4924eab5db5ce8bc3ea7b6654b46b3950c53675b9ec9badd14fc57e9`.
-The configuration file is byte-identical to the frozen copy. This closes the
-Study 06 preflight blocker but does not by itself authorize article claims:
-CUDA canaries, all 93 fresh outputs, independent validation, and new metrics
-remain required.
+The configuration file is byte-identical to the frozen copy. At that
+checkpoint, closing the preflight blocker did not by itself authorize article
+claims: CUDA canaries, all 93 fresh outputs, independent validation, and new
+metrics still remained required. They later passed as recorded above.

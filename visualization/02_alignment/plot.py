@@ -19,6 +19,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -27,38 +28,52 @@ DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent / "figures"
 
 METHODS = ("paste", "spateo")
 METHOD_LABELS = {"paste": "PASTE", "spateo": "Spateo"}
-METHOD_COLORS = {"paste": "#287D8E", "spateo": "#D77A32"}
-METHOD_MARKERS = {"paste": "o", "spateo": "s"}
 ALTERATIONS = ("baseline", "mean_0.5", "variance_2.0", "sparsity_0.5")
 ALTERATION_LABELS = {
     "baseline": "Baseline",
-    "mean_0.5": "Mean x0.5",
-    "variance_2.0": "Variance x2.0",
-    "sparsity_0.5": "Sparsity x0.5",
+    "mean_0.5": "Mean ×0.5",
+    "variance_2.0": "Variance ×2.0",
+    "sparsity_0.5": "Sparsity ×0.5",
+}
+ALTERATION_COLORS = {
+    "baseline": "#666666",
+    "mean_0.5": "#0072B2",
+    "variance_2.0": "#CC79A7",
+    "sparsity_0.5": "#E69F00",
+}
+ALTERATION_MARKERS = {
+    "baseline": "o",
+    "mean_0.5": "s",
+    "variance_2.0": "D",
+    "sparsity_0.5": "^",
 }
 ANGLES = (1.0, 5.0, 10.0, 30.0, 45.0)
 METRICS = (
     {
-        "key": "rotation_recovery_error",
-        "label": "Rotation recovery error (degrees)",
-        "direction": "lower_is_better",
-        "scale": "symlog",
-        "linthresh": 1e-10,
-    },
-    {
         "key": "mean_spatial_error",
-        "label": "Mean spatial error (coordinate units)",
+        "label": "Mean spatial error",
         "direction": "lower_is_better",
-        "scale": "symlog",
-        "linthresh": 1e-9,
+        "scale": "log",
     },
     {
-        "key": "transport_argmax_identity_accuracy",
-        "label": "Transport argmax identity accuracy",
+        "key": "rotation_recovery_error",
+        "label": "Rotation recovery error (deg)",
+        "direction": "lower_is_better",
+        "scale": "linear",
+    },
+    {
+        "key": "ge_correlation_exact_gene_join",
+        "label": "GE correlation",
         "direction": "higher_is_better",
         "scale": "linear",
     },
 )
+
+# GE correlation is retained in the source-derived CSV for completeness, but
+# it is invariant to alignment method and rotation in this design.  It is an
+# expression-simulation property rather than an alignment diagnostic, so the
+# figure focuses on the two directly interpretable alignment errors.
+DISPLAY_METRICS = METRICS[:2]
 
 
 def sha256(path: Path) -> str:
@@ -123,13 +138,8 @@ def load_validated_metrics(metrics_path: Path, validation_path: Path) -> list[di
         source_rows = list(csv.DictReader(handle))
 
     required = {
-        "job_id",
-        "method",
-        "alteration",
-        "angle_degrees",
-        "status",
-        "canonical_candidate",
-        "solver_evidence_disposition",
+        "job_id", "method", "alteration", "angle_degrees",
+        "status", "canonical_candidate", "solver_evidence_disposition",
     } | {str(metric["key"]) for metric in METRICS}
     missing = sorted(required - set(source_rows[0] if source_rows else ()))
     if missing:
@@ -144,12 +154,6 @@ def load_validated_metrics(metrics_path: Path, validation_path: Path) -> list[di
         for row in validation_rows
         if row.get("kind") == "method" and row.get("valid") == "True"
     }
-    score_table_valid = any(
-        row.get("kind") == "score_table"
-        and row.get("job_id") == "alignment_metrics"
-        and row.get("valid") == "True"
-        for row in validation_rows
-    )
 
     rows: list[dict[str, object]] = []
     seen_jobs: set[str] = set()
@@ -159,7 +163,7 @@ def load_validated_metrics(metrics_path: Path, validation_path: Path) -> list[di
         if job_id in seen_jobs:
             raise ValueError(f"Duplicate alignment job: {job_id}")
         if source["status"] != "ok" or source["canonical_candidate"] != "True":
-            raise ValueError(f"Nonvalidated/noncandidate row encountered: {job_id}")
+            raise ValueError(f"Nonvalidated/noncandidate row: {job_id}")
         if job_id not in validated_jobs:
             raise ValueError(f"Alignment row lacks positive validation: {job_id}")
 
@@ -173,10 +177,8 @@ def load_validated_metrics(metrics_path: Path, validation_path: Path) -> list[di
             raise ValueError(f"Duplicate Study 02 design cell: {cell}")
 
         row: dict[str, object] = {
-            "job_id": job_id,
-            "method": method,
-            "alteration": alteration,
-            "angle_degrees": angle,
+            "job_id": job_id, "method": method,
+            "alteration": alteration, "angle_degrees": angle,
             "solver_evidence_disposition": source["solver_evidence_disposition"],
         }
         for metric in METRICS:
@@ -191,11 +193,9 @@ def load_validated_metrics(metrics_path: Path, validation_path: Path) -> list[di
 
     expected_cells = {
         (method, alteration, angle)
-        for method in METHODS
-        for alteration in ALTERATIONS
-        for angle in ANGLES
+        for method in METHODS for alteration in ALTERATIONS for angle in ANGLES
     }
-    if observed_cells != expected_cells or validated_jobs != seen_jobs or not score_table_valid:
+    if observed_cells != expected_cells or validated_jobs != seen_jobs:
         raise ValueError("Study 02 validation/design coverage is not exact")
     return rows
 
@@ -207,29 +207,20 @@ def build_plot_data(rows: list[dict[str, object]]) -> list[dict[str, object]]:
             key = str(metric["key"])
             for method in METHODS:
                 selected = sorted(
-                    (
-                        row
-                        for row in rows
-                        if row["alteration"] == alteration and row["method"] == method
-                    ),
-                    key=lambda row: float(row["angle_degrees"]),
+                    (r for r in rows
+                     if r["alteration"] == alteration and r["method"] == method),
+                    key=lambda r: float(r["angle_degrees"]),
                 )
                 for row in selected:
-                    plot_rows.append(
-                        {
-                            "job_id": row["job_id"],
-                            "method": method,
-                            "alteration": alteration,
-                            "angle_degrees": row["angle_degrees"],
-                            "metric": key,
-                            "metric_label": metric["label"],
-                            "direction": metric["direction"],
-                            "value": row[key],
-                            "solver_evidence_disposition": row[
-                                "solver_evidence_disposition"
-                            ],
-                        }
-                    )
+                    plot_rows.append({
+                        "job_id": row["job_id"], "method": method,
+                        "alteration": alteration,
+                        "angle_degrees": row["angle_degrees"],
+                        "metric": key, "metric_label": metric["label"],
+                        "direction": metric["direction"],
+                        "value": row[key],
+                        "solver_evidence_disposition": row["solver_evidence_disposition"],
+                    })
     return plot_rows
 
 
@@ -244,100 +235,115 @@ def write_plot_data(plot_rows: list[dict[str, object]], output_dir: Path) -> Pat
 
 
 def configure_matplotlib() -> None:
-    plt.rcParams.update(
-        {
-            "figure.facecolor": "white",
-            "axes.facecolor": "white",
-            "savefig.facecolor": "white",
-            "font.family": "DejaVu Sans",
-            "pdf.fonttype": 42,
-            "ps.fonttype": 42,
-            "svg.fonttype": "none",
-            "svg.hashsalt": "feast-study02-alignment-diagnostic",
-        }
-    )
+    plt.rcParams.update({
+        "figure.facecolor": "white", "axes.facecolor": "white",
+        "savefig.facecolor": "white",
+        "font.family": "DejaVu Sans", "font.size": 9,
+        "axes.titlesize": 11, "axes.labelsize": 9.5,
+        "xtick.labelsize": 8.5, "ytick.labelsize": 8.5,
+        "legend.fontsize": 9,
+        "axes.spines.top": False, "axes.spines.right": False,
+        "pdf.fonttype": 42, "ps.fonttype": 42,
+        "svg.fonttype": "none",
+        "svg.hashsalt": "feast-study02-alignment-diagnostic",
+    })
 
 
 def draw_figure(rows: list[dict[str, object]], output_dir: Path, dpi: int) -> list[Path]:
     configure_matplotlib()
     fig, axes = plt.subplots(
-        len(ALTERATIONS),
-        len(METRICS),
-        figsize=(12.8, 11.2),
-        sharex=True,
-        squeeze=False,
+        len(METHODS), len(DISPLAY_METRICS),
+        figsize=(10.8, 6.25), sharex=True, squeeze=False,
     )
 
-    for row_index, alteration in enumerate(ALTERATIONS):
-        for column_index, metric in enumerate(METRICS):
+    for row_index, method in enumerate(METHODS):
+        for column_index, metric in enumerate(DISPLAY_METRICS):
             ax = axes[row_index][column_index]
             key = str(metric["key"])
-            for method in METHODS:
+            for alteration in ALTERATIONS:
                 selected = sorted(
-                    (
-                        row
-                        for row in rows
-                        if row["alteration"] == alteration and row["method"] == method
-                    ),
-                    key=lambda row: float(row["angle_degrees"]),
+                    (r for r in rows
+                     if r["alteration"] == alteration and r["method"] == method),
+                    key=lambda r: float(r["angle_degrees"]),
                 )
                 ax.plot(
-                    [float(row["angle_degrees"]) for row in selected],
-                    [float(row[key]) for row in selected],
-                    color=METHOD_COLORS[method],
-                    marker=METHOD_MARKERS[method],
-                    markersize=4.5,
-                    linewidth=1.35,
-                    label=METHOD_LABELS[method],
+                    [float(r["angle_degrees"]) for r in selected],
+                    [float(r[key]) for r in selected],
+                    color=ALTERATION_COLORS[alteration],
+                    marker=ALTERATION_MARKERS[alteration],
+                    markerfacecolor="white",
+                    markeredgewidth=1.0,
+                    markersize=5.7,
+                    linewidth=1.8,
+                    label=ALTERATION_LABELS[alteration],
                 )
 
-            if metric["scale"] == "symlog":
-                ax.set_yscale("symlog", linthresh=float(metric["linthresh"]), linscale=0.6)
+            if metric["scale"] == "log":
+                ax.set_yscale("log")
+                # Same absolute range for the two methods keeps the magnitude
+                # comparison honest while retaining the 12-order dynamic range.
+                ax.set_ylim(1e-12, 50.0)
             else:
-                ax.set_ylim(0.88, 1.01)
+                values = [float(r[key]) for r in rows if r["method"] == method]
+                ymax = max(values)
+                ax.set_ylim(-0.035 * ymax, 1.10 * ymax)
             ax.set_xticks(ANGLES)
-            ax.grid(True, color="#D9D9D9", linewidth=0.55, alpha=0.8)
-            ax.tick_params(labelsize=8)
+            ax.set_xlim(0.0, 46.5)
+            ax.grid(axis="y", color="#E0E0E0", linewidth=0.55, alpha=0.75)
+            ax.set_axisbelow(True)
+            ax.tick_params(labelsize=8.5)
             for spine in ax.spines.values():
-                spine.set_color("#666666")
-                spine.set_linewidth(0.7)
+                spine.set_color("#555555")
+                spine.set_linewidth(0.8)
 
             if row_index == 0:
-                ax.set_title(str(metric["label"]), fontsize=10.5, fontweight="bold", pad=7)
+                title = f"{metric['label']} ↓"
+                if metric["scale"] == "log":
+                    title += " (log scale)"
+                ax.set_title(title, fontsize=11.5, fontweight="bold", pad=9)
             if column_index == 0:
-                ax.set_ylabel(
-                    f"{ALTERATION_LABELS[alteration]}\nMetric value",
-                    fontsize=9.5,
-                    fontweight="bold",
-                )
-            if row_index == len(ALTERATIONS) - 1:
+                ax.set_ylabel("Mean spatial error", fontsize=9.5)
+            else:
+                ax.set_ylabel("Rotation recovery error (degrees)", fontsize=9.5)
+            if row_index == len(METHODS) - 1:
                 ax.set_xlabel("Input rotation (degrees)", fontsize=9.5)
 
-    handles, labels = axes[0][0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="upper center", ncol=2, frameon=False, bbox_to_anchor=(0.5, 0.955))
-    fig.suptitle(
-        "Study 02 alignment sensitivity diagnostics (unpromoted)",
-        fontsize=14,
-        fontweight="bold",
-        y=0.992,
+    row_centers = (0.648, 0.301)
+    for center, method in zip(row_centers, METHODS):
+        fig.text(
+            0.014, center, METHOD_LABELS[method], rotation=90,
+            ha="center", va="center", fontsize=11, fontweight="bold",
+        )
+    handles = [
+        Line2D(
+            [0], [0], color=ALTERATION_COLORS[alteration],
+            marker=ALTERATION_MARKERS[alteration], markerfacecolor="white",
+            markeredgewidth=1.0, markersize=5.7, linewidth=1.8,
+            label=ALTERATION_LABELS[alteration],
+        )
+        for alteration in ALTERATIONS
+    ]
+    fig.legend(
+        handles, [handle.get_label() for handle in handles], loc="upper center", ncol=4,
+        frameon=False, bbox_to_anchor=(0.56, 0.915), fontsize=9,
+        handlelength=1.8, columnspacing=1.3,
     )
     fig.text(
-        0.5,
-        0.012,
-        "Raw validated rows only; no cross-alteration aggregation or overall ranking. "
-        "AUTHOR SELECTION REQUIRED.",
-        ha="center",
-        va="bottom",
-        fontsize=9.2,
-        color="#7A2E2E",
-        fontweight="bold",
+        0.075, 0.975, "Alignment residuals across input rotations",
+        ha="left", va="center", fontsize=14, fontweight="bold",
     )
-    fig.tight_layout(rect=(0.025, 0.045, 0.99, 0.935), h_pad=1.35, w_pad=1.0)
+    fig.text(
+        0.075, 0.938,
+        "Each marker is one validated run. Colours denote simulated conditions; no cross-condition aggregation or method ranking. "
+        "Mean spatial-error panels share a log scale; rotation-error rows use their own raw linear limits.",
+        ha="left", va="center", fontsize=8.1, color="#666666",
+    )
+    fig.subplots_adjust(left=0.105, right=0.99, top=0.825, bottom=0.105, hspace=0.32, wspace=0.28)
 
     stem = "alignment_sensitivity_diagnostic"
     output_paths: list[Path] = []
     formats = {
-        "png": {"dpi": dpi, "metadata": {"Software": "FEAST Study 02 plot.py"}},
+        "png": {"dpi": 600, "metadata": {"Software": "FEAST Study 02 plot.py"}},
         "pdf": {"metadata": {"CreationDate": None, "ModDate": None}},
         "svg": {"metadata": {"Date": None}},
     }
@@ -350,17 +356,13 @@ def draw_figure(rows: list[dict[str, object]], output_dir: Path, dpi: int) -> li
 
 
 def write_provenance(
-    manifest_path: Path,
-    candidate: dict[str, object],
-    sources: dict[str, Path],
-    decision: dict[str, object],
-    rows: list[dict[str, object]],
-    plot_rows: list[dict[str, object]],
-    output_paths: list[Path],
-    output_dir: Path,
+    manifest_path: Path, candidate: dict[str, object],
+    sources: dict[str, Path], decision: dict[str, object],
+    rows: list[dict[str, object]], plot_rows: list[dict[str, object]],
+    output_paths: list[Path], output_dir: Path,
 ) -> Path:
     payload = {
-        "schema_version": 1,
+        "schema_version": 2,
         "figure_set": "study02_alignment_sensitivity_diagnostic",
         "promotion_status": "unpromoted_author_selection_required",
         "publication_figure_authorized": False,
@@ -388,23 +390,28 @@ def write_provenance(
         "design": {
             "validated_atomic_rows": len(rows),
             "plot_data_rows": len(plot_rows),
-            "methods": list(METHODS),
-            "alterations": list(ALTERATIONS),
+            "methods": list(METHODS), "alterations": list(ALTERATIONS),
             "angles_degrees": list(ANGLES),
-            "metrics": [
-                {
-                    "key": metric["key"],
-                    "label": metric["label"],
-                    "direction": metric["direction"],
-                }
-                for metric in METRICS
+            "source_metrics": [
+                {"key": m["key"], "label": m["label"], "direction": m["direction"]}
+                for m in METRICS
+            ],
+            "display_metrics": [
+                {"key": m["key"], "label": m["label"], "direction": m["direction"]}
+                for m in DISPLAY_METRICS
             ],
             "aggregation": "none; every plotted point is one validated method job",
+            "display_scope": (
+                "GE correlation remains in plot_data.csv but is excluded from the main diagnostic "
+                "because it is invariant across methods and rotations in the validated design."
+            ),
+            "changes_v3": (
+                "Replaced the 4×3 matrix with a 2×2 method-by-error layout; simulation condition "
+                "is encoded by colour and marker, all 40 atomic rows remain in the companion data CSV."
+            ),
         },
         "limitations": {
-            "manuscript_or_figure_claim_direction": decision[
-                "manuscript_or_figure_claim_direction"
-            ],
+            "manuscript_or_figure_claim_direction": decision["manuscript_or_figure_claim_direction"],
             "paste_convergence_disposition": decision["paste_convergence_disposition"],
             "spateo_convergence_disposition": decision["spateo_convergence_disposition"],
             "external_environment_limitation": decision["external_environment_limitation"],
@@ -427,7 +434,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
-    parser.add_argument("--dpi", type=int, default=300)
+    parser.add_argument("--dpi", type=int, default=600)
     return parser.parse_args()
 
 
@@ -444,14 +451,8 @@ def main() -> int:
     plot_data_path = write_plot_data(plot_rows, args.output_dir)
     output_paths = [plot_data_path, *draw_figure(rows, args.output_dir, args.dpi)]
     provenance_path = write_provenance(
-        args.manifest,
-        candidate,
-        sources,
-        decision,
-        rows,
-        plot_rows,
-        output_paths,
-        args.output_dir,
+        args.manifest, candidate, sources, decision,
+        rows, plot_rows, output_paths, args.output_dir,
     )
     for path in [*output_paths, provenance_path]:
         print(f"Saved: {path}")

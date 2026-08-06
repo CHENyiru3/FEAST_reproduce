@@ -1,8 +1,23 @@
 # Study 07 log-domain OT repair decision
 
 Decision date: 2026-07-19  
-Current status: exact blocker, one maximum-size block, and the fresh E18.5
-calibration validated; workflow CUDA canaries pending
+Completion update: 2026-07-31
+Current status: selected repair validated through the complete declared Study
+07 workflow
+
+## Complete workflow result
+
+The repair passed the age-specific CUDA canaries and all 360 fresh full-axis
+generations. Consolidation retained one unique output for each declared z
+index. Independent validation confirmed exact blueprint identity and positive
+convergence for 7,440 E15.5 plus 4,850 E18.5 transport records. Validation
+SHA-256:
+`2e9a1607b8e21e1e035c2b8353a0be78bcf96782a58ba7266d0138183b17aa1f`.
+The descriptive evaluation provenance SHA-256 is
+`6e41d14bdff42dba10ee473f3b2477efd63bfd7fcfe2b648168ea738a906453c`.
+This validates the selected repair for configuration
+`study07-full-devccf-transfer-v5`; it does not authorize a target-expression
+accuracy claim or canonical article promotion.
 
 ## Failure cause
 
@@ -50,8 +65,9 @@ recorded runtime cost in exchange for one fail-closed implementation throughout
 the article run.
 
 The expression-free E15.5/E18.5 blueprints retain their stable independent
-blueprint contract. The exact-block evidence does not authorize the full
-79,615-block workflow: bounded E15.5/E18.5 CUDA canaries must pass first.
+blueprint contract. At that checkpoint, exact-block evidence did not authorize
+the full 79,615-block workflow: bounded E15.5/E18.5 CUDA canaries still had to
+pass first. They later passed as recorded above.
 
 ## Calibration result
 

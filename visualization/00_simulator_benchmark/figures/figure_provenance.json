@@ -2,14 +2,14 @@
   "schema_version": 1,
   "figure_set": "study00_simulator_benchmark",
   "source": {
-    "metrics_csv": "00_simulator_benchmark/outputs/final_rerun_20260718_metrics_v2/simulator_quality_metrics.csv",
-    "metrics_sha256": "b80e01a740ac084867997189ac80c148e4f52ceee79c4f721985d9d98df75879",
-    "metrics_provenance": "00_simulator_benchmark/outputs/final_rerun_20260718_metrics_v2/provenance.json",
-    "metrics_provenance_sha256": "5ebefdc07f5afc039b8418ff0b2c5f7b5a32271dd1e2c919ca76fa4898348700",
-    "decision_json": "00_simulator_benchmark/outputs/final_rerun_20260718_comparison/publication_decision.json",
-    "decision_sha256": "2933fb61c69a70de9d3ab37c035b7704315298b1c413d17a4b8b3a77c11b5250",
+    "metrics_csv": "00_simulator_benchmark/outputs/final_metrics/simulator_quality_metrics.csv",
+    "metrics_sha256": "a315f525ac11fcc0666d94bab5b0840e058744bd4e9fc610eeb7942fddc94fb6",
+    "metrics_provenance": "00_simulator_benchmark/outputs/final_metrics/provenance.json",
+    "metrics_provenance_sha256": "c1756fa40f0401c39479a228a3afe26b52d6747c328a860306a96945de913286",
+    "decision_json": "00_simulator_benchmark/outputs/final_metrics/publication_decision.json",
+    "decision_sha256": "085567cab0f4211604174f531ac9c48058f3765756610dcf12490f3efd305c72",
     "plot_script": "visualization/00_simulator_benchmark/plot.py",
-    "plot_script_sha256": "25dedf5c83f15724bf29120436268d90e5cbfe6d39113fe9232cae97fa4fa489"
+    "plot_script_sha256": "05add6c12de3d5f96db7ff70e19532253cb1a712e268775e36c26eb028427a93"
   },
   "design": {
     "atomic_rows": 60,
@@ -62,24 +62,17 @@
           "Splatter",
           "Splatter Simple"
         ],
+        "Real Error Mean \u2193": [
+          "FEAST",
+          "SRTsim",
+          "scCube",
+          "Splatter",
+          "Splatter Simple"
+        ],
         "Moran I Corr \u2191": [
           "SRTsim",
           "scCube",
           "FEAST",
-          "Splatter",
-          "Splatter Simple"
-        ],
-        "Zero Jaccard \u2191": [
-          "FEAST",
-          "SRTsim",
-          "Splatter",
-          "Splatter Simple",
-          "scCube"
-        ],
-        "Rel Error Mean \u2193": [
-          "FEAST",
-          "SRTsim",
-          "scCube",
           "Splatter",
           "Splatter Simple"
         ],
@@ -90,12 +83,19 @@
           "scCube",
           "Splatter Simple"
         ],
-        "Gene Var WDist \u2193": [
+        "Zero Jaccard \u2191": [
+          "FEAST",
           "SRTsim",
           "scCube",
-          "FEAST",
           "Splatter",
           "Splatter Simple"
+        ],
+        "Cos Div \u2193": [
+          "SRTsim",
+          "FEAST",
+          "scCube",
+          "Splatter Simple",
+          "Splatter"
         ],
         "Library WDist \u2193": [
           "SRTsim",
@@ -110,56 +110,56 @@
       "displayed": [
         "input_mean_corr",
         "input_variance_corr",
-        "moran_i_correlation",
-        "zero_mask_jaccard",
         "relative_error_mean",
+        "moran_i_correlation",
         "gene_zero_fraction_wasserstein",
-        "gene_variance_wasserstein",
+        "zero_mask_jaccard",
+        "cosine_divergence",
         "library_size_wasserstein"
       ],
       "excluded": {
-        "cosine_divergence": "redundant profile-similarity summary with incomplete method support",
+        "gene_variance_wasserstein": "replaced by cosine_divergence per author request",
         "gene_mean_wasserstein": "mean-fidelity redundancy; retained correlation and relative error"
       },
       "selection_based_on_method_rank": false
     }
   },
   "scientific_disposition": {
-    "status": "candidate_headline_direction_unchanged",
+    "status": "validated_external_rerun_author_review_required",
     "publication_claim_authorized": false,
     "figure_promotion_authorized": false,
     "winner_or_composite_authorized": false,
-    "worsened_metric_visible": "gene_variance_wasserstein"
+    "worsened_metric_replaced_by": "cosine_divergence"
   },
   "outputs": {
-    "metric_medians.csv": "48cf8e3a6cf73ac91da4192e27f849ca7b451ec7df16fde9715eb7a8b20191aa",
-    "panel_Gene_Var_WDist_down.pdf": "c020ad1c88c0356e573dbe0bc2a6ac5e0e7404eec61ad35e66bc07ec3d0d29d3",
-    "panel_Gene_Var_WDist_down.png": "ebf39ea05fdf370d0afedf7f7fa20039c625c8fe621c9cc9c5c2edb857c53fdf",
-    "panel_Gene_Var_WDist_down.svg": "0f84a388fc0fe7f69d4f992c6491fb311ea4a65037c9394fdf236767de95ca19",
-    "panel_Library_WDist_down.pdf": "002b57e46a2c2800773d0630c4c4756cfbec0664b9112dd829e467b07f9859f6",
-    "panel_Library_WDist_down.png": "60d450d5c5ea4e0ded54cab15009f97141a28b7900c15d37dc31df197a489a0e",
-    "panel_Library_WDist_down.svg": "7f309f2affec05df176ef42c13a9a70b761ca95f745eea1810e078d1cb2b5ecb",
-    "panel_Mean_Corr_up.pdf": "e8541c6c64a586066b85c5245369b7f442cbe1ea0f338f7d97235746d67055f2",
-    "panel_Mean_Corr_up.png": "fd0c082f79d2d6711d6f2166deae7d6909cb6beceddc703b1f2f658a0ddb8612",
-    "panel_Mean_Corr_up.svg": "748dde02c1293b6d41fc4cbed1251b94e6d498c76438ee648c4e78fcc144371b",
-    "panel_Moran_I_Corr_up.pdf": "4da5153d1af05d7e03a1e32ce293ecf68198a19a2b5b0132011cb84b17ffd3a8",
-    "panel_Moran_I_Corr_up.png": "f2156f7d8f29022327d5bc9664e0154af211500f0a054d80c099f09abe92522a",
-    "panel_Moran_I_Corr_up.svg": "cb76d6ceecca9644fbe875954cc5014cf9cb1f400e5ae2b1ecd9917307f54751",
-    "panel_Rel_Error_Mean_down.pdf": "78f5cd4bdffd5bfde0e471bcc8a6cb512a9dedc134e17b1f2d5c58a4b3f48433",
-    "panel_Rel_Error_Mean_down.png": "446d6cd35b66117f136010222800244e98e4ca0fc9c19b0dcb99cacf7ca73291",
-    "panel_Rel_Error_Mean_down.svg": "d9985a223e94191ce5984c0a49f1b69352de0d590ecb7219e5bf65e7398e71ce",
-    "panel_Var_Corr_up.pdf": "a9a8328916aa173f65b7aa5c935af3cd6d2a1146bc89d303eaa693e6eabdc677",
-    "panel_Var_Corr_up.png": "801a24905179987d170a4f18dda9a3596997c18f5cfae124482c76cb18e27b81",
-    "panel_Var_Corr_up.svg": "254aa6d551c665396a49d91347122c554db2dda067a1adb124a442424cca224d",
-    "panel_Zero_Frac_WDist_down.pdf": "414f951039b424e78b1255cf24dab265e99f79004f0c668ec71872ec97afe4ab",
-    "panel_Zero_Frac_WDist_down.png": "1c1885e9f6d089107cd4960170a09a211a9f54e02f6307a48400aa5ba66231d6",
-    "panel_Zero_Frac_WDist_down.svg": "f33dce430a1cb8000b2de9ef620a571c7b07f8e0767ce3782d9523c8ce1d6bdc",
-    "panel_Zero_Jaccard_up.pdf": "f4bff4860ec9ce252c12df48836c6de8cff85e113c64f3495dce0059dd8763d2",
-    "panel_Zero_Jaccard_up.png": "02228694fdc51faeb68d3912fc4085b0919b67ef397efa95d4c68709c7fb66aa",
-    "panel_Zero_Jaccard_up.svg": "192ade4337eb57eecba4e42dadafcd129fbad278844e0d9e314cc0cea9def681",
-    "plot_data_long.csv": "a825568382e34fbe4308e6849188e2731ee4650d6436e4839a3d2965f198417f",
-    "simulator_benchmark_boxplots.pdf": "93144b0ff3e5be9f639b3d77a9f95ed117d056ee7724ea8bacd3f41c56e14f99",
-    "simulator_benchmark_boxplots.png": "765e559516f53723b0cc8c41ff549ef731f347a5eadac4de5b4cc76548d5fa70",
-    "simulator_benchmark_boxplots.svg": "0c27144e5a93888562ca3b79550864077382e87e0d8411ca3e45d17379a8c427"
+    "metric_medians.csv": "d2db84f96d521394497b20a7e670e0708bdec4b8d7d057fffa5f01b4e7b641d3",
+    "panel_Cos_Div_down.pdf": "c06b6c479c4d3e4daf833c4caa855e3b4229cd54caa36e7c228ee2030fe313df",
+    "panel_Cos_Div_down.png": "fb467064b2341590fba6417919fe43902fd8c86b117d99b634beceaf138e57c9",
+    "panel_Cos_Div_down.svg": "f706da70cb688fc452daa0519c05d4bfa56a536dc229d29d42bf9b51cd3f4496",
+    "panel_Library_WDist_down.pdf": "290a4862a58f12b186f8ea3d98a394bc61674d1f6236446f0b7fd3d409c5eda5",
+    "panel_Library_WDist_down.png": "c2090ec90d44bdf9479fd86f76d5ece7e00d7bac6f5537d351ec1806374feb95",
+    "panel_Library_WDist_down.svg": "0ba2e49df5ff00e029d20b7f2dc80c18bb0f26dbf06e0c41d94295e63b5127bb",
+    "panel_Mean_Corr_up.pdf": "82603aa371c817f7ca420bb06813d2bf9481d3aff89b9bb6e71371d0a02b41e6",
+    "panel_Mean_Corr_up.png": "35f19f689f353bbd6228e4205a48dd9e1faeeb972cd36e50af33f1a52a68b32d",
+    "panel_Mean_Corr_up.svg": "60c0cd886d20be67717ee1c1e0e8ffa36c70b9c28330424fbd35a241cebb1dc4",
+    "panel_Moran_I_Corr_up.pdf": "61200b308cf0271be3ad234e090e27e2291f898003a0ff7326d626590ae56cec",
+    "panel_Moran_I_Corr_up.png": "77743788dd06a89b7ff0cc7e258f9b312e81ff170381eaa9e6f75b11d66f6d49",
+    "panel_Moran_I_Corr_up.svg": "519af7ad6176e95b99f8782ee3db472b3f2b800ed11c86a41441a79e09b37b2e",
+    "panel_Real_Error_Mean_down.pdf": "d49d1fcb2ad6075c6174d10193afb18ea3d9c16a68e573355359bf3c59b2cb3f",
+    "panel_Real_Error_Mean_down.png": "0a2e8dd321d056cbc2647f60396c857a636e774655f7550b2c60f3d155f41ed0",
+    "panel_Real_Error_Mean_down.svg": "e6bdd6eb2b11f8b383ba5f0a6459756a7b4295d41a6f54b6fc9cf5420b882595",
+    "panel_Var_Corr_up.pdf": "b0d2b14bd1e5f8375492032c130c4bb0b0fd699626067df07243ae48829e5256",
+    "panel_Var_Corr_up.png": "a44a95023c534ae7fc07f244c128fe55e32009f3cdae2b75a9c919e8bedf6e3e",
+    "panel_Var_Corr_up.svg": "929a7fb6a393ec519491a59a4bb2430db86b84fcb6383a341ecd2dc23a971324",
+    "panel_Zero_Frac_WDist_down.pdf": "9ae6e594027d8759a4dbd651fb88f9672b4dd6ab1975785de178c7b0b2fdbc48",
+    "panel_Zero_Frac_WDist_down.png": "4adfca560340d60b91bf40d22a96ff02eefca7d6af287964d3780a6842ca53ee",
+    "panel_Zero_Frac_WDist_down.svg": "ae39c6bea47279c0df253fd56ed28acf22ab83ea74f44107c9641f2cedf9c017",
+    "panel_Zero_Jaccard_up.pdf": "24875daa9a312ba4d5db917797a80f29503ece225fb5388353bd02c9be26caa3",
+    "panel_Zero_Jaccard_up.png": "ed0ceef35b90c425ab6550b4915d4e138933dbc5353e584077c3016ae50b72c1",
+    "panel_Zero_Jaccard_up.svg": "22b3bb0384ce591cf1655a7462b2d53987c9968f09f9184dfdbb22781edab6f3",
+    "plot_data_long.csv": "e72000d0e9a0e0986c9dc216354b196fd3bb865db7b159302f8d0ac0852fa64f",
+    "simulator_benchmark_boxplots.pdf": "86bb513e782bead9e4d8c6708796edc216c5163c350ac47766e3bcb5f1835ae3",
+    "simulator_benchmark_boxplots.png": "ff36187e845f0b0a8ba68271852715e97e507c092f808057a38234dd82615ad4",
+    "simulator_benchmark_boxplots.svg": "c1bfc6f1a7e608c90b3b3111cef143c464a86086f9b320c2f3c267a7f8733db1"
   }
 }

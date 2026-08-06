@@ -1,7 +1,21 @@
 # Study 06 preflight blocker
 
 Decision date: 2026-07-20
-Status: repaired v5 preflight passed; CUDA generation canaries pending
+Completion update: 2026-07-31
+Status: closed for declared v5 scope; 93/93 CUDA outputs validated and evaluated
+
+## 2026-07-31 workflow completion
+
+The repaired v5 contract passed its CUDA canaries and complete production
+scope. Independent validation reopened all 93 outputs, confirmed exact target
+identity, and found positive convergence evidence for every retained transport
+record. The validation summary SHA-256 is
+`c41bb104a06a6711070f1888533422ba11596d7e7bebf4fa044bc1aaeabf4a37`;
+the evaluation provenance SHA-256 is
+`2bb9d66f4fc3ad20c4e9683ba7fc5db4dedbb52c86b06ed515e1e9d5cea6c85b`.
+The preflight blocker is closed for configuration
+`study06-allen-abca1-conditional-stack-v5`. This does not generalize to other
+solver configurations and does not itself authorize publication wording.
 
 ## 2026-07-20 repair update
 
@@ -62,9 +76,9 @@ Fresh v5 evidence SHA-256 values:
 - passed preflight record:
   `8b426b5b4924eab5db5ce8bc3ea7b6654b46b3950c53675b9ec9badd14fc57e9`.
 
-No generation was launched. The numerical and calibration preflight blockers
-are closed; CUDA canaries and their independent output validation are the next
-gate.
+At that checkpoint no generation had been launched. The later 2026-07-31
+completion record above closes the CUDA generation and independent-validation
+gates.
 
 ## Historical numerical failure
 

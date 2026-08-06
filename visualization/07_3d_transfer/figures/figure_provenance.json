@@ -1,0 +1,97 @@
+{
+  "age_summary": [
+    {
+      "age": "E15.5",
+      "max_final_error": 9.999997515608428e-06,
+      "median_adjacent_gene_mean_pearson": 0.9999798594997402,
+      "median_adjacent_region_gene_mean_pearson": 0.9999979865355666,
+      "minimum_adjacent_gene_mean_pearson": 0.9965203404905474,
+      "minimum_adjacent_region_gene_mean_pearson": 0.996986010033054,
+      "n_genes": 550,
+      "n_spots": 2330927,
+      "n_z_levels": 158,
+      "transport_records": 7440,
+      "z_end": -0.98,
+      "z_start": -4.12
+    },
+    {
+      "age": "E18.5",
+      "max_final_error": 9.999999248444524e-06,
+      "median_adjacent_gene_mean_pearson": 0.9999948150391637,
+      "median_adjacent_region_gene_mean_pearson": 0.9999994890246532,
+      "minimum_adjacent_gene_mean_pearson": 0.9993842765435176,
+      "minimum_adjacent_region_gene_mean_pearson": 0.993591281807395,
+      "n_genes": 550,
+      "n_spots": 5213461,
+      "n_z_levels": 202,
+      "transport_records": 4850,
+      "z_end": -1.54,
+      "z_start": -5.56
+    }
+  ],
+  "composite_score": "prohibited",
+  "configuration_id": "study07-full-devccf-transfer-v5",
+  "continuity_display": "1 - Pearson correlation on a logarithmic axis; values are clipped only for display at 1e-12",
+  "editable_text": {
+    "pdf_fonttype": 42,
+    "svg_fonttype": "none"
+  },
+  "figure_promotion_authorized": false,
+  "inputs": {
+    "E15.5_manifest": {
+      "path": "07_3d_transfer/outputs/final/E15.5/manifest.csv",
+      "sha256": "eb5c9bde48028cb4b9b2826c207f1d4488533ec3bb7d8f98ef34f8b4624d6a73"
+    },
+    "E18.5_manifest": {
+      "path": "07_3d_transfer/outputs/final/E18.5/manifest.csv",
+      "sha256": "543e7042edf47b8eb0e717d9521b839573685adb36d207bf873ef83a5e74f336"
+    },
+    "adjacent_z_continuity": {
+      "path": "07_3d_transfer/outputs/final/evaluation/adjacent_z_continuity.csv",
+      "sha256": "1ec42d0f377c37e6fcd48baebfcd2b26c778399b99c4aa2d1e57dccfeb68e8c8"
+    },
+    "age_summary": {
+      "path": "07_3d_transfer/outputs/final/evaluation/age_summary.csv",
+      "sha256": "e8a1e70bc7cac4e17b085d9896135d2db41d83bb6e86db976e61686b397fc383"
+    },
+    "evaluation_provenance": {
+      "path": "07_3d_transfer/outputs/final/evaluation/provenance.json",
+      "sha256": "6e41d14bdff42dba10ee473f3b2477efd63bfd7fcfe2b648168ea738a906453c"
+    },
+    "region_coverage": {
+      "path": "07_3d_transfer/outputs/final/evaluation/region_coverage.csv",
+      "sha256": "b452ae542f91f9a3940704c66257d1814f7a777487d3b9cba6dd97a4a434c5a8"
+    },
+    "validation": {
+      "path": "07_3d_transfer/outputs/final/validation.json",
+      "sha256": "2e9a1607b8e21e1e035c2b8353a0be78bcf96782a58ba7266d0138183b17aa1f"
+    }
+  },
+  "interpretation": "descriptive full-axis coverage and adjacent-z continuity; no target-expression accuracy claim",
+  "outputs": {
+    "adjacent_plot_data": {
+      "path": "visualization/07_3d_transfer/figures/adjacent_z_plot.csv",
+      "sha256": "4751af84a857ff4696ca4c0c3cee139f540e2b629813c1d77664479e64018e74"
+    },
+    "coverage_plot_data": {
+      "path": "visualization/07_3d_transfer/figures/region_coverage_plot.csv",
+      "sha256": "5794b8989e856874b18469b541433f932cd63d83111594b2739c13dd3ac4d364"
+    },
+    "pdf": {
+      "path": "visualization/07_3d_transfer/figures/full_axis_transfer_diagnostic.pdf",
+      "sha256": "62eb4085709d39e2abfea521e8ee33df8cba9b3131ce21eb8a64a831c6ddd098"
+    },
+    "png": {
+      "path": "visualization/07_3d_transfer/figures/full_axis_transfer_diagnostic.png",
+      "sha256": "e57d45894fd3b8038c9eeb99b6081af36236a3fc1f6a52078fc4a69c3430849e"
+    },
+    "svg": {
+      "path": "visualization/07_3d_transfer/figures/full_axis_transfer_diagnostic.svg",
+      "sha256": "419bc86980fcb0a08fb8090413259fdf85fbf797d4f71b5c13a3a354c1cee0ec"
+    }
+  },
+  "schema_version": 1,
+  "script_sha256": "e9f9f1bc1026bef449bc1a3a870dac1672ee03bbf1ff8bff338e5a008e9fc5b4",
+  "study": "07_3d_transfer",
+  "top_region_rule": "eight regions with greatest total blueprint spot support across both ages; remaining regions grouped as Other"
+}

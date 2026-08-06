@@ -1,29 +1,63 @@
 # Study 01: clustering visualization
 
-The publication figure candidate is built only from the Study 01 metrics and decision
-registered in `../../PUBLICATION_MANIFEST.json`. Historical tables and figures
-are not inputs. The script verifies both registered SHA-256 values before it
-reads the data.
+The primary sensitivity figure combines the Study 01 metrics and decision
+registered in `../../PUBLICATION_MANIFEST.json` with the validated additive
+mean/variance extreme-level extension. The script verifies the frozen source
+hashes and the extension hashes recorded in its `validation.json` before
+reading either table. Historical tables and figures are not inputs.
 
 The registered metric source is
 `../../01_clustering/outputs/final_rerun_20260718_report/fixed_panel_benchmark_metrics.csv`
 (SHA-256
 `10abbadbcf8c26d2b85e92a3357a8380fe4f4bc46882e6d42d2388a3d1882fab`).
-It contains complete fixed-panel GraphST, STAGATE+mclust, and label-free Leiden
-results. From the supported Python 3.11 / NumPy 1.26 environment, rebuild from
-the repository root with:
+The additive source is
+`../../01_clustering/outputs/expanded_mean_variance_fc_0_20_5_20260806/report/expanded_benchmark_metrics.csv`;
+its checksum and complete 12-simulation/36-method-result validation are read
+from the adjacent `validation.json`.
+Rebuild from the repository root with:
 
 ```bash
 python visualization/01_clustering/plot.py
+python visualization/01_clustering/plot_spatial_expression.py
+python visualization/01_clustering/plot_clustering_spatial.py
+python visualization/01_clustering/plot_intervention_profile.py
+python visualization/01_clustering/plot_clustering_stability.py
 ```
 
-The fresh `figures/` directory contains the PDF, PNG, and SVG figure, three
-plot-ready CSV files, and `figure_provenance.json` with input and output
-SHA-256 values.
+`alteration_sensitivity.{pdf,svg,png}` is a 3 × 3 summary (ARI/NMI/AMI ×
+mean/variance/sparsity).  Thin traces show the three registered DLPFC slices;
+the solid traces and markers show their method-specific mean.  A dashed
+vertical line marks the neutral simulation level. Mean and variance include
+the added requested FC 0.2 and FC 5 levels and use a log-scaled x-axis so the
+extremes and original levels remain legible. These x values are requested
+interventions; realized fold changes can differ and are documented in
+`realized_alteration_diagnostics.csv`. The figure describes alteration
+sensitivity only: it does not claim method superiority, uniform equivalence,
+an exact dose-response, or a benchmark winner.
 
-Panel A shows FEAST-baseline and raw-slice scores averaged across the same
-three slices. Panel B exposes each slice-level difference and the registered
-three-slice method mean. The supported interpretation is limited to close
-method means across these three slices: the figure does not claim uniform
-slice-level equivalence, method superiority, or a benchmark winner, and it
-remains unpromoted pending author review.
+The spatial maps use the registered illustrative slice **151676**.  It has
+complete reference, simulation, and method-result artifacts and seven
+reference domains; the sensitivity figure continues to include all three
+registered slices.  `alteration_spatial_expression.{pdf,svg,png}` has a single
+shared log1p(MBP) scale across every panel.  The three
+Each `alteration_clustering_spatial_*` figure displays all seven registered
+levels of one factor in columns, with the neutral FEAST baseline centred and
+the three clustering methods in rows. Colours denote independently produced,
+panel-local cluster IDs and do not imply a cross-method domain correspondence.
+The adjacent spatial provenance JSON files record exact inputs, source script
+hashes, display slice, and outputs.
+
+`intervention_profile.{pdf,svg,png}` is a cohort-level simulator diagnostic.
+It reads FEAST's recorded realized relative mean, variance, and zero-fraction
+changes from every registered simulation and shows the three individual slices
+plus their mean. It verifies that a named control produces a measurable
+statistical intervention; it is not a clustering score.
+
+`clustering_stability_vs_baseline.{pdf,svg,png}` compares every perturbed
+partition with the FEAST-baseline partition from the same method and slice.
+It displays the intuitive partition-change quantity **1 − ARI**: zero means an
+identical partition and a higher value means a stronger reorganization. ARI
+and NMI remain in the adjacent CSV, and both are invariant to a permutation of
+cluster labels, so no predicted-to-reference label matching is used. Every
+input `clusters.csv` is checked against the recorded method-run checksum. This
+is a descriptive response profile, not a cross-method winner ranking.

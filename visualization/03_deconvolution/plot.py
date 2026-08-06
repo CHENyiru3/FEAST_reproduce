@@ -215,11 +215,14 @@ def configure_matplotlib() -> None:
             "figure.facecolor": "white",
             "axes.facecolor": "white",
             "savefig.facecolor": "white",
+            "font.family": "DejaVu Sans",
+            "font.size": 9,
+            "axes.spines.top": False,
+            "axes.spines.right": False,
             "pdf.fonttype": 42,
             "ps.fonttype": 42,
             "svg.fonttype": "none",
             "svg.hashsalt": "feast-study03-common-support-candidate",
-            "font.size": 9,
         }
     )
 
@@ -242,7 +245,7 @@ def save_figure(fig: plt.Figure, output_dir: Path) -> list[Path]:
             }
         },
         ".png": {
-            "dpi": 360,
+            "dpi": 600,
             "metadata": {"Software": "FEAST reproduction Study 03 plot.py"},
         },
     }
@@ -288,7 +291,7 @@ def draw_figure(
             )
         changed = bool(direction_lookup.loc[metric, "headline_direction_changed"])
         status = "Historical direction changed" if changed else "Historical direction retained"
-        ax.set_title(label, fontsize=10.5, fontweight="bold", pad=25)
+        ax.set_title(label, fontsize=10.5, fontweight="bold", pad=7)
         ax.text(
             0.5,
             1.03,
@@ -302,7 +305,7 @@ def draw_figure(
         )
         ax.set_xticks(x)
         ax.set_xticklabels(labels, fontsize=7.5)
-        ax.grid(axis="y", color="#D8D8D8", linewidth=0.6, alpha=0.8)
+        ax.grid(axis="y", color="#DDDDDD", linewidth=0.5, alpha=0.7)
         ax.set_axisbelow(True)
         ax.text(
             -0.10,
@@ -317,14 +320,8 @@ def draw_figure(
             spine.set_color("#666666")
             spine.set_linewidth(0.8)
 
-    axes[0].legend(loc="best", frameon=False, fontsize=8.5)
-    fig.suptitle(
-        "Study 03 corrected common-support evidence — SCIENTIFIC STOP",
-        fontsize=14,
-        fontweight="bold",
-        color="#8D1D18",
-        y=1.03,
-    )
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=2, frameon=False, fontsize=9, bbox_to_anchor=(0.5, 0.97))
     fig.text(
         0.5,
         -0.01,
@@ -335,7 +332,7 @@ def draw_figure(
         fontsize=8.5,
         color="#5A1714",
     )
-    fig.tight_layout(rect=(0, 0.06, 1, 0.94), w_pad=2.0)
+    fig.tight_layout(rect=(0, 0.06, 1, 0.95), w_pad=2.0)
     return save_figure(fig, output_dir)
 
 

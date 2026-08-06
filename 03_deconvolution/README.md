@@ -5,11 +5,48 @@ Cell2location on the exact same H5AD files. No previous FEAST simulation,
 prediction, score, or truth artifact is used; fresh truth is generated from
 the declared aggregation during this run.
 
-The input directory must contain the three raw, integer-count references named
+The default input directory must contain the three raw, integer-count references named
 `Zhuang-ABCA-1.007.h5ad`, `Zhuang-ABCA-1.050.h5ad`, and
 `Zhuang-ABCA-1.100.h5ad`. The `cell_type` annotation and `obsm['spatial']` are
 required. Local hardlinks may be placed in `data/local/`; their expected hashes
 and verified input contracts are recorded in `data/input_checksums.csv`.
+
+## Zhuang-ABCA-1.120 pre-Cell2location diagnostic
+
+`config_120.yaml` declares a new, internally consistent two-resolution input
+set for `Zhuang-ABCA-1.120`. It must not be combined with simulation, truth, or
+prediction artifacts from the default 007/050/100 run. The diagnostic stage
+creates the two FEAST aggregations and their ground-truth composition matrices,
+but deliberately starts **no** external deconvolution method:
+
+```bash
+FEAST_PY=/path/to/supported-feast-env/bin/python
+INPUTS=$(pwd)/data/local
+OUTPUT=$(pwd)/outputs/diagnostic_120_20260806_v1
+FEAST_COMMIT=68816e5c1862a6fa2a49bc30609d617c7fa4b449
+
+# Isolate the two FEAST calls. This avoids retaining the first large reference
+# in memory while the second resolution is generated.
+$FEAST_PY run.py --input-dir "$INPUTS" --output-dir "$OUTPUT" \
+  --feast-commit "$FEAST_COMMIT" --config config_120.yaml \
+  --simulate-only --only-resolution 0.1 --resume
+$FEAST_PY run.py --input-dir "$INPUTS" --output-dir "$OUTPUT" \
+  --feast-commit "$FEAST_COMMIT" --config config_120.yaml \
+  --simulate-only --only-resolution 0.25 --resume
+$FEAST_PY run.py --input-dir "$INPUTS" --output-dir "$OUTPUT" \
+  --feast-commit "$FEAST_COMMIT" --config config_120.yaml \
+  --simulate-only --resume
+
+$FEAST_PY ../visualization/03_deconvolution/prepare_120_diagnostic.py
+```
+
+The last command writes a common-coordinate single-cell/centre preview,
+canonical 30-class alignment audit, average ground-truth proportions, and a
+fixed ROI record under `visualization/03_deconvolution/figures/`. Empty
+aggregate locations have a zero ground-truth row by construction; every
+non-empty location must have a canonical proportion row sum of one. Do not
+start Cell2location until this preview, its spot counts, and its fixed ROI have
+been reviewed.
 
 ## Run
 

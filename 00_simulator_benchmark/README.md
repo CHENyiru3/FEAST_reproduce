@@ -67,24 +67,34 @@ The simulation root contains 12 H5AD files plus `simulation_manifest.csv` and
 exact named spot support where available, one ordered reference-derived Moran
 panel, and no composite score.
 
-## Pairwise-support repair
+## Pairwise-support repair and fresh scCube completion
 
 The frozen external H5AD files are not modified. When observation identifiers
 do not overlap, scoring may use spatial coordinates only if the coordinates are
 finite and form a complete, unique bijection at the configured eight-decimal
 precision. Partial support and duplicate coordinates are rejected.
 
-The bounded repair command is:
+The earlier bounded coordinate-support repair command was:
 
 ```bash
 python repair_pairwise_support.py
 ```
 
-It writes only to the new
-`outputs/final_rerun_20260718_metrics_final/` root. Twenty of the 21 formerly
-unsupported rows have verified coordinate bijections. `scCube/Slideseq_001`
-remains unscored because 35,054 simulated rows contain only 34,598 unique
-coordinates. Pairwise aggregation uses the same 11 complete datasets across
-all five simulators. The prior all-five-method pairwise ranking was
-indeterminate, so publication and figure promotion remain stopped for author
-review.
+It wrote only to `outputs/final_rerun_20260718_metrics_final/`. Twenty of the
+21 formerly unsupported rows had verified coordinate bijections. The remaining
+`scCube/Slideseq_001` artifact could not be repaired because its 35,054 rows
+contained only 34,598 unique coordinates.
+
+A fresh, identity-preserving scCube Slide-seq run was therefore scored into the
+new `outputs/final_metrics/` root by `build_final_metrics.py`. Its 35,054 spots,
+23,197 genes, identifiers, spatial rows, and gene order match the reference
+exactly. The final table contains all 60 simulator/sample rows and has no
+missing cosine-divergence values. The external scCube worker used Python 3.8
+and NumPy 1.23.5, which are outside FEAST's supported environment; FEAST was not
+imported in that worker.
+
+This closes the missing pairwise values, but not publication authorization. An
+ignored predecessor `metrics_v2` file was overwritten in place and its
+expected original bytes are unavailable. The fresh provenance records that
+source-lineage break. No all-method ranking, composite score, figure promotion,
+or simulator-winner claim is authorized until the author dispositions it.

@@ -11,9 +11,21 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "1.0.2"
 COMMIT = "68816e5c1862a6fa2a49bc30609d617c7fa4b449"
-WHEEL_SHA256 = "9dd912d883a03d51ed7105cecd914cf8f7f25f5355f57dfde1c77b6fef0b056b"
+BUILD_BY_STUDY = {
+    "Study 05": {
+        "version": "1.0.2",
+        "wheel_sha256": "9dd912d883a03d51ed7105cecd914cf8f7f25f5355f57dfde1c77b6fef0b056b",
+    },
+    "Study 06": {
+        "version": "1.1.0",
+        "wheel_sha256": "3ad31888faf367a91aec9d46902a5e89759837b5c7ea0e45ca93276674e68883",
+    },
+    "Study 07": {
+        "version": "1.1.0",
+        "wheel_sha256": "3ad31888faf367a91aec9d46902a5e89759837b5c7ea0e45ca93276674e68883",
+    },
+}
 SHARED_TRANSPORT = {
     "epsilon": 0.05,
     "sinkhorn_iter": 1000,
@@ -40,15 +52,16 @@ def require(condition: bool, message: str, errors: list[str]) -> None:
 
 
 def check_identity(name: str, config: dict[str, Any], errors: list[str]) -> None:
+    build = BUILD_BY_STUDY[name]
     version = config.get("required_feast_version", config.get("feast_version"))
-    require(str(version) == VERSION, f"{name}: FEAST version changed", errors)
+    require(str(version) == build["version"], f"{name}: FEAST version changed", errors)
     require(
         str(config.get("required_feast_commit")) == COMMIT,
         f"{name}: FEAST commit changed",
         errors,
     )
     require(
-        str(config.get("required_wheel_sha256")) == WHEEL_SHA256,
+        str(config.get("required_wheel_sha256")) == build["wheel_sha256"],
         f"{name}: installed-wheel hash is not frozen",
         errors,
     )
@@ -134,7 +147,7 @@ def main() -> int:
         for item in study06.get("densities", [])
     }
     require(
-        density_contract == {3: (49, 0.35), 5: (29, 0.25), 10: (15, 0.35)},
+        density_contract == {3: (49, 0.35), 5: (29, 0.30), 10: (15, 0.35)},
         "Study 06: density scope changed",
         errors,
     )

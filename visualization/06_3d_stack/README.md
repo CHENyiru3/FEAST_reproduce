@@ -1,11 +1,20 @@
 # Study 06 visualization
 
-No publication figure is authorized yet. The future builder must consume only
-the validated 93-target Study 06 final manifest. It must separate dense,
-medium, and sparse arms; state that target XY, class, and z are observed; and
-show donor-supported targets explicitly where relevant.
+The validated, unpromoted diagnostic is built by `plot.py` from the 93-target
+final validation and evaluation only:
 
-Between-z summaries must be presented against the declared real-data
-split-half baseline rather than treating target slices as independent
-biological replicates. Editable PDF/SVG, plotting tables, previews, and exact
-source hashes are required.
+```bash
+python visualization/06_3d_stack/plot.py
+```
+
+It emits `figures/conditional_stack_diagnostic.{pdf,svg,png}`, plotting CSVs,
+and `figure_provenance.json`. The PDF SHA-256 is
+`7f018ad5af52557240fd455b4546436204ced627a8f6cb0aa55d3f884bc3bb80`;
+the figure-provenance SHA-256 is
+`b117a1d68d2e1786210774eda6ab5f1cc0367822e969f139530be640c01ce85a`.
+
+The figure separates dense, medium, and sparse arms and marks targets that use
+declared out-of-bracket label donors. Between-z summaries are normalized by
+the declared real-data split-half baseline. The 93 targets are ordered z
+levels, not independent biological replicates. Composite scores, winner
+rankings, and automatic figure promotion are prohibited.

@@ -17,7 +17,7 @@ so no aggregate method ranking, winner claim, or publication figure is
 authorized until the author selects the panel, metric, alteration strata, and
 claim. Use `comparison_v2/publication_decision.json` for this disposition.
 
-## Unpromoted diagnostic candidate
+## Unpromoted diagnostic candidates
 
 `plot.py` reads the Study 02 paths and SHA-256 values directly from
 `../../PUBLICATION_MANIFEST.json`, requires complete positive validation for
@@ -28,9 +28,25 @@ method-ranking claim. Rebuild from the repository root with:
 python visualization/02_alignment/plot.py
 ```
 
-The fresh `figures/` candidate contains the PNG/PDF/SVG diagnostic,
-`plot_data.csv`, and `figure_provenance.json`. It shows raw rows separately for
-each displayed metric and alteration; it makes no cross-alteration aggregate,
-method ranking, or winner claim. This candidate is **unpromoted** and remains
-**author-selection-required**. It must not be used as a publication figure
-until the author declares the panel, metric, alteration strata, and claim.
+`plot.py` produces `alignment_sensitivity_diagnostic.{pdf,svg,png}` together
+with `plot_data.csv` and `figure_provenance.json`. The compact 2 × 2 layout
+uses rows for the alignment method and columns for the two direct alignment
+errors. Lines retain every validated rotation job; colour and marker encode the
+four simulated conditions. Mean spatial error uses a shared log scale across
+methods. Rotation-recovery panels retain raw linear units with a separate
+within-method range so zero-valued solutions remain legible. GE correlation is
+retained in `plot_data.csv`, but is not a plotted alignment outcome because it
+is invariant across methods and input rotations in this design.
+
+`plot_spatial.py` produces `alignment_spatial.{pdf,svg,png}` with the
+plot-ready `alignment_spatial_plot_data.csv` and its own provenance record. It
+shows the four registered conditions at the prespecified 45° input rotation.
+Every panel shares the same coordinate limits and reference-x colour scale;
+the light-gray background is the target reference geometry. The script checks
+every displayed H5AD against the rotation and method manifests before reading
+coordinates.
+
+Both are **unpromoted** descriptive diagnostics. They preserve raw condition
+and method results but make no cross-alteration aggregate, method ranking, or
+winner claim. They must not be used as publication figures until the author
+declares the panel, metric, alteration strata, and claim.

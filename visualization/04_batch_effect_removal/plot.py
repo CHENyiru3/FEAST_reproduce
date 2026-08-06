@@ -220,11 +220,14 @@ def configure_matplotlib() -> None:
             "figure.facecolor": "white",
             "axes.facecolor": "white",
             "savefig.facecolor": "white",
+            "font.family": "DejaVu Sans",
+            "font.size": 9,
+            "axes.spines.top": False,
+            "axes.spines.right": False,
             "pdf.fonttype": 42,
             "ps.fonttype": 42,
             "svg.fonttype": "none",
             "svg.hashsalt": "feast-study04-atomic-diagnostic-candidate",
-            "font.size": 8.5,
         }
     )
 
@@ -259,7 +262,7 @@ def save_figure(fig: plt.Figure, output_dir: Path, stem: str) -> list[Path]:
 
 
 def style_axis(ax: plt.Axes) -> None:
-    ax.grid(axis="y", color="#D8D8D8", linewidth=0.55, alpha=0.8)
+    ax.grid(axis="y", color="#DDDDDD", linewidth=0.5, alpha=0.7)
     ax.set_axisbelow(True)
     ax.tick_params(labelsize=7)
     for spine in ax.spines.values():
@@ -331,13 +334,6 @@ def draw_primary_figure(long_table: pd.DataFrame, output_dir: Path) -> list[Path
         frameon=False,
         fontsize=8.5,
     )
-    fig.suptitle(
-        "Study 04 supplementary atomic diagnostics — no composite or method ranking",
-        fontsize=14,
-        fontweight="bold",
-        color="#5B4315",
-        y=1.015,
-    )
     fig.text(
         0.5,
         0.006,
@@ -348,7 +344,7 @@ def draw_primary_figure(long_table: pd.DataFrame, output_dir: Path) -> list[Path
         color="#5B4315",
     )
     fig.supxlabel("Perturbation strength α", fontsize=10, y=0.035)
-    fig.tight_layout(rect=(0, 0.06, 1, 0.90), w_pad=1.7, h_pad=2.0)
+    fig.tight_layout(rect=(0, 0.06, 1, 0.96), w_pad=1.7, h_pad=2.0)
     return save_figure(fig, output_dir, "atomic_metric_diagnostics")
 
 
@@ -441,15 +437,9 @@ def draw_sensitivity_figure(
         linespacing=1.35,
         color="#4F4F4F",
     )
-    fig.suptitle(
-        "GraphST representation sensitivity (PCA-20 versus PCA-10)",
-        fontsize=14,
-        fontweight="bold",
-        y=1.005,
-    )
     fig.supxlabel("PCA-20 metric value", fontsize=10, y=0.025)
     fig.supylabel("PCA-10 metric value", fontsize=10, x=0.015)
-    fig.tight_layout(rect=(0.03, 0.04, 1, 0.965), w_pad=1.8, h_pad=1.8)
+    fig.tight_layout(rect=(0.03, 0.04, 1, 0.98), w_pad=1.8, h_pad=1.8)
     return save_figure(fig, output_dir, "graphst_pca_sensitivity")
 
 

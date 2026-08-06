@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render the registered Study 01 fixed-panel baseline comparison."""
+"""Render Study 01 alteration-level clustering sensitivity."""
 
 from __future__ import annotations
 
@@ -7,7 +7,6 @@ import argparse
 import hashlib
 import json
 import os
-from datetime import datetime, timezone
 from pathlib import Path
 
 os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
@@ -19,34 +18,71 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.lines import Line2D
+from matplotlib.ticker import FixedFormatter, FixedLocator, NullFormatter, NullLocator
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 MANIFEST_PATH = REPOSITORY_ROOT / "PUBLICATION_MANIFEST.json"
 DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent / "figures"
+EXTENSION_REPORT_DIR = (
+    REPOSITORY_ROOT
+    / "01_clustering"
+    / "outputs"
+    / "expanded_mean_variance_fc_0_20_5_20260806"
+    / "report"
+)
+EXTENSION_METRICS_PATH = EXTENSION_REPORT_DIR / "expanded_benchmark_metrics.csv"
+EXTENSION_DIAGNOSTICS_PATH = EXTENSION_REPORT_DIR / "realized_alteration_diagnostics.csv"
+EXTENSION_VALIDATION_PATH = EXTENSION_REPORT_DIR / "validation.json"
+EXTENSION_CONFIGURATION_ID = "study01-expanded-mean-variance-extremes-v1"
+EXTENSION_CONDITIONS = {
+    ("mean_0_20", "mean", 0.2),
+    ("mean_5", "mean", 5.0),
+    ("variance_0_20", "variance", 0.2),
+    ("variance_5", "variance", 5.0),
+}
 
 METRICS = ("ARI", "NMI", "AMI")
 METHOD_ORDER = ("GraphST", "STAGATE_mclust", "Leiden_unsupervised")
 METHOD_LABELS = {
     "GraphST": "GraphST",
-    "STAGATE_mclust": "STAGATE +\nmclust",
-    "Leiden_unsupervised": "Label-free\nLeiden",
+    "STAGATE_mclust": "STAGATE + mclust",
+    "Leiden_unsupervised": "Label-free Leiden",
 }
-BASELINE_ORDER = ("real_baseline", "baseline")
-BASELINE_LABELS = {
-    "real_baseline": "Raw slice",
-    "baseline": "FEAST baseline",
+# Wong colorblind-friendly palette
+METHOD_COLORS = {
+    "GraphST": "#0072B2",
+    "STAGATE_mclust": "#E69F00",
+    "Leiden_unsupervised": "#009E73",
 }
-BASELINE_COLORS = {
-    "real_baseline": "#4C78A8",
-    "baseline": "#E45756",
+METHOD_MARKERS = {
+    "GraphST": "o",
+    "STAGATE_mclust": "s",
+    "Leiden_unsupervised": "^",
 }
-SLICE_COLORS = ("#59A14F", "#F28E2B", "#76B7B2")
-MEAN_COLOR = "#6F4E7C"
-FIXED_PDF_TIME = datetime(2026, 7, 19, tzinfo=timezone.utc)
 
+ORDERED_ALTERATIONS = ("mean", "variance", "sparsity")
+ALTERATION_LABELS = {
+    "mean": "Mean",
+    "variance": "Variance",
+    "sparsity": "Sparsity",
+}
+# simulation_id prefix → plot group (checked longest-first)
+_ALT_PREFIX_MAP = [
+    ("sparsity_neg", "sparsity"),
+    ("sparsity_pos", "sparsity"),
+    ("variance", "variance"),
+    ("mean", "mean"),
+]
 
+BASELINE_REF = "real_baseline"
+FEAST_BASELINE = "baseline"
+# Neutral (no-perturbation) level for each ordered alteration type
+NEUTRAL_LEVEL = {
+    "mean": 1.0,
+    "variance": 1.0,
+    "sparsity": 0.0,
+}
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -66,10 +102,6 @@ def registered_sources() -> tuple[Path, str, Path, str, dict[str, object]]:
 
     if study["status"] != "validated_complete":
         raise ValueError("Study 01 is not registered as validated_complete.")
-    if candidate["headline_scope"] != "three_slice_method_means":
-        raise ValueError("Unexpected Study 01 headline scope in PUBLICATION_MANIFEST.json.")
-    if candidate["slice_level_uniformity_claimed"] is not False:
-        raise ValueError("The registered Study 01 decision must reject slice-level uniformity.")
 
     metrics_path = REPOSITORY_ROOT / candidate["metrics"]
     decision_path = REPOSITORY_ROOT / candidate["decision"]
@@ -93,18 +125,74 @@ def verify_registered_file(path: Path, expected_hash: str) -> None:
         )
 
 
-def load_baselines(
-    metrics_path: Path, candidate: dict[str, object]
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    metrics = pd.read_csv(metrics_path)
-    required = {
-        "slice_id",
-        "simulation_id",
-        "alteration_type",
-        "method",
-        "status",
-        *METRICS,
+def validated_extension_sources() -> dict[str, object]:
+    if not EXTENSION_VALIDATION_PATH.is_file():
+        raise FileNotFoundError(
+            f"Expanded Study 01 validation is missing: {EXTENSION_VALIDATION_PATH}"
+        )
+    validation = json.loads(EXTENSION_VALIDATION_PATH.read_text())
+    if validation.get("configuration_id") != EXTENSION_CONFIGURATION_ID:
+        raise ValueError("Expanded Study 01 configuration identity does not match.")
+    if validation.get("all_status_ok") is not True:
+        raise ValueError("Expanded Study 01 validation did not report all jobs successful.")
+    if (
+        int(validation.get("simulation_jobs", -1)) != 12
+        or int(validation.get("fixed_panel_jobs", -1)) != 12
+        or int(validation.get("metric_rows", -1)) != 36
+        or sum(int(value) for value in validation.get("method_jobs", {}).values()) != 36
+    ):
+        raise ValueError("Expanded Study 01 validation counts do not match the extension contract.")
+
+    metrics_hash = str(validation["expanded_benchmark_metrics_sha256"])
+    diagnostics_hash = str(validation["realized_alteration_diagnostics_sha256"])
+    verify_registered_file(EXTENSION_METRICS_PATH, metrics_hash)
+    verify_registered_file(EXTENSION_DIAGNOSTICS_PATH, diagnostics_hash)
+    return {
+        "metrics_path": EXTENSION_METRICS_PATH,
+        "metrics_sha256": metrics_hash,
+        "diagnostics_path": EXTENSION_DIAGNOSTICS_PATH,
+        "diagnostics_sha256": diagnostics_hash,
+        "validation_path": EXTENSION_VALIDATION_PATH,
+        "validation_sha256": sha256(EXTENSION_VALIDATION_PATH),
     }
+
+
+def classify_alteration(sim_id: str) -> str | None:
+    for prefix, group in _ALT_PREFIX_MAP:
+        if sim_id.startswith(prefix):
+            return group
+    return None
+
+
+def _extract_level(sim_id: str) -> float | str:
+    """Extract numeric level or string label from a simulation_id.
+    Uses the matched prefix to strip, then converts underscore-separated
+    digits to a decimal (e.g. '0_50' → 0.50)."""
+    for prefix, _group in _ALT_PREFIX_MAP:
+        if sim_id.startswith(prefix):
+            suffix = sim_id[len(prefix) + 1:]  # +1 for the trailing '_'
+            try:
+                return float(suffix.replace("_", "."))
+            except ValueError:
+                return suffix
+    raise ValueError(f"Cannot classify simulation_id: {sim_id}")
+
+
+def _signed_level(sim_id: str, group: str, raw_level: float) -> float:
+    """Apply sign convention for merged alteration groups."""
+    if group == "sparsity":
+        if sim_id.startswith("sparsity_neg"):
+            return -abs(raw_level)
+        return abs(raw_level)
+    return raw_level
+
+
+def load_alteration_data(
+    metrics_path: Path,
+    extension_metrics_path: Path,
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, pd.DataFrame]]:
+    metrics = pd.read_csv(metrics_path)
+    required = {"slice_id", "simulation_id", "alteration_type", "method", "status", *METRICS}
     missing = sorted(required - set(metrics.columns))
     if missing:
         raise ValueError(f"Registered metric table is missing columns: {missing}")
@@ -112,99 +200,77 @@ def load_baselines(
         raise ValueError("Expected 252 successful rows in the registered Study 01 table.")
     if set(metrics["method"]) != set(METHOD_ORDER):
         raise ValueError("Registered metric table has an unexpected method set.")
+    metrics["source_set"] = "frozen_canonical"
 
-    baseline = metrics.loc[
-        metrics["simulation_id"].isin(BASELINE_ORDER),
-        ["slice_id", "simulation_id", "alteration_type", "method", *METRICS],
+    extension = pd.read_csv(extension_metrics_path)
+    extension_required = required | {"alteration_value"}
+    extension_missing = sorted(extension_required - set(extension.columns))
+    if extension_missing:
+        raise ValueError(f"Expanded metric table is missing columns: {extension_missing}")
+    if len(extension) != 36 or set(extension["status"]) != {"ok"}:
+        raise ValueError("Expected 36 successful rows in the expanded Study 01 table.")
+    if set(extension["method"]) != set(METHOD_ORDER):
+        raise ValueError("Expanded metric table has an unexpected method set.")
+    conditions = {
+        (str(row.simulation_id), str(row.alteration_type), float(row.alteration_value))
+        for row in extension[["simulation_id", "alteration_type", "alteration_value"]]
+        .drop_duplicates()
+        .itertuples(index=False)
+    }
+    if conditions != EXTENSION_CONDITIONS:
+        raise ValueError(f"Expanded metric conditions do not match: {conditions}")
+    key_columns = ["slice_id", "simulation_id", "method"]
+    if extension.duplicated(key_columns).any():
+        raise ValueError("Expanded metric table contains duplicate slice-condition-method rows.")
+    extension["source_set"] = "expanded_extremes"
+    metrics = pd.concat([metrics, extension], ignore_index=True, sort=False)
+
+    baseline_ref = metrics.loc[
+        metrics["simulation_id"] == BASELINE_REF,
+        ["slice_id", "method", *METRICS],
     ].copy()
-    expected_keys = len(METHOD_ORDER) * 3 * len(BASELINE_ORDER)
-    if len(baseline) != expected_keys:
-        raise ValueError(f"Expected {expected_keys} baseline rows, found {len(baseline)}.")
-    if baseline.duplicated(["method", "slice_id", "simulation_id"]).any():
-        raise ValueError("Duplicate method/slice/baseline rows found.")
-    if baseline[list(METRICS)].isna().any().any() or not np.isfinite(
-        baseline[list(METRICS)].to_numpy(dtype=float)
-    ).all():
-        raise ValueError("Baseline metrics contain missing or non-finite values.")
-
-    slices = sorted(baseline["slice_id"].astype(str).unique())
-    if len(slices) != 3:
-        raise ValueError(f"Expected exactly three slices, found {slices}.")
-
-    long_table = baseline.melt(
-        id_vars=["method", "slice_id", "simulation_id"],
-        value_vars=list(METRICS),
-        var_name="metric",
-        value_name="score",
-    ).rename(columns={"simulation_id": "baseline_source"})
-    long_table["slice_id"] = long_table["slice_id"].astype(str)
-    long_table["baseline_label"] = long_table["baseline_source"].map(BASELINE_LABELS)
-    long_table["_metric_order"] = long_table["metric"].map(dict(zip(METRICS, range(3))))
-    long_table["_method_order"] = long_table["method"].map(
-        dict(zip(METHOD_ORDER, range(3)))
+    baseline_ref = baseline_ref.rename(
+        columns={m: f"{m}_ref" for m in METRICS}
     )
-    long_table["_baseline_order"] = long_table["baseline_source"].map(
-        dict(zip(BASELINE_ORDER, range(2)))
-    )
-    long_table = long_table.sort_values(
-        ["_metric_order", "_method_order", "slice_id", "_baseline_order"], kind="stable"
-    ).drop(columns=["_metric_order", "_method_order", "_baseline_order"])
-    long_table = long_table.reset_index(drop=True)
 
-    means = (
-        long_table.groupby(["method", "metric", "baseline_source"], sort=False)["score"]
-        .mean()
-        .unstack("baseline_source")
-        .reset_index()
-        .rename(
-            columns={
-                "baseline": "feast_baseline_mean",
-                "real_baseline": "raw_slice_mean",
-            }
-        )
-    )
-    means["feast_minus_raw"] = means["feast_baseline_mean"] - means["raw_slice_mean"]
-    means["n_slices"] = len(slices)
-    means["_metric_order"] = means["metric"].map(dict(zip(METRICS, range(3))))
-    means["_method_order"] = means["method"].map(dict(zip(METHOD_ORDER, range(3))))
-    means = means.sort_values(["_metric_order", "_method_order"], kind="stable").drop(
-        columns=["_metric_order", "_method_order"]
-    )
-    means = means.reset_index(drop=True)
+    feast_baseline = metrics.loc[
+        metrics["simulation_id"] == FEAST_BASELINE,
+        ["slice_id", "method", *METRICS],
+    ].copy()
 
-    gaps = (
-        long_table.pivot(
-            index=["method", "slice_id", "metric"],
-            columns="baseline_source",
-            values="score",
-        )
-        .reset_index()
-        .rename(columns={"baseline": "feast_baseline", "real_baseline": "raw_slice"})
+    alteration_rows = metrics.loc[
+        ~metrics["simulation_id"].isin([BASELINE_REF, FEAST_BASELINE])
+    ].copy()
+    alteration_rows["plot_group"] = alteration_rows["simulation_id"].apply(classify_alteration)
+    alteration_rows = alteration_rows.loc[alteration_rows["plot_group"].notna()].copy()
+    alteration_rows["raw_level"] = alteration_rows["simulation_id"].apply(_extract_level)
+    alteration_rows["level"] = alteration_rows.apply(
+        lambda r: _signed_level(r["simulation_id"], r["plot_group"], r["raw_level"]), axis=1
     )
-    gaps["feast_minus_raw"] = gaps["feast_baseline"] - gaps["raw_slice"]
-    gaps["_metric_order"] = gaps["metric"].map(dict(zip(METRICS, range(3))))
-    gaps["_method_order"] = gaps["method"].map(dict(zip(METHOD_ORDER, range(3))))
-    gaps = gaps.sort_values(
-        ["_metric_order", "_method_order", "slice_id"], kind="stable"
-    ).drop(columns=["_metric_order", "_method_order"])
-    gaps = gaps.reset_index(drop=True)
 
-    mean_gap = float(means["feast_minus_raw"].abs().max())
-    slice_gap = float(gaps["feast_minus_raw"].abs().max())
-    expected_mean_gap = float(candidate["maximum_absolute_three_slice_method_mean_gap"])
-    expected_slice_gap = float(candidate["maximum_absolute_slice_level_gap"])
-    if not np.isclose(mean_gap, expected_mean_gap, rtol=0.0, atol=1e-12):
-        raise ValueError(f"Method-mean gap {mean_gap} does not match {expected_mean_gap}.")
-    if not np.isclose(slice_gap, expected_slice_gap, rtol=0.0, atol=1e-12):
-        raise ValueError(f"Slice-level gap {slice_gap} does not match {expected_slice_gap}.")
-    return long_table, means, gaps
+    alteration_data: dict[str, pd.DataFrame] = {}
+    for alt_type in ORDERED_ALTERATIONS:
+        subset = alteration_rows.loc[alteration_rows["plot_group"] == alt_type].copy()
+        if subset.empty:
+            continue
+        subset["level_num"] = pd.to_numeric(subset["level"])
+        neutral = NEUTRAL_LEVEL[alt_type]
+        anchor = feast_baseline.copy()
+        anchor["level_num"] = neutral
+        anchor["level"] = str(neutral)
+        anchor["plot_group"] = alt_type
+        subset = pd.concat([subset, anchor], ignore_index=True)
+        subset = subset.sort_values(["method", "slice_id", "level_num"])
+        alteration_data[alt_type] = subset
+
+    return baseline_ref, alteration_rows, alteration_data
 
 
 def configure_matplotlib() -> None:
     plt.rcParams.update(
         {
             "font.family": "DejaVu Sans",
-            "font.size": 9,
+            "font.size": 10.5,
             "axes.facecolor": "white",
             "figure.facecolor": "white",
             "savefig.facecolor": "white",
@@ -213,184 +279,202 @@ def configure_matplotlib() -> None:
             "pdf.fonttype": 42,
             "ps.fonttype": 42,
             "svg.fonttype": "none",
-            "svg.hashsalt": "feast-study01-publication",
+            "svg.hashsalt": "feast-study01-publication-v3",
         }
     )
 
 
-def draw_figure(
-    means: pd.DataFrame, gaps: pd.DataFrame, output_dir: Path, dpi: int
-) -> list[Path]:
-    configure_matplotlib()
-    fig, axes = plt.subplots(2, 3, figsize=(10.2, 6.4), sharex="col")
-    x = np.arange(len(METHOD_ORDER), dtype=float)
-    offsets = {"real_baseline": -0.10, "baseline": 0.10}
-    slices = sorted(gaps["slice_id"].unique())
-    slice_offsets = np.linspace(-0.12, 0.12, len(slices))
+def _panel_y_range(
+    alteration_data: dict[str, pd.DataFrame],
+    baseline_ref: pd.DataFrame,
+    metric: str,
+) -> tuple[float, float]:
+    """Compute shared y-range for a metric across all panels."""
+    all_vals = [baseline_ref[f"{metric}_ref"].to_numpy()]
+    for data in alteration_data.values():
+        if data is not None and not data.empty and metric in data.columns:
+            all_vals.append(data[metric].dropna().to_numpy())
+    combined = np.concatenate([v for v in all_vals if len(v) > 0])
+    if len(combined) == 0:
+        return 0.0, 1.0
+    pad = 0.08 * (combined.max() - combined.min()) if combined.max() > combined.min() else 0.05
+    return max(0.0, combined.min() - pad), min(1.0, combined.max() + pad)
 
-    for column, metric in enumerate(METRICS):
-        top = axes[0, column]
-        bottom = axes[1, column]
-        metric_means = means.loc[means["metric"] == metric].set_index("method")
-        metric_gaps = gaps.loc[gaps["metric"] == metric]
 
-        for method_index, method in enumerate(METHOD_ORDER):
-            raw = float(metric_means.loc[method, "raw_slice_mean"])
-            feast = float(metric_means.loc[method, "feast_baseline_mean"])
-            top.plot(
-                [method_index + offsets["real_baseline"], method_index + offsets["baseline"]],
-                [raw, feast],
-                color="#B8B8B8",
-                linewidth=1.0,
+def draw_ordered_panel(
+    ax: plt.Axes,
+    data: pd.DataFrame,
+    metric: str,
+    y_lim: tuple[float, float],
+    neutral_level: float,
+    x_label: str,
+    show_xlabel: bool,
+) -> None:
+    levels = sorted(data["level_num"].unique())
+    for method in METHOD_ORDER:
+        method_data = data.loc[data["method"] == method]
+        color = METHOD_COLORS[method]
+        marker = METHOD_MARKERS[method]
+
+        # The transparent traces preserve the three-slice variation without
+        # mixing it with a separate min--max band and point cloud.
+        for _slice_id, slice_data in method_data.groupby("slice_id", sort=True):
+            slice_data = slice_data.sort_values("level_num")
+            ax.plot(
+                slice_data["level_num"],
+                slice_data[metric],
+                color=color,
+                linewidth=0.85,
+                alpha=0.28,
                 zorder=1,
             )
-            top.scatter(
-                method_index + offsets["real_baseline"],
-                raw,
-                color=BASELINE_COLORS["real_baseline"],
-                edgecolor="white",
-                linewidth=0.5,
-                s=42,
-                zorder=2,
-            )
-            top.scatter(
-                method_index + offsets["baseline"],
-                feast,
-                color=BASELINE_COLORS["baseline"],
-                edgecolor="white",
-                linewidth=0.5,
-                s=42,
-                zorder=2,
-            )
 
-            method_gaps = metric_gaps.loc[metric_gaps["method"] == method].set_index(
-                "slice_id"
-            )
-            for slice_index, slice_id in enumerate(slices):
-                bottom.scatter(
-                    method_index + slice_offsets[slice_index],
-                    float(method_gaps.loc[slice_id, "feast_minus_raw"]),
-                    color=SLICE_COLORS[slice_index],
-                    edgecolor="white",
-                    linewidth=0.4,
-                    s=28,
-                    zorder=2,
-                )
-            bottom.scatter(
-                method_index,
-                float(metric_means.loc[method, "feast_minus_raw"]),
-                marker="D",
-                color=MEAN_COLOR,
-                edgecolor="white",
-                linewidth=0.5,
-                s=48,
+        grouped = method_data.groupby("level_num")[metric]
+        means = grouped.mean()
+
+        ordered_means = [means.get(lev, np.nan) for lev in levels]
+        valid = [(l, m) for l, m in zip(levels, ordered_means) if not np.isnan(m)]
+
+        if len(valid) >= 2:
+            x_vals = [v[0] for v in valid]
+            y_vals = [v[1] for v in valid]
+            ax.plot(
+                x_vals,
+                y_vals,
+                color=color,
+                linewidth=2.0,
+                marker=marker,
+                markersize=5.8,
+                markeredgecolor="white",
+                markeredgewidth=0.7,
                 zorder=3,
             )
 
-        top.set_title(metric, fontweight="bold", pad=7)
-        top.set_ylim(0.15, 0.70)
-        top.grid(axis="y", color="#E6E6E6", linewidth=0.7)
-        top.tick_params(axis="x", length=0, labelbottom=False)
-        bottom.axhline(0.0, color="#666666", linewidth=0.8, zorder=0)
-        bottom.set_ylim(-0.09, 0.09)
-        bottom.grid(axis="y", color="#E6E6E6", linewidth=0.7)
-        bottom.set_xticks(x, [METHOD_LABELS[method] for method in METHOD_ORDER])
-        bottom.tick_params(axis="x", length=0)
+    ax.set_ylim(*y_lim)
+    fold_change_axis = x_label.startswith("Fold")
+    if fold_change_axis:
+        ax.set_xscale("log")
+        ax.set_xlim(min(levels) / 1.15, max(levels) * 1.15)
+        ax.xaxis.set_major_locator(FixedLocator([0.2, 0.5, 1.0, 2.0, 5.0]))
+        ax.xaxis.set_major_formatter(FixedFormatter(["0.2", "0.5", "1", "2", "5"]))
+        ax.xaxis.set_minor_locator(NullLocator())
+        ax.xaxis.set_minor_formatter(NullFormatter())
+    else:
+        ax.set_xlim(
+            min(levels) - 0.06 * (max(levels) - min(levels) or 1.0),
+            max(levels) + 0.06 * (max(levels) - min(levels) or 1.0),
+        )
+        ax.set_xticks([-1.0, -0.5, 0.0, 0.5, 1.0])
+    ax.axvline(neutral_level, color="#777777", linewidth=0.8, linestyle="--", alpha=0.8, zorder=0)
+    ax.tick_params(axis="both", labelsize=9)
+    ax.grid(axis="y", color="#E8E8E8", linewidth=0.5, alpha=0.7)
+    ax.set_axisbelow(True)
 
-    axes[0, 0].set_ylabel("Baseline clustering score\n(three-slice mean)")
-    axes[1, 0].set_ylabel("FEAST baseline − raw slice")
-    axes[0, 0].text(-0.26, 1.10, "A", transform=axes[0, 0].transAxes, fontweight="bold", size=12)
-    axes[1, 0].text(-0.26, 1.10, "B", transform=axes[1, 0].transAxes, fontweight="bold", size=12)
+    if show_xlabel:
+        ax.set_xlabel(x_label, fontsize=10, color="#333333")
 
-    baseline_handles = [
-        Line2D(
-            [0],
-            [0],
-            marker="o",
-            linestyle="none",
-            markerfacecolor=BASELINE_COLORS[source],
-            markeredgecolor="white",
-            markersize=7,
-            label=BASELINE_LABELS[source],
+
+def draw_figure(
+    alteration_data: dict[str, pd.DataFrame],
+    baseline_ref: pd.DataFrame,
+    output_dir: Path,
+    dpi: int,
+) -> list[Path]:
+    configure_matplotlib()
+    panel_types = list(ORDERED_ALTERATIONS)
+    n_rows = len(METRICS)
+    n_cols = len(panel_types)
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(12.8, 9.2))
+
+    for row, metric in enumerate(METRICS):
+        y_lim = _panel_y_range(alteration_data, baseline_ref, metric)
+        for col, alt_type in enumerate(panel_types):
+            ax = axes[row, col]
+            data = alteration_data.get(alt_type)
+            if data is None or data.empty:
+                ax.text(0.5, 0.5, "No data", transform=ax.transAxes,
+                        ha="center", va="center", fontsize=9, color="#999999")
+                ax.set_xticks([])
+                ax.set_yticks([])
+                continue
+
+            show_xlabel = (row == n_rows - 1)
+            x_label = (
+                "Fold change (neutral = 1)"
+                if alt_type in {"mean", "variance"}
+                else "Signed logit shift (neutral = 0)"
+            )
+            draw_ordered_panel(
+                ax,
+                data,
+                metric,
+                y_lim,
+                NEUTRAL_LEVEL[alt_type],
+                x_label,
+                show_xlabel,
+            )
+
+            if col == 0:
+                ax.set_ylabel(f"{metric} ↑", fontsize=11.5, fontweight="bold", labelpad=5)
+            if row == 0:
+                ax.set_title(ALTERATION_LABELS.get(alt_type, alt_type),
+                             fontsize=12.5, fontweight="bold", pad=10)
+
+    method_handles = []
+    for method in METHOD_ORDER:
+        method_handles.append(
+            plt.Line2D(
+                [0], [0],
+                marker=METHOD_MARKERS[method],
+                linestyle="-",
+                markerfacecolor=METHOD_COLORS[method],
+                markeredgecolor="white",
+                color=METHOD_COLORS[method],
+                markersize=7.5,
+                linewidth=1.8,
+                label=METHOD_LABELS[method],
+            )
         )
-        for source in BASELINE_ORDER
-    ]
-    slice_handles = [
-        Line2D(
-            [0],
-            [0],
-            marker="o",
-            linestyle="none",
-            markerfacecolor=SLICE_COLORS[index],
-            markeredgecolor="white",
-            markersize=6,
-            label=f"Slice {slice_id}",
-        )
-        for index, slice_id in enumerate(slices)
-    ]
-    slice_handles.append(
-        Line2D(
-            [0],
-            [0],
-            marker="D",
-            linestyle="none",
-            markerfacecolor=MEAN_COLOR,
-            markeredgecolor="white",
-            markersize=6,
-            label="Three-slice mean",
-        )
-    )
     fig.legend(
-        handles=baseline_handles,
+        handles=method_handles,
         loc="upper center",
-        bbox_to_anchor=(0.50, 0.995),
-        ncol=2,
+        bbox_to_anchor=(0.76, 0.985),
+        ncol=3,
         frameon=False,
+        fontsize=10,
+        handlelength=1.2,
+        handletextpad=0.6,
+        columnspacing=1.5,
     )
-    fig.legend(
-        handles=slice_handles,
-        loc="lower center",
-        bbox_to_anchor=(0.50, 0.015),
-        ncol=4,
-        frameon=False,
+
+    fig.text(
+        0.075,
+        0.985,
+        "Clustering sensitivity to controlled alterations",
+        ha="left",
+        va="center",
+        fontsize=13.5,
+        fontweight="bold",
     )
     fig.text(
-        0.5,
         0.075,
-        "Method means summarize n = 3 slices; slice-level points disclose heterogeneity "
-        "and are not an equivalence claim.",
-        ha="center",
-        va="bottom",
-        fontsize=8,
-        color="#444444",
+        0.945,
+        "Thin traces: individual DLPFC slices; solid lines and markers: three-slice means. Mean/variance axes show requested FC on a log scale.",
+        ha="left",
+        va="center",
+        fontsize=8.9,
+        color="#666666",
     )
-    fig.subplots_adjust(left=0.10, right=0.985, top=0.90, bottom=0.20, hspace=0.34, wspace=0.24)
+
+    fig.subplots_adjust(left=0.085, right=0.995, top=0.90, bottom=0.09,
+                        hspace=0.34, wspace=0.25)
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    stem = output_dir / "baseline_clustering_comparison"
+    stem = output_dir / "alteration_sensitivity"
     paths = [stem.with_suffix(suffix) for suffix in (".pdf", ".png", ".svg")]
-    fig.savefig(
-        paths[0],
-        metadata={
-            "Title": "Study 01 fixed-panel baseline clustering comparison",
-            "Creator": "FEAST Study 01 plot.py",
-            "CreationDate": FIXED_PDF_TIME,
-            "ModDate": FIXED_PDF_TIME,
-        },
-    )
-    fig.savefig(
-        paths[1],
-        dpi=dpi,
-        metadata={"Software": "FEAST Study 01 plot.py"},
-    )
-    fig.savefig(
-        paths[2],
-        metadata={
-            "Title": "Study 01 fixed-panel baseline clustering comparison",
-            "Creator": "FEAST Study 01 plot.py",
-            "Date": "2026-07-19",
-        },
-    )
+    fig.savefig(paths[0], metadata={"Creator": "FEAST Study 01 plot.py"})
+    fig.savefig(paths[1], dpi=dpi, metadata={"Software": "FEAST Study 01 plot.py"})
+    fig.savefig(paths[2], metadata={"Creator": "FEAST Study 01 plot.py"})
     plt.close(fig)
     return paths
 
@@ -402,12 +486,13 @@ def write_provenance(
     metrics_hash: str,
     decision_path: Path,
     decision_hash: str,
-    means: pd.DataFrame,
-    gaps: pd.DataFrame,
+    extension_sources: dict[str, object],
+    baseline_ref: pd.DataFrame,
+    alteration_rows: pd.DataFrame,
 ) -> Path:
     payload = {
-        "schema_version": 1,
-        "figure_set": "study01_fixed_panel_baseline_comparison",
+        "schema_version": 4,
+        "figure_set": "study01_alteration_sensitivity",
         "source": {
             "publication_manifest": repository_path(MANIFEST_PATH),
             "publication_manifest_sha256": sha256(MANIFEST_PATH),
@@ -415,30 +500,46 @@ def write_provenance(
             "metrics_sha256": metrics_hash,
             "publication_decision": repository_path(decision_path),
             "publication_decision_sha256": decision_hash,
+            "expanded_metrics_csv": repository_path(extension_sources["metrics_path"]),
+            "expanded_metrics_sha256": extension_sources["metrics_sha256"],
+            "expanded_diagnostics_csv": repository_path(extension_sources["diagnostics_path"]),
+            "expanded_diagnostics_sha256": extension_sources["diagnostics_sha256"],
+            "expanded_validation": repository_path(extension_sources["validation_path"]),
+            "expanded_validation_sha256": extension_sources["validation_sha256"],
             "plot_script": repository_path(Path(__file__)),
             "plot_script_sha256": sha256(Path(__file__)),
         },
         "design": {
-            "headline_scope": "three_slice_method_means",
-            "slice_level_uniformity_claimed": False,
-            "winner_claimed": False,
-            "methods": list(METHOD_ORDER),
             "metrics": list(METRICS),
-            "slice_ids": sorted(gaps["slice_id"].unique().tolist()),
-            "n_slices": 3,
-            "maximum_absolute_three_slice_method_mean_gap": float(
-                means["feast_minus_raw"].abs().max()
+            "methods": list(METHOD_ORDER),
+            "ordered_alterations": list(ORDERED_ALTERATIONS),
+            "baseline_reference": BASELINE_REF,
+            "sparsity_merged": True,
+            "var_hetero_removed": True,
+            "combined_removed": True,
+            "shared_y_per_metric": True,
+            "mean_variance_x_scale": "log",
+            "mean_variance_nominal_levels_added": [0.2, 5.0],
+            "mean_variance_levels_are_requested_not_realized": True,
+            "slice_variation_encoding": "thin individual-slice traces; solid three-slice mean traces",
+            "neutral_setting_encoding": "dashed vertical line",
+            "raw_slice_reference_lines_drawn": False,
+            "slice_ids": sorted(baseline_ref["slice_id"].unique().tolist()),
+            "n_slices": int(baseline_ref["slice_id"].nunique()),
+            "n_alteration_rows": int(len(alteration_rows)),
+            "n_expanded_alteration_rows": int(
+                alteration_rows["source_set"].eq("expanded_extremes").sum()
             ),
-            "maximum_absolute_slice_level_gap": float(gaps["feast_minus_raw"].abs().max()),
+            "winner_claimed": False,
         },
         "scientific_disposition": {
             "figure_promotion_authorized": False,
             "aggregate_method_ranking_authorized": False,
             "winner_claim_authorized": False,
-            "slice_level_equivalence_authorized": False,
             "supported_interpretation": (
-                "FEAST-baseline and raw-slice clustering scores are closely matched only "
-                "as method means across the three registered slices."
+                "Clustering sensitivity across ordered requested alteration levels, "
+                "including the validated mean and variance extreme-level extension. "
+                "Nominal fold changes must be interpreted with the realized diagnostics."
             ),
         },
         "render_environment": {
@@ -465,30 +566,28 @@ def main() -> int:
     metrics_path, metrics_hash, decision_path, decision_hash, candidate = registered_sources()
     verify_registered_file(metrics_path, metrics_hash)
     verify_registered_file(decision_path, decision_hash)
+    extension_sources = validated_extension_sources()
     decision = json.loads(decision_path.read_text())
     if decision.get("decision") != "validated_publication_candidate":
         raise ValueError("The registered Study 01 decision is not a publication candidate.")
 
-    long_table, means, gaps = load_baselines(metrics_path, candidate)
+    baseline_ref, alteration_rows, alteration_data = load_alteration_data(
+        metrics_path, extension_sources["metrics_path"]
+    )
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    long_path = args.output_dir / "baseline_slice_values.csv"
-    means_path = args.output_dir / "baseline_method_means.csv"
-    gaps_path = args.output_dir / "baseline_slice_gaps.csv"
-    long_table.to_csv(long_path, index=False, float_format="%.12f")
-    means.to_csv(means_path, index=False, float_format="%.12f")
-    gaps.to_csv(gaps_path, index=False, float_format="%.12f")
 
-    outputs = [long_path, means_path, gaps_path]
-    outputs.extend(draw_figure(means, gaps, args.output_dir, args.dpi))
+    ref_path = args.output_dir / "baseline_reference.csv"
+    rows_path = args.output_dir / "alteration_plot_data.csv"
+    baseline_ref.to_csv(ref_path, index=False, float_format="%.12f")
+    alteration_rows.to_csv(rows_path, index=False, float_format="%.12f")
+
+    outputs = [ref_path, rows_path]
+    outputs.extend(draw_figure(alteration_data, baseline_ref, args.output_dir, args.dpi))
     provenance_path = write_provenance(
-        args.output_dir,
-        outputs,
-        metrics_path,
-        metrics_hash,
-        decision_path,
-        decision_hash,
-        means,
-        gaps,
+        args.output_dir, outputs,
+        metrics_path, metrics_hash, decision_path, decision_hash,
+        extension_sources,
+        baseline_ref, alteration_rows,
     )
     for path in [*outputs, provenance_path]:
         print(f"Saved: {path}")

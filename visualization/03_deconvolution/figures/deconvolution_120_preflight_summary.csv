@@ -1,0 +1,3 @@
+resolution,n_spatial_locations,n_nonempty_locations,n_empty_locations,source_cells,mean_source_cells_per_location,median_source_cells_per_location,min_source_cells_per_location,max_source_cells_per_location,ground_truth_rows_equal_locations,ground_truth_columns_are_30_canonical_order,positive_row_sum_min,positive_row_sum_max,empty_row_sum_max,roi_spatial_location_count
+0.25,4382,4021,361,22270,5.082154267457782,4.0,0,61,True,True,0.9999999999999989,1.0000000000000002,0.0,389
+0.1,1765,1700,65,22270,12.61756373937677,11.0,0,93,True,True,0.9999999999999983,1.0000000000000002,0.0,156

@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "figure_set": "study02_alignment_sensitivity_diagnostic",
   "promotion_status": "unpromoted_author_selection_required",
   "publication_figure_authorized": false,
@@ -14,7 +14,7 @@
   },
   "source": {
     "publication_manifest": "PUBLICATION_MANIFEST.json",
-    "publication_manifest_sha256": "7271bb0e7396c4fe4fbf48929898add3e411538acb067b9d392b931c661cb441",
+    "publication_manifest_sha256": "d0fb543b18de728c502aae2049e816123b9753c29bc3262fae2b907493ce770d",
     "metrics": "02_alignment/outputs/final_rerun_20260718_v2/scores/alignment_metrics.csv",
     "metrics_sha256": "d405d2b8bea4d834cee729013803d2cb9c3ba2193f25d5c9df08dc1446723e92",
     "validation": "02_alignment/outputs/final_rerun_20260718_v2/validation.csv",
@@ -22,7 +22,7 @@
     "decision": "02_alignment/outputs/final_rerun_20260718_v2/comparison_v2/publication_decision.json",
     "decision_sha256": "bc5d5b48933dc8aee4fecb125a11da3bf7ed053c33c84b432e38d2ea1b418601",
     "plot_script": "visualization/02_alignment/plot.py",
-    "plot_script_sha256": "e6cd3b968751aac2d47272c93bc0c4e4497f5ed5c20bcdc77eaf66d4b072bbb8"
+    "plot_script_sha256": "89ab5af4b9938f16b10ec149e135634b6d3f39f96577dea55826f1fbb494d90c"
   },
   "design": {
     "validated_atomic_rows": 40,
@@ -44,24 +44,38 @@
       30.0,
       45.0
     ],
-    "metrics": [
-      {
-        "key": "rotation_recovery_error",
-        "label": "Rotation recovery error (degrees)",
-        "direction": "lower_is_better"
-      },
+    "source_metrics": [
       {
         "key": "mean_spatial_error",
-        "label": "Mean spatial error (coordinate units)",
+        "label": "Mean spatial error",
         "direction": "lower_is_better"
       },
       {
-        "key": "transport_argmax_identity_accuracy",
-        "label": "Transport argmax identity accuracy",
+        "key": "rotation_recovery_error",
+        "label": "Rotation recovery error (deg)",
+        "direction": "lower_is_better"
+      },
+      {
+        "key": "ge_correlation_exact_gene_join",
+        "label": "GE correlation",
         "direction": "higher_is_better"
       }
     ],
-    "aggregation": "none; every plotted point is one validated method job"
+    "display_metrics": [
+      {
+        "key": "mean_spatial_error",
+        "label": "Mean spatial error",
+        "direction": "lower_is_better"
+      },
+      {
+        "key": "rotation_recovery_error",
+        "label": "Rotation recovery error (deg)",
+        "direction": "lower_is_better"
+      }
+    ],
+    "aggregation": "none; every plotted point is one validated method job",
+    "display_scope": "GE correlation remains in plot_data.csv but is excluded from the main diagnostic because it is invariant across methods and rotations in the validated design.",
+    "changes_v3": "Replaced the 4\u00d73 matrix with a 2\u00d72 method-by-error layout; simulation condition is encoded by colour and marker, all 40 atomic rows remain in the companion data CSV."
   },
   "limitations": {
     "manuscript_or_figure_claim_direction": "author_decision_required",
@@ -70,13 +84,13 @@
     "external_environment_limitation": "Spateo ran with NumPy 2.4.6, outside FEAST's supported range; FEAST was not imported in that worker."
   },
   "render_environment": {
-    "python": "3.11.15",
+    "python": "3.13.13",
     "matplotlib": "3.11.0"
   },
   "outputs": {
-    "alignment_sensitivity_diagnostic.pdf": "a41f3258a43c305e1c869aa4246e71860ead9476bd5399c354ca00dbc4d7016c",
-    "alignment_sensitivity_diagnostic.png": "2d21250a498719d40249e1a32b22fa7df1ff1c9068bba975aaa2eedc74c9f933",
-    "alignment_sensitivity_diagnostic.svg": "5f0e4add060388f6faf41e66e499e96a2c5ba99f6dacb8393d57328ee832fe3c",
-    "plot_data.csv": "585f88b7a0b82bb0a675e242bd531b8f86240befe09816681c7c4309e3b01fb2"
+    "alignment_sensitivity_diagnostic.pdf": "de61d0424ab1959cfbb0d4846442c15c239e27e76ed426e31cac52b4492e1f49",
+    "alignment_sensitivity_diagnostic.png": "7c114b4ab1198b4f9660d9a5d8b6671ae0fb816df74de7f85f3ca89b2a85e582",
+    "alignment_sensitivity_diagnostic.svg": "bf07206ef9df8e8dade1e5167492d6656383dbfb903a4aa821695370831f393f",
+    "plot_data.csv": "bf68bcdd0c434d6ad678f7bbbefffc3357c89020b3305fc74043543b8baf3031"
   }
 }

@@ -1,0 +1,45 @@
+configuration_id: study01-expanded-mean-variance-extremes-v1
+extends_configuration_id: study01-reference-rank-fixed-panel-v1
+public_seed: 2026
+required_feast_commit: 68816e5c1862a6fa2a49bc30609d617c7fa4b449
+slices: [151508, 151670, 151676]
+annotation_key: ground_truth
+
+base_artifacts:
+  input_checksums: data/input_checksums.csv
+  fixed_panel_dir: outputs/final_rerun_20260718/fixed_panels
+  simulation_manifest: outputs/final_rerun_20260718/simulations/simulation_manifest.csv
+  benchmark_metrics: outputs/final_rerun_20260718_report/fixed_panel_benchmark_metrics.csv
+
+feast:
+  parameter_mode: hungarian
+  spatial_mode: reference_rank
+  assignment_method: hybrid
+  assignment_solver: scipy
+  assignment_blocks: false
+  use_distributional_alteration: true
+  ppf_method: interp
+  beta_n_jobs: 4
+  beta_early_stopping_patience: 2
+  convert_n_jobs: 4
+  n_jobs: -1
+
+conditions:
+  - {simulation_id: mean_0_20, alteration_type: mean, value: 0.2}
+  - {simulation_id: mean_5, alteration_type: mean, value: 5.0}
+  - {simulation_id: variance_0_20, alteration_type: variance, value: 0.2}
+  - {simulation_id: variance_5, alteration_type: variance, value: 5.0}
+
+mean_variance_coupling: fano
+variance_heterogeneity_scale: 1.0
+
+fixed_panel:
+  target_sum: 10000
+
+methods:
+  graphst: {epochs: 600, radius: 50, device: cuda}
+  stagate: {rad_cutoff: 150, n_epochs: 500}
+  leiden:
+    resolutions: [0.2, 0.4, 0.6, 0.8, 1.0]
+    n_pcs: 50
+    n_neighbors: 15

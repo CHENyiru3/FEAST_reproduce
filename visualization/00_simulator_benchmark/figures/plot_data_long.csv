@@ -15,17 +15,17 @@ Mean Corr ↑,Splatter,DLPFC_151676,0.0008861126698506,False,input_mean_corr,Tru
 Mean Corr ↑,Splatter Simple,DLPFC_151676,0.0001826400191646,False,input_mean_corr,True
 Mean Corr ↑,scCube,DLPFC_151676,0.9977517089553828,False,input_mean_corr,True
 Mean Corr ↑,FEAST,MERFISH_006,0.9996160481030708,True,input_mean_corr,True
-Mean Corr ↑,SRTsim,MERFISH_006,0.9997030584189116,False,input_mean_corr,True
+Mean Corr ↑,SRTsim,MERFISH_006,0.9997030584189116,True,input_mean_corr,True
 Mean Corr ↑,Splatter,MERFISH_006,-0.0001677483868065,False,input_mean_corr,True
 Mean Corr ↑,Splatter Simple,MERFISH_006,-0.0249740149787115,False,input_mean_corr,True
 Mean Corr ↑,scCube,MERFISH_006,0.9968633826262698,False,input_mean_corr,True
 Mean Corr ↑,FEAST,MERFISH_007,0.9994069206370776,True,input_mean_corr,True
-Mean Corr ↑,SRTsim,MERFISH_007,0.9997301584391168,False,input_mean_corr,True
+Mean Corr ↑,SRTsim,MERFISH_007,0.9997301584391168,True,input_mean_corr,True
 Mean Corr ↑,Splatter,MERFISH_007,-0.0029423017424826,False,input_mean_corr,True
 Mean Corr ↑,Splatter Simple,MERFISH_007,-0.0420280457851628,False,input_mean_corr,True
-Mean Corr ↑,scCube,MERFISH_007,0.9971489828316396,False,input_mean_corr,True
+Mean Corr ↑,scCube,MERFISH_007,0.9971489828316396,True,input_mean_corr,True
 Mean Corr ↑,FEAST,MERFISH_120,0.9995487758444718,True,input_mean_corr,True
-Mean Corr ↑,SRTsim,MERFISH_120,0.9998463345827286,False,input_mean_corr,True
+Mean Corr ↑,SRTsim,MERFISH_120,0.9998463345827286,True,input_mean_corr,True
 Mean Corr ↑,Splatter,MERFISH_120,0.012642084823872,False,input_mean_corr,True
 Mean Corr ↑,Splatter Simple,MERFISH_120,-0.0263516912446806,False,input_mean_corr,True
 Mean Corr ↑,scCube,MERFISH_120,0.9972365256746324,False,input_mean_corr,True
@@ -33,17 +33,17 @@ Mean Corr ↑,FEAST,OpenST_005,0.999280051966632,True,input_mean_corr,True
 Mean Corr ↑,SRTsim,OpenST_005,0.9999715201813412,True,input_mean_corr,True
 Mean Corr ↑,Splatter,OpenST_005,-0.0007848408453662,False,input_mean_corr,True
 Mean Corr ↑,Splatter Simple,OpenST_005,0.0099887417896441,False,input_mean_corr,True
-Mean Corr ↑,scCube,OpenST_005,0.9954902886935956,False,input_mean_corr,True
+Mean Corr ↑,scCube,OpenST_005,0.9954902886935956,True,input_mean_corr,True
 Mean Corr ↑,FEAST,OpenST_006,0.9995518480834332,True,input_mean_corr,True
 Mean Corr ↑,SRTsim,OpenST_006,0.9999641938923892,True,input_mean_corr,True
 Mean Corr ↑,Splatter,OpenST_006,-0.0057815682961675,False,input_mean_corr,True
 Mean Corr ↑,Splatter Simple,OpenST_006,-0.0007893025713085,False,input_mean_corr,True
-Mean Corr ↑,scCube,OpenST_006,0.995207220487403,False,input_mean_corr,True
+Mean Corr ↑,scCube,OpenST_006,0.995207220487403,True,input_mean_corr,True
 Mean Corr ↑,FEAST,Slideseq_001,0.999871878671158,True,input_mean_corr,True
 Mean Corr ↑,SRTsim,Slideseq_001,0.9999367717843756,True,input_mean_corr,True
 Mean Corr ↑,Splatter,Slideseq_001,-0.0030004591025454,False,input_mean_corr,True
 Mean Corr ↑,Splatter Simple,Slideseq_001,0.0078071408128041,False,input_mean_corr,True
-Mean Corr ↑,scCube,Slideseq_001,0.99489988249571,False,input_mean_corr,True
+Mean Corr ↑,scCube,Slideseq_001,0.9948998824957096,False,input_mean_corr,True
 Mean Corr ↑,FEAST,Stereoseq_E10_5_E2S1,0.9966756848575496,True,input_mean_corr,True
 Mean Corr ↑,SRTsim,Stereoseq_E10_5_E2S1,0.9998664343703504,True,input_mean_corr,True
 Mean Corr ↑,Splatter,Stereoseq_E10_5_E2S1,-0.0029271087142052,False,input_mean_corr,True
@@ -75,17 +75,17 @@ Var Corr ↑,Splatter,DLPFC_151676,-0.0006126653599127,False,input_variance_corr
 Var Corr ↑,Splatter Simple,DLPFC_151676,-0.000484292265401,False,input_variance_corr,True
 Var Corr ↑,scCube,DLPFC_151676,0.998829538085263,False,input_variance_corr,True
 Var Corr ↑,FEAST,MERFISH_006,0.9918041987022514,True,input_variance_corr,True
-Var Corr ↑,SRTsim,MERFISH_006,0.9950893136052906,False,input_variance_corr,True
+Var Corr ↑,SRTsim,MERFISH_006,0.9950893136052906,True,input_variance_corr,True
 Var Corr ↑,Splatter,MERFISH_006,0.0034448547282228,False,input_variance_corr,True
 Var Corr ↑,Splatter Simple,MERFISH_006,-0.0351084200257835,False,input_variance_corr,True
 Var Corr ↑,scCube,MERFISH_006,0.9981906761116875,False,input_variance_corr,True
 Var Corr ↑,FEAST,MERFISH_007,0.9869251064179412,True,input_variance_corr,True
-Var Corr ↑,SRTsim,MERFISH_007,0.9958912637727064,False,input_variance_corr,True
+Var Corr ↑,SRTsim,MERFISH_007,0.9958912637727064,True,input_variance_corr,True
 Var Corr ↑,Splatter,MERFISH_007,0.0086250774624756,False,input_variance_corr,True
 Var Corr ↑,Splatter Simple,MERFISH_007,-0.0531308495754563,False,input_variance_corr,True
-Var Corr ↑,scCube,MERFISH_007,0.9993870154986034,False,input_variance_corr,True
+Var Corr ↑,scCube,MERFISH_007,0.9993870154986034,True,input_variance_corr,True
 Var Corr ↑,FEAST,MERFISH_120,0.9918711195661573,True,input_variance_corr,True
-Var Corr ↑,SRTsim,MERFISH_120,0.9911274866509592,False,input_variance_corr,True
+Var Corr ↑,SRTsim,MERFISH_120,0.9911274866509592,True,input_variance_corr,True
 Var Corr ↑,Splatter,MERFISH_120,0.0301958626402938,False,input_variance_corr,True
 Var Corr ↑,Splatter Simple,MERFISH_120,-0.0233616861024993,False,input_variance_corr,True
 Var Corr ↑,scCube,MERFISH_120,0.9988529697608378,False,input_variance_corr,True
@@ -93,12 +93,12 @@ Var Corr ↑,FEAST,OpenST_005,0.9904596447901216,True,input_variance_corr,True
 Var Corr ↑,SRTsim,OpenST_005,0.997272602059054,True,input_variance_corr,True
 Var Corr ↑,Splatter,OpenST_005,-0.0010935832052612,False,input_variance_corr,True
 Var Corr ↑,Splatter Simple,OpenST_005,0.0086233637407502,False,input_variance_corr,True
-Var Corr ↑,scCube,OpenST_005,0.9981627289704698,False,input_variance_corr,True
+Var Corr ↑,scCube,OpenST_005,0.9981627289704698,True,input_variance_corr,True
 Var Corr ↑,FEAST,OpenST_006,0.9954005154787476,True,input_variance_corr,True
 Var Corr ↑,SRTsim,OpenST_006,0.9965203872591748,True,input_variance_corr,True
 Var Corr ↑,Splatter,OpenST_006,-0.0051025709724246,False,input_variance_corr,True
 Var Corr ↑,Splatter Simple,OpenST_006,0.001268008147574,False,input_variance_corr,True
-Var Corr ↑,scCube,OpenST_006,0.998024596748706,False,input_variance_corr,True
+Var Corr ↑,scCube,OpenST_006,0.998024596748706,True,input_variance_corr,True
 Var Corr ↑,FEAST,Slideseq_001,0.994546527439826,True,input_variance_corr,True
 Var Corr ↑,SRTsim,Slideseq_001,0.962918625861506,True,input_variance_corr,True
 Var Corr ↑,Splatter,Slideseq_001,-0.0032947891460628,False,input_variance_corr,True
@@ -119,6 +119,66 @@ Var Corr ↑,SRTsim,Xenium_LymphNode,0.996642911157883,True,input_variance_corr,
 Var Corr ↑,Splatter,Xenium_LymphNode,0.0790214785808609,False,input_variance_corr,True
 Var Corr ↑,Splatter Simple,Xenium_LymphNode,-0.0401403682629448,False,input_variance_corr,True
 Var Corr ↑,scCube,Xenium_LymphNode,0.992703273849031,False,input_variance_corr,True
+Real Error Mean ↓,FEAST,DLPFC_151670,0.0027880298666664,True,relative_error_mean,False
+Real Error Mean ↓,SRTsim,DLPFC_151670,0.1206867023870395,True,relative_error_mean,False
+Real Error Mean ↓,Splatter,DLPFC_151670,27.597096801230943,False,relative_error_mean,False
+Real Error Mean ↓,Splatter Simple,DLPFC_151670,506.00890590382807,False,relative_error_mean,False
+Real Error Mean ↓,scCube,DLPFC_151670,0.9642390390966014,False,relative_error_mean,False
+Real Error Mean ↓,FEAST,DLPFC_151675,0.0026984337745981,True,relative_error_mean,False
+Real Error Mean ↓,SRTsim,DLPFC_151675,0.1180374744930284,True,relative_error_mean,False
+Real Error Mean ↓,Splatter,DLPFC_151675,33.659996019265506,False,relative_error_mean,False
+Real Error Mean ↓,Splatter Simple,DLPFC_151675,474.56529809152187,False,relative_error_mean,False
+Real Error Mean ↓,scCube,DLPFC_151675,0.953865151706868,False,relative_error_mean,False
+Real Error Mean ↓,FEAST,DLPFC_151676,0.0027525897095406,True,relative_error_mean,False
+Real Error Mean ↓,SRTsim,DLPFC_151676,0.1158295533518601,True,relative_error_mean,False
+Real Error Mean ↓,Splatter,DLPFC_151676,30.01771702006703,False,relative_error_mean,False
+Real Error Mean ↓,Splatter Simple,DLPFC_151676,471.0532216425662,False,relative_error_mean,False
+Real Error Mean ↓,scCube,DLPFC_151676,0.9354082052056106,False,relative_error_mean,False
+Real Error Mean ↓,FEAST,MERFISH_006,0.0137079541794166,True,relative_error_mean,False
+Real Error Mean ↓,SRTsim,MERFISH_006,0.0447875107596771,True,relative_error_mean,False
+Real Error Mean ↓,Splatter,MERFISH_006,8.718128215187908,False,relative_error_mean,False
+Real Error Mean ↓,Splatter Simple,MERFISH_006,2029.345670518955,False,relative_error_mean,False
+Real Error Mean ↓,scCube,MERFISH_006,0.6541831710522765,False,relative_error_mean,False
+Real Error Mean ↓,FEAST,MERFISH_007,0.0129024599413204,True,relative_error_mean,False
+Real Error Mean ↓,SRTsim,MERFISH_007,0.0514350684889333,True,relative_error_mean,False
+Real Error Mean ↓,Splatter,MERFISH_007,8.62108365722867,False,relative_error_mean,False
+Real Error Mean ↓,Splatter Simple,MERFISH_007,1874.2513827322464,False,relative_error_mean,False
+Real Error Mean ↓,scCube,MERFISH_007,0.6747457036937083,True,relative_error_mean,False
+Real Error Mean ↓,FEAST,MERFISH_120,0.0146339517734653,True,relative_error_mean,False
+Real Error Mean ↓,SRTsim,MERFISH_120,0.0308580755400301,True,relative_error_mean,False
+Real Error Mean ↓,Splatter,MERFISH_120,6.896672740509786,False,relative_error_mean,False
+Real Error Mean ↓,Splatter Simple,MERFISH_120,1617.3572836325573,False,relative_error_mean,False
+Real Error Mean ↓,scCube,MERFISH_120,0.6722503183913413,False,relative_error_mean,False
+Real Error Mean ↓,FEAST,OpenST_005,0.0018411723294673,True,relative_error_mean,False
+Real Error Mean ↓,SRTsim,OpenST_005,0.1556232890716938,True,relative_error_mean,False
+Real Error Mean ↓,Splatter,OpenST_005,1720895.649268901,False,relative_error_mean,False
+Real Error Mean ↓,Splatter Simple,OpenST_005,80937673.43355636,False,relative_error_mean,False
+Real Error Mean ↓,scCube,OpenST_005,0.9777691795996204,True,relative_error_mean,False
+Real Error Mean ↓,FEAST,OpenST_006,0.0019414261088729,True,relative_error_mean,False
+Real Error Mean ↓,SRTsim,OpenST_006,0.170105769004576,True,relative_error_mean,False
+Real Error Mean ↓,Splatter,OpenST_006,1479173.938032987,False,relative_error_mean,False
+Real Error Mean ↓,Splatter Simple,OpenST_006,98251514.83069824,False,relative_error_mean,False
+Real Error Mean ↓,scCube,OpenST_006,0.9690572356807976,True,relative_error_mean,False
+Real Error Mean ↓,FEAST,Slideseq_001,0.001754650480072,True,relative_error_mean,False
+Real Error Mean ↓,SRTsim,Slideseq_001,0.138505694633697,True,relative_error_mean,False
+Real Error Mean ↓,Splatter,Slideseq_001,47.17992104732381,False,relative_error_mean,False
+Real Error Mean ↓,Splatter Simple,Slideseq_001,5032.980065587005,False,relative_error_mean,False
+Real Error Mean ↓,scCube,Slideseq_001,0.9682311668020172,False,relative_error_mean,False
+Real Error Mean ↓,FEAST,Stereoseq_E10_5_E2S1,0.0073107456296282,True,relative_error_mean,False
+Real Error Mean ↓,SRTsim,Stereoseq_E10_5_E2S1,0.1162149323190749,True,relative_error_mean,False
+Real Error Mean ↓,Splatter,Stereoseq_E10_5_E2S1,42.98608615403016,False,relative_error_mean,False
+Real Error Mean ↓,Splatter Simple,Stereoseq_E10_5_E2S1,365.4194386840083,False,relative_error_mean,False
+Real Error Mean ↓,scCube,Stereoseq_E10_5_E2S1,0.9743764797992536,False,relative_error_mean,False
+Real Error Mean ↓,FEAST,Stereoseq_E12_5_E2S1,0.0067067289748397,True,relative_error_mean,False
+Real Error Mean ↓,SRTsim,Stereoseq_E12_5_E2S1,0.0988229693361085,True,relative_error_mean,False
+Real Error Mean ↓,Splatter,Stereoseq_E12_5_E2S1,181.1179172968089,False,relative_error_mean,False
+Real Error Mean ↓,Splatter Simple,Stereoseq_E12_5_E2S1,1304.6761111294688,False,relative_error_mean,False
+Real Error Mean ↓,scCube,Stereoseq_E12_5_E2S1,0.9703999264111708,False,relative_error_mean,False
+Real Error Mean ↓,FEAST,Xenium_LymphNode,0.0156552568539988,True,relative_error_mean,False
+Real Error Mean ↓,SRTsim,Xenium_LymphNode,0.0608849344841238,True,relative_error_mean,False
+Real Error Mean ↓,Splatter,Xenium_LymphNode,1312.2288559857898,False,relative_error_mean,False
+Real Error Mean ↓,Splatter Simple,Xenium_LymphNode,1988558.534874081,False,relative_error_mean,False
+Real Error Mean ↓,scCube,Xenium_LymphNode,0.6873873119178477,False,relative_error_mean,False
 Moran I Corr ↑,FEAST,DLPFC_151670,0.9952180206665284,True,moran_i_correlation,True
 Moran I Corr ↑,SRTsim,DLPFC_151670,0.9978312730806091,True,moran_i_correlation,True
 Moran I Corr ↑,Splatter,DLPFC_151670,0.0135273371914802,False,moran_i_correlation,True
@@ -135,17 +195,17 @@ Moran I Corr ↑,Splatter,DLPFC_151676,-0.0237344747562921,False,moran_i_correla
 Moran I Corr ↑,Splatter Simple,DLPFC_151676,-0.0121919858928811,False,moran_i_correlation,True
 Moran I Corr ↑,scCube,DLPFC_151676,0.99405959716675,False,moran_i_correlation,True
 Moran I Corr ↑,FEAST,MERFISH_006,0.9727525324508453,True,moran_i_correlation,True
-Moran I Corr ↑,SRTsim,MERFISH_006,0.9937834386667812,False,moran_i_correlation,True
+Moran I Corr ↑,SRTsim,MERFISH_006,0.9937834386667812,True,moran_i_correlation,True
 Moran I Corr ↑,Splatter,MERFISH_006,-0.0209749239422632,False,moran_i_correlation,True
 Moran I Corr ↑,Splatter Simple,MERFISH_006,-0.0401953304271093,False,moran_i_correlation,True
 Moran I Corr ↑,scCube,MERFISH_006,0.9897833458737682,False,moran_i_correlation,True
 Moran I Corr ↑,FEAST,MERFISH_007,0.9525174908631208,True,moran_i_correlation,True
-Moran I Corr ↑,SRTsim,MERFISH_007,0.9944423622911364,False,moran_i_correlation,True
+Moran I Corr ↑,SRTsim,MERFISH_007,0.9944423622911364,True,moran_i_correlation,True
 Moran I Corr ↑,Splatter,MERFISH_007,0.0235679118599438,False,moran_i_correlation,True
 Moran I Corr ↑,Splatter Simple,MERFISH_007,0.0398771342530726,False,moran_i_correlation,True
-Moran I Corr ↑,scCube,MERFISH_007,0.9911016469545776,False,moran_i_correlation,True
+Moran I Corr ↑,scCube,MERFISH_007,0.9911016469545776,True,moran_i_correlation,True
 Moran I Corr ↑,FEAST,MERFISH_120,0.975532642577914,True,moran_i_correlation,True
-Moran I Corr ↑,SRTsim,MERFISH_120,0.9774880716953076,False,moran_i_correlation,True
+Moran I Corr ↑,SRTsim,MERFISH_120,0.9774880716953076,True,moran_i_correlation,True
 Moran I Corr ↑,Splatter,MERFISH_120,0.0240792411841936,False,moran_i_correlation,True
 Moran I Corr ↑,Splatter Simple,MERFISH_120,-0.08815049471966,False,moran_i_correlation,True
 Moran I Corr ↑,scCube,MERFISH_120,0.9864605622932084,False,moran_i_correlation,True
@@ -153,17 +213,17 @@ Moran I Corr ↑,FEAST,OpenST_005,0.9918774711919608,True,moran_i_correlation,Tr
 Moran I Corr ↑,SRTsim,OpenST_005,0.9972221309274872,True,moran_i_correlation,True
 Moran I Corr ↑,Splatter,OpenST_005,0.0826736915622824,False,moran_i_correlation,True
 Moran I Corr ↑,Splatter Simple,OpenST_005,0.0231656681585209,False,moran_i_correlation,True
-Moran I Corr ↑,scCube,OpenST_005,0.9901872638609648,False,moran_i_correlation,True
+Moran I Corr ↑,scCube,OpenST_005,0.9901872638609648,True,moran_i_correlation,True
 Moran I Corr ↑,FEAST,OpenST_006,0.9919509886303852,True,moran_i_correlation,True
 Moran I Corr ↑,SRTsim,OpenST_006,0.9979381985633048,True,moran_i_correlation,True
 Moran I Corr ↑,Splatter,OpenST_006,-0.0427249567360164,False,moran_i_correlation,True
 Moran I Corr ↑,Splatter Simple,OpenST_006,-0.0490051721111271,False,moran_i_correlation,True
-Moran I Corr ↑,scCube,OpenST_006,0.993232539009162,False,moran_i_correlation,True
+Moran I Corr ↑,scCube,OpenST_006,0.993232539009162,True,moran_i_correlation,True
 Moran I Corr ↑,FEAST,Slideseq_001,0.9781655880269386,True,moran_i_correlation,True
 Moran I Corr ↑,SRTsim,Slideseq_001,0.9318120067725052,True,moran_i_correlation,True
 Moran I Corr ↑,Splatter,Slideseq_001,-0.0422864079590762,False,moran_i_correlation,True
 Moran I Corr ↑,Splatter Simple,Slideseq_001,-0.0008338853897251,False,moran_i_correlation,True
-Moran I Corr ↑,scCube,Slideseq_001,0.9813617259802464,False,moran_i_correlation,True
+Moran I Corr ↑,scCube,Slideseq_001,0.9877453635168736,False,moran_i_correlation,True
 Moran I Corr ↑,FEAST,Stereoseq_E10_5_E2S1,0.9882721289614944,True,moran_i_correlation,True
 Moran I Corr ↑,SRTsim,Stereoseq_E10_5_E2S1,0.9983145639700824,True,moran_i_correlation,True
 Moran I Corr ↑,Splatter,Stereoseq_E10_5_E2S1,-0.0865374630763716,False,moran_i_correlation,True
@@ -179,105 +239,6 @@ Moran I Corr ↑,SRTsim,Xenium_LymphNode,0.9730084067780334,True,moran_i_correla
 Moran I Corr ↑,Splatter,Xenium_LymphNode,0.0378260858725412,False,moran_i_correlation,True
 Moran I Corr ↑,Splatter Simple,Xenium_LymphNode,-0.0361993236857456,False,moran_i_correlation,True
 Moran I Corr ↑,scCube,Xenium_LymphNode,-0.0683249056921036,False,moran_i_correlation,True
-Zero Jaccard ↑,FEAST,DLPFC_151670,1.0,True,zero_mask_jaccard,True
-Zero Jaccard ↑,SRTsim,DLPFC_151670,0.996897259335348,True,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter,DLPFC_151670,0.848450011695365,False,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter Simple,DLPFC_151670,0.5350751442950904,False,zero_mask_jaccard,True
-Zero Jaccard ↑,FEAST,DLPFC_151675,1.0,True,zero_mask_jaccard,True
-Zero Jaccard ↑,SRTsim,DLPFC_151675,0.9967892768287222,True,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter,DLPFC_151675,0.8378066602825236,False,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter Simple,DLPFC_151675,0.5406490884117184,False,zero_mask_jaccard,True
-Zero Jaccard ↑,FEAST,DLPFC_151676,1.0,True,zero_mask_jaccard,True
-Zero Jaccard ↑,SRTsim,DLPFC_151676,0.9966483994999528,True,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter,DLPFC_151676,0.8279998422376139,False,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter Simple,DLPFC_151676,0.5297713502233807,False,zero_mask_jaccard,True
-Zero Jaccard ↑,FEAST,MERFISH_006,1.0,True,zero_mask_jaccard,True
-Zero Jaccard ↑,FEAST,MERFISH_007,1.0,True,zero_mask_jaccard,True
-Zero Jaccard ↑,FEAST,MERFISH_120,1.0,True,zero_mask_jaccard,True
-Zero Jaccard ↑,FEAST,OpenST_005,1.0,True,zero_mask_jaccard,True
-Zero Jaccard ↑,SRTsim,OpenST_005,0.9996958422725128,True,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter,OpenST_005,0.9778103930500902,False,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter Simple,OpenST_005,0.6436435978816378,False,zero_mask_jaccard,True
-Zero Jaccard ↑,FEAST,OpenST_006,1.0,True,zero_mask_jaccard,True
-Zero Jaccard ↑,SRTsim,OpenST_006,0.9996547287083332,True,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter,OpenST_006,0.9748092845926734,False,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter Simple,OpenST_006,0.6466357791653726,False,zero_mask_jaccard,True
-Zero Jaccard ↑,FEAST,Slideseq_001,1.0,True,zero_mask_jaccard,True
-Zero Jaccard ↑,SRTsim,Slideseq_001,0.9995846888080872,True,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter,Slideseq_001,0.9703383282766528,False,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter Simple,Slideseq_001,0.6037948159659844,False,zero_mask_jaccard,True
-Zero Jaccard ↑,FEAST,Stereoseq_E10_5_E2S1,1.0,True,zero_mask_jaccard,True
-Zero Jaccard ↑,SRTsim,Stereoseq_E10_5_E2S1,0.9981223038760796,True,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter,Stereoseq_E10_5_E2S1,0.8399360952985759,False,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter Simple,Stereoseq_E10_5_E2S1,0.574356824084791,False,zero_mask_jaccard,True
-Zero Jaccard ↑,FEAST,Stereoseq_E12_5_E2S1,1.0,True,zero_mask_jaccard,True
-Zero Jaccard ↑,SRTsim,Stereoseq_E12_5_E2S1,0.9987338015545232,True,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter,Stereoseq_E12_5_E2S1,0.8112940955634722,False,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter Simple,Stereoseq_E12_5_E2S1,0.5775811869589997,False,zero_mask_jaccard,True
-Zero Jaccard ↑,FEAST,Xenium_LymphNode,1.0,True,zero_mask_jaccard,True
-Zero Jaccard ↑,SRTsim,Xenium_LymphNode,0.9995868865986366,True,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter,Xenium_LymphNode,0.9109700783978948,False,zero_mask_jaccard,True
-Zero Jaccard ↑,Splatter Simple,Xenium_LymphNode,0.0860619619324419,False,zero_mask_jaccard,True
-Rel Error Mean ↓,FEAST,DLPFC_151670,0.0027880298666664,True,relative_error_mean,False
-Rel Error Mean ↓,SRTsim,DLPFC_151670,0.1206867023870395,True,relative_error_mean,False
-Rel Error Mean ↓,Splatter,DLPFC_151670,27.597096801230943,False,relative_error_mean,False
-Rel Error Mean ↓,Splatter Simple,DLPFC_151670,506.00890590382807,False,relative_error_mean,False
-Rel Error Mean ↓,scCube,DLPFC_151670,0.9642390390966014,False,relative_error_mean,False
-Rel Error Mean ↓,FEAST,DLPFC_151675,0.0026984337745981,True,relative_error_mean,False
-Rel Error Mean ↓,SRTsim,DLPFC_151675,0.1180374744930284,True,relative_error_mean,False
-Rel Error Mean ↓,Splatter,DLPFC_151675,33.659996019265506,False,relative_error_mean,False
-Rel Error Mean ↓,Splatter Simple,DLPFC_151675,474.56529809152187,False,relative_error_mean,False
-Rel Error Mean ↓,scCube,DLPFC_151675,0.953865151706868,False,relative_error_mean,False
-Rel Error Mean ↓,FEAST,DLPFC_151676,0.0027525897095406,True,relative_error_mean,False
-Rel Error Mean ↓,SRTsim,DLPFC_151676,0.1158295533518601,True,relative_error_mean,False
-Rel Error Mean ↓,Splatter,DLPFC_151676,30.01771702006703,False,relative_error_mean,False
-Rel Error Mean ↓,Splatter Simple,DLPFC_151676,471.0532216425662,False,relative_error_mean,False
-Rel Error Mean ↓,scCube,DLPFC_151676,0.9354082052056106,False,relative_error_mean,False
-Rel Error Mean ↓,FEAST,MERFISH_006,0.0137079541794166,True,relative_error_mean,False
-Rel Error Mean ↓,SRTsim,MERFISH_006,0.0447875107596771,False,relative_error_mean,False
-Rel Error Mean ↓,Splatter,MERFISH_006,8.718128215187908,False,relative_error_mean,False
-Rel Error Mean ↓,Splatter Simple,MERFISH_006,2029.345670518955,False,relative_error_mean,False
-Rel Error Mean ↓,scCube,MERFISH_006,0.6541831710522765,False,relative_error_mean,False
-Rel Error Mean ↓,FEAST,MERFISH_007,0.0129024599413204,True,relative_error_mean,False
-Rel Error Mean ↓,SRTsim,MERFISH_007,0.0514350684889333,False,relative_error_mean,False
-Rel Error Mean ↓,Splatter,MERFISH_007,8.62108365722867,False,relative_error_mean,False
-Rel Error Mean ↓,Splatter Simple,MERFISH_007,1874.2513827322464,False,relative_error_mean,False
-Rel Error Mean ↓,scCube,MERFISH_007,0.6747457036937083,False,relative_error_mean,False
-Rel Error Mean ↓,FEAST,MERFISH_120,0.0146339517734653,True,relative_error_mean,False
-Rel Error Mean ↓,SRTsim,MERFISH_120,0.0308580755400301,False,relative_error_mean,False
-Rel Error Mean ↓,Splatter,MERFISH_120,6.896672740509786,False,relative_error_mean,False
-Rel Error Mean ↓,Splatter Simple,MERFISH_120,1617.3572836325573,False,relative_error_mean,False
-Rel Error Mean ↓,scCube,MERFISH_120,0.6722503183913413,False,relative_error_mean,False
-Rel Error Mean ↓,FEAST,OpenST_005,0.0018411723294673,True,relative_error_mean,False
-Rel Error Mean ↓,SRTsim,OpenST_005,0.1556232890716938,True,relative_error_mean,False
-Rel Error Mean ↓,Splatter,OpenST_005,1720895.649268901,False,relative_error_mean,False
-Rel Error Mean ↓,Splatter Simple,OpenST_005,80937673.43355636,False,relative_error_mean,False
-Rel Error Mean ↓,scCube,OpenST_005,0.9777691795996204,False,relative_error_mean,False
-Rel Error Mean ↓,FEAST,OpenST_006,0.0019414261088729,True,relative_error_mean,False
-Rel Error Mean ↓,SRTsim,OpenST_006,0.170105769004576,True,relative_error_mean,False
-Rel Error Mean ↓,Splatter,OpenST_006,1479173.938032987,False,relative_error_mean,False
-Rel Error Mean ↓,Splatter Simple,OpenST_006,98251514.83069824,False,relative_error_mean,False
-Rel Error Mean ↓,scCube,OpenST_006,0.9690572356807976,False,relative_error_mean,False
-Rel Error Mean ↓,FEAST,Slideseq_001,0.001754650480072,True,relative_error_mean,False
-Rel Error Mean ↓,SRTsim,Slideseq_001,0.138505694633697,True,relative_error_mean,False
-Rel Error Mean ↓,Splatter,Slideseq_001,47.17992104732381,False,relative_error_mean,False
-Rel Error Mean ↓,Splatter Simple,Slideseq_001,5032.980065587005,False,relative_error_mean,False
-Rel Error Mean ↓,scCube,Slideseq_001,0.9682311668020172,False,relative_error_mean,False
-Rel Error Mean ↓,FEAST,Stereoseq_E10_5_E2S1,0.0073107456296282,True,relative_error_mean,False
-Rel Error Mean ↓,SRTsim,Stereoseq_E10_5_E2S1,0.1162149323190749,True,relative_error_mean,False
-Rel Error Mean ↓,Splatter,Stereoseq_E10_5_E2S1,42.98608615403016,False,relative_error_mean,False
-Rel Error Mean ↓,Splatter Simple,Stereoseq_E10_5_E2S1,365.4194386840083,False,relative_error_mean,False
-Rel Error Mean ↓,scCube,Stereoseq_E10_5_E2S1,0.9743764797992536,False,relative_error_mean,False
-Rel Error Mean ↓,FEAST,Stereoseq_E12_5_E2S1,0.0067067289748397,True,relative_error_mean,False
-Rel Error Mean ↓,SRTsim,Stereoseq_E12_5_E2S1,0.0988229693361085,True,relative_error_mean,False
-Rel Error Mean ↓,Splatter,Stereoseq_E12_5_E2S1,181.1179172968089,False,relative_error_mean,False
-Rel Error Mean ↓,Splatter Simple,Stereoseq_E12_5_E2S1,1304.6761111294688,False,relative_error_mean,False
-Rel Error Mean ↓,scCube,Stereoseq_E12_5_E2S1,0.9703999264111708,False,relative_error_mean,False
-Rel Error Mean ↓,FEAST,Xenium_LymphNode,0.0156552568539988,True,relative_error_mean,False
-Rel Error Mean ↓,SRTsim,Xenium_LymphNode,0.0608849344841238,True,relative_error_mean,False
-Rel Error Mean ↓,Splatter,Xenium_LymphNode,1312.2288559857898,False,relative_error_mean,False
-Rel Error Mean ↓,Splatter Simple,Xenium_LymphNode,1988558.534874081,False,relative_error_mean,False
-Rel Error Mean ↓,scCube,Xenium_LymphNode,0.6873873119178477,False,relative_error_mean,False
 Zero Frac WDist ↓,FEAST,DLPFC_151670,6.589223025359901e-18,True,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,SRTsim,DLPFC_151670,0.0002483752121538,True,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,Splatter,DLPFC_151670,0.0196969696969696,False,gene_zero_fraction_wasserstein,False
@@ -294,17 +255,17 @@ Zero Frac WDist ↓,Splatter,DLPFC_151676,0.0199481644074269,False,gene_zero_fra
 Zero Frac WDist ↓,Splatter Simple,DLPFC_151676,0.3320196512376531,False,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,scCube,DLPFC_151676,0.0674946483759203,False,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,FEAST,MERFISH_006,8.559206027636024e-18,True,gene_zero_fraction_wasserstein,False
-Zero Frac WDist ↓,SRTsim,MERFISH_006,0.0007430911979285,False,gene_zero_fraction_wasserstein,False
+Zero Frac WDist ↓,SRTsim,MERFISH_006,0.0007430911979285,True,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,Splatter,MERFISH_006,0.0169198775956552,False,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,Splatter Simple,MERFISH_006,0.7432938281265737,False,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,scCube,MERFISH_006,0.0303962367799586,False,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,FEAST,MERFISH_007,8.311830130883552e-18,True,gene_zero_fraction_wasserstein,False
-Zero Frac WDist ↓,SRTsim,MERFISH_007,0.0006833679890646,False,gene_zero_fraction_wasserstein,False
+Zero Frac WDist ↓,SRTsim,MERFISH_007,0.0006833679890646,True,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,Splatter,MERFISH_007,0.0148363125860531,False,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,Splatter Simple,MERFISH_007,0.7771315573489368,False,gene_zero_fraction_wasserstein,False
-Zero Frac WDist ↓,scCube,MERFISH_007,0.0251319795806114,False,gene_zero_fraction_wasserstein,False
+Zero Frac WDist ↓,scCube,MERFISH_007,0.0251319795806114,True,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,FEAST,MERFISH_120,6.827574750368589e-18,True,gene_zero_fraction_wasserstein,False
-Zero Frac WDist ↓,SRTsim,MERFISH_120,0.0005493269684082,False,gene_zero_fraction_wasserstein,False
+Zero Frac WDist ↓,SRTsim,MERFISH_120,0.0005493269684082,True,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,Splatter,MERFISH_120,0.0156198798252206,False,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,Splatter Simple,MERFISH_120,0.7547954651509948,False,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,scCube,MERFISH_120,0.0291393824133727,False,gene_zero_fraction_wasserstein,False
@@ -312,12 +273,12 @@ Zero Frac WDist ↓,FEAST,OpenST_005,1.0042252648305854e-18,True,gene_zero_fract
 Zero Frac WDist ↓,SRTsim,OpenST_005,5.996553651120256e-05,True,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,Splatter,OpenST_005,0.0063179179682978,False,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,Splatter Simple,OpenST_005,0.3362371890803048,False,gene_zero_fraction_wasserstein,False
-Zero Frac WDist ↓,scCube,OpenST_005,0.0094646894212582,False,gene_zero_fraction_wasserstein,False
-Zero Frac WDist ↓,FEAST,OpenST_006,1.127093769330887e-18,True,gene_zero_fraction_wasserstein,False
+Zero Frac WDist ↓,scCube,OpenST_005,0.0094646894212582,True,gene_zero_fraction_wasserstein,False
+Zero Frac WDist ↓,FEAST,OpenST_006,1.1270937693308873e-18,True,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,SRTsim,OpenST_006,6.488589566657781e-05,True,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,Splatter,OpenST_006,0.00608082984406,False,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,Splatter Simple,OpenST_006,0.3310606491126538,False,gene_zero_fraction_wasserstein,False
-Zero Frac WDist ↓,scCube,OpenST_006,0.0099719403853955,False,gene_zero_fraction_wasserstein,False
+Zero Frac WDist ↓,scCube,OpenST_006,0.0099719403853955,True,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,FEAST,Slideseq_001,1.3538575595587373e-18,True,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,SRTsim,Slideseq_001,8.629552214231463e-05,True,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,Splatter,Slideseq_001,0.0050971604740737,False,gene_zero_fraction_wasserstein,False
@@ -338,66 +299,126 @@ Zero Frac WDist ↓,SRTsim,Xenium_LymphNode,0.0003599861185864,True,gene_zero_fr
 Zero Frac WDist ↓,Splatter,Xenium_LymphNode,0.0147651575345118,False,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,Splatter Simple,Xenium_LymphNode,0.859039702489045,False,gene_zero_fraction_wasserstein,False
 Zero Frac WDist ↓,scCube,Xenium_LymphNode,0.1953729032809386,False,gene_zero_fraction_wasserstein,False
-Gene Var WDist ↓,FEAST,DLPFC_151670,0.0838183310878788,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,SRTsim,DLPFC_151670,0.0800219667056468,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter,DLPFC_151670,0.8524667143412529,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter Simple,DLPFC_151670,15.628969595498717,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,scCube,DLPFC_151670,0.1032906840805059,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,FEAST,DLPFC_151675,0.1608376947323032,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,SRTsim,DLPFC_151675,0.037481256751415,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter,DLPFC_151675,1.1678193937958512,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter Simple,DLPFC_151675,15.486516732292412,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,scCube,DLPFC_151675,0.1066913506542046,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,FEAST,DLPFC_151676,0.1284896743594869,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,SRTsim,DLPFC_151676,0.0588112889388575,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter,DLPFC_151676,0.7508326531622095,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter Simple,DLPFC_151676,14.69463855768628,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,scCube,DLPFC_151676,0.1052922863088914,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,FEAST,MERFISH_006,0.2243458621428693,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,SRTsim,MERFISH_006,0.1117829355923574,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter,MERFISH_006,1.1128661308738423,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter Simple,MERFISH_006,1747.3069591379767,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,scCube,MERFISH_006,0.0999932370206107,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,FEAST,MERFISH_007,0.3704433607066285,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,SRTsim,MERFISH_007,0.0698757845529967,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter,MERFISH_007,0.7167831848170366,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter Simple,MERFISH_007,1914.3560991572972,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,scCube,MERFISH_007,0.0789465738156531,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,FEAST,MERFISH_120,0.2244671056411307,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,SRTsim,MERFISH_120,0.1547140079933739,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter,MERFISH_120,0.5923007845809007,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter Simple,MERFISH_120,1752.014372687173,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,scCube,MERFISH_120,0.1151205421112716,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,FEAST,OpenST_005,0.0238671489877835,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,SRTsim,OpenST_005,0.0397603958733965,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter,OpenST_005,0.0830139579853352,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter Simple,OpenST_005,8.471890104758469,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,scCube,OpenST_005,0.0127730378089651,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,FEAST,OpenST_006,0.0155441757541316,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,SRTsim,OpenST_006,0.0278440705443283,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter,OpenST_006,0.0679615870077089,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter Simple,OpenST_006,8.480631259851942,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,scCube,OpenST_006,0.0136699848332461,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,FEAST,Slideseq_001,0.0153437129583546,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,SRTsim,Slideseq_001,0.0216958363709832,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter,Slideseq_001,0.0430083509798124,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter Simple,Slideseq_001,11.64184173794244,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,scCube,Slideseq_001,0.0201842211200797,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,FEAST,Stereoseq_E10_5_E2S1,3.813752027302269,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,SRTsim,Stereoseq_E10_5_E2S1,1.6475677913307905,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter,Stereoseq_E10_5_E2S1,7.900546465687973,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter Simple,Stereoseq_E10_5_E2S1,15.748575003619855,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,scCube,Stereoseq_E10_5_E2S1,0.5270221593317828,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,FEAST,Stereoseq_E12_5_E2S1,12.253048920157498,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,SRTsim,Stereoseq_E12_5_E2S1,5.679146906427909,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter,Stereoseq_E12_5_E2S1,22.38423196595945,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter Simple,Stereoseq_E12_5_E2S1,31.29176844305925,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,scCube,Stereoseq_E12_5_E2S1,0.7807168711320485,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,FEAST,Xenium_LymphNode,0.066843014960971,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,SRTsim,Xenium_LymphNode,0.0184052570303744,True,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter,Xenium_LymphNode,0.7685862614614649,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,Splatter Simple,Xenium_LymphNode,8975.672284019089,False,gene_variance_wasserstein,False
-Gene Var WDist ↓,scCube,Xenium_LymphNode,0.048314730795578,False,gene_variance_wasserstein,False
+Zero Jaccard ↑,FEAST,DLPFC_151670,1.0,True,zero_mask_jaccard,True
+Zero Jaccard ↑,SRTsim,DLPFC_151670,0.996897259335348,True,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter,DLPFC_151670,0.848450011695365,False,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter Simple,DLPFC_151670,0.5350751442950904,False,zero_mask_jaccard,True
+Zero Jaccard ↑,scCube,DLPFC_151670,0.9252555172453508,False,zero_mask_jaccard,True
+Zero Jaccard ↑,FEAST,DLPFC_151675,1.0,True,zero_mask_jaccard,True
+Zero Jaccard ↑,SRTsim,DLPFC_151675,0.9967892768287222,True,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter,DLPFC_151675,0.8378066602825236,False,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter Simple,DLPFC_151675,0.5406490884117184,False,zero_mask_jaccard,True
+Zero Jaccard ↑,scCube,DLPFC_151675,0.92069719212686,False,zero_mask_jaccard,True
+Zero Jaccard ↑,FEAST,DLPFC_151676,1.0,True,zero_mask_jaccard,True
+Zero Jaccard ↑,SRTsim,DLPFC_151676,0.9966483994999528,True,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter,DLPFC_151676,0.8279998422376139,False,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter Simple,DLPFC_151676,0.5297713502233807,False,zero_mask_jaccard,True
+Zero Jaccard ↑,scCube,DLPFC_151676,0.9189737193495824,False,zero_mask_jaccard,True
+Zero Jaccard ↑,FEAST,MERFISH_006,1.0,True,zero_mask_jaccard,True
+Zero Jaccard ↑,SRTsim,MERFISH_006,0.9976824753370568,True,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter,MERFISH_006,0.821362066613778,False,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter Simple,MERFISH_006,0.1495784081814206,False,zero_mask_jaccard,True
+Zero Jaccard ↑,scCube,MERFISH_006,0.9462544653967262,False,zero_mask_jaccard,True
+Zero Jaccard ↑,FEAST,MERFISH_007,1.0,True,zero_mask_jaccard,True
+Zero Jaccard ↑,SRTsim,MERFISH_007,0.9979671405650036,True,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter,MERFISH_007,0.8501338233820115,False,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter Simple,MERFISH_007,0.1335610223722687,False,zero_mask_jaccard,True
+Zero Jaccard ↑,scCube,MERFISH_007,0.9541187566370746,True,zero_mask_jaccard,True
+Zero Jaccard ↑,FEAST,MERFISH_120,1.0,True,zero_mask_jaccard,True
+Zero Jaccard ↑,SRTsim,MERFISH_120,0.9985727403223572,True,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter,MERFISH_120,0.8514362937128032,False,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter Simple,MERFISH_120,0.1535229342025509,False,zero_mask_jaccard,True
+Zero Jaccard ↑,scCube,MERFISH_120,0.9491875422713012,False,zero_mask_jaccard,True
+Zero Jaccard ↑,FEAST,OpenST_005,1.0,True,zero_mask_jaccard,True
+Zero Jaccard ↑,SRTsim,OpenST_005,0.9996958422725128,True,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter,OpenST_005,0.9778103930500902,False,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter Simple,OpenST_005,0.6436435978816378,False,zero_mask_jaccard,True
+Zero Jaccard ↑,scCube,OpenST_005,0.988411082126728,True,zero_mask_jaccard,True
+Zero Jaccard ↑,FEAST,OpenST_006,1.0,True,zero_mask_jaccard,True
+Zero Jaccard ↑,SRTsim,OpenST_006,0.9996547287083332,True,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter,OpenST_006,0.9748092845926734,False,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter Simple,OpenST_006,0.6466357791653726,False,zero_mask_jaccard,True
+Zero Jaccard ↑,scCube,OpenST_006,0.9873210329428342,True,zero_mask_jaccard,True
+Zero Jaccard ↑,FEAST,Slideseq_001,1.0,True,zero_mask_jaccard,True
+Zero Jaccard ↑,SRTsim,Slideseq_001,0.9995846888080872,True,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter,Slideseq_001,0.9703383282766528,False,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter Simple,Slideseq_001,0.6037948159659844,False,zero_mask_jaccard,True
+Zero Jaccard ↑,scCube,Slideseq_001,0.9835644702852456,False,zero_mask_jaccard,True
+Zero Jaccard ↑,FEAST,Stereoseq_E10_5_E2S1,1.0,True,zero_mask_jaccard,True
+Zero Jaccard ↑,SRTsim,Stereoseq_E10_5_E2S1,0.9981223038760796,True,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter,Stereoseq_E10_5_E2S1,0.8399360952985759,False,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter Simple,Stereoseq_E10_5_E2S1,0.574356824084791,False,zero_mask_jaccard,True
+Zero Jaccard ↑,scCube,Stereoseq_E10_5_E2S1,0.922490980339342,False,zero_mask_jaccard,True
+Zero Jaccard ↑,FEAST,Stereoseq_E12_5_E2S1,1.0,True,zero_mask_jaccard,True
+Zero Jaccard ↑,SRTsim,Stereoseq_E12_5_E2S1,0.9987338015545232,True,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter,Stereoseq_E12_5_E2S1,0.8112940955634722,False,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter Simple,Stereoseq_E12_5_E2S1,0.5775811869589997,False,zero_mask_jaccard,True
+Zero Jaccard ↑,scCube,Stereoseq_E12_5_E2S1,0.910068353334157,False,zero_mask_jaccard,True
+Zero Jaccard ↑,FEAST,Xenium_LymphNode,1.0,True,zero_mask_jaccard,True
+Zero Jaccard ↑,SRTsim,Xenium_LymphNode,0.9995868865986366,True,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter,Xenium_LymphNode,0.9109700783978948,False,zero_mask_jaccard,True
+Zero Jaccard ↑,Splatter Simple,Xenium_LymphNode,0.0860619619324419,False,zero_mask_jaccard,True
+Zero Jaccard ↑,scCube,Xenium_LymphNode,0.7756698216245581,False,zero_mask_jaccard,True
+Cos Div ↓,FEAST,DLPFC_151670,0.0048818358299554,True,cosine_divergence,False
+Cos Div ↓,SRTsim,DLPFC_151670,0.0093655929743134,True,cosine_divergence,False
+Cos Div ↓,Splatter,DLPFC_151670,0.9353783430966862,False,cosine_divergence,False
+Cos Div ↓,Splatter Simple,DLPFC_151670,0.85555943937426,False,cosine_divergence,False
+Cos Div ↓,scCube,DLPFC_151670,0.2830874439178227,False,cosine_divergence,False
+Cos Div ↓,FEAST,DLPFC_151675,0.0054754176645471,True,cosine_divergence,False
+Cos Div ↓,SRTsim,DLPFC_151675,0.0096680208368155,True,cosine_divergence,False
+Cos Div ↓,Splatter,DLPFC_151675,0.9345444451054798,False,cosine_divergence,False
+Cos Div ↓,Splatter Simple,DLPFC_151675,0.8444152730614614,False,cosine_divergence,False
+Cos Div ↓,scCube,DLPFC_151675,0.2843268197496128,False,cosine_divergence,False
+Cos Div ↓,FEAST,DLPFC_151676,0.0050999493970536,True,cosine_divergence,False
+Cos Div ↓,SRTsim,DLPFC_151676,0.0092381210011827,True,cosine_divergence,False
+Cos Div ↓,Splatter,DLPFC_151676,0.9285885087841244,False,cosine_divergence,False
+Cos Div ↓,Splatter Simple,DLPFC_151676,0.8409721623928108,False,cosine_divergence,False
+Cos Div ↓,scCube,DLPFC_151676,0.2474832229472133,False,cosine_divergence,False
+Cos Div ↓,FEAST,MERFISH_006,0.0145935382174244,True,cosine_divergence,False
+Cos Div ↓,SRTsim,MERFISH_006,0.0060040864683807,True,cosine_divergence,False
+Cos Div ↓,Splatter,MERFISH_006,0.9260422445893366,False,cosine_divergence,False
+Cos Div ↓,Splatter Simple,MERFISH_006,0.7650727626896745,False,cosine_divergence,False
+Cos Div ↓,scCube,MERFISH_006,0.107703169349745,False,cosine_divergence,False
+Cos Div ↓,FEAST,MERFISH_007,0.0173622855199049,True,cosine_divergence,False
+Cos Div ↓,SRTsim,MERFISH_007,0.0065660947492398,True,cosine_divergence,False
+Cos Div ↓,Splatter,MERFISH_007,0.9392154762364416,False,cosine_divergence,False
+Cos Div ↓,Splatter Simple,MERFISH_007,0.7847699029472127,False,cosine_divergence,False
+Cos Div ↓,scCube,MERFISH_007,0.1129804682128168,True,cosine_divergence,False
+Cos Div ↓,FEAST,MERFISH_120,0.0162133641787888,True,cosine_divergence,False
+Cos Div ↓,SRTsim,MERFISH_120,0.0053227353621976,True,cosine_divergence,False
+Cos Div ↓,Splatter,MERFISH_120,0.9414021863405316,False,cosine_divergence,False
+Cos Div ↓,Splatter Simple,MERFISH_120,0.7920360360876589,False,cosine_divergence,False
+Cos Div ↓,scCube,MERFISH_120,0.1272662406232525,False,cosine_divergence,False
+Cos Div ↓,FEAST,OpenST_005,0.0072383060196762,True,cosine_divergence,False
+Cos Div ↓,SRTsim,OpenST_005,0.0083534053461138,True,cosine_divergence,False
+Cos Div ↓,Splatter,OpenST_005,0.993101845525431,False,cosine_divergence,False
+Cos Div ↓,Splatter Simple,OpenST_005,0.9444278626510736,False,cosine_divergence,False
+Cos Div ↓,scCube,OpenST_005,0.2942051472316211,True,cosine_divergence,False
+Cos Div ↓,FEAST,OpenST_006,0.0051493430003973,True,cosine_divergence,False
+Cos Div ↓,SRTsim,OpenST_006,0.0087125209059318,True,cosine_divergence,False
+Cos Div ↓,Splatter,OpenST_006,0.99257935775439,False,cosine_divergence,False
+Cos Div ↓,Splatter Simple,OpenST_006,0.948381935180078,False,cosine_divergence,False
+Cos Div ↓,scCube,OpenST_006,0.3007922542949075,True,cosine_divergence,False
+Cos Div ↓,FEAST,Slideseq_001,0.0056798701765749,True,cosine_divergence,False
+Cos Div ↓,SRTsim,Slideseq_001,0.012216798924605,True,cosine_divergence,False
+Cos Div ↓,Splatter,Slideseq_001,0.990529039619245,False,cosine_divergence,False
+Cos Div ↓,Splatter Simple,Slideseq_001,0.9399464708106762,False,cosine_divergence,False
+Cos Div ↓,scCube,Slideseq_001,0.4342931405823758,False,cosine_divergence,False
+Cos Div ↓,FEAST,Stereoseq_E10_5_E2S1,0.0227625669204502,True,cosine_divergence,False
+Cos Div ↓,SRTsim,Stereoseq_E10_5_E2S1,0.0040805801607028,True,cosine_divergence,False
+Cos Div ↓,Splatter,Stereoseq_E10_5_E2S1,0.9325302261726942,False,cosine_divergence,False
+Cos Div ↓,Splatter Simple,Stereoseq_E10_5_E2S1,0.8519485966696768,False,cosine_divergence,False
+Cos Div ↓,scCube,Stereoseq_E10_5_E2S1,0.3641730522319735,False,cosine_divergence,False
+Cos Div ↓,FEAST,Stereoseq_E12_5_E2S1,0.0150175388544268,True,cosine_divergence,False
+Cos Div ↓,SRTsim,Stereoseq_E12_5_E2S1,0.0033279381675686,True,cosine_divergence,False
+Cos Div ↓,Splatter,Stereoseq_E12_5_E2S1,0.923585930928196,False,cosine_divergence,False
+Cos Div ↓,Splatter Simple,Stereoseq_E12_5_E2S1,0.8594340243421343,False,cosine_divergence,False
+Cos Div ↓,scCube,Stereoseq_E12_5_E2S1,0.3742415672663693,False,cosine_divergence,False
+Cos Div ↓,FEAST,Xenium_LymphNode,0.0108668147232732,True,cosine_divergence,False
+Cos Div ↓,SRTsim,Xenium_LymphNode,0.0032527114213757,True,cosine_divergence,False
+Cos Div ↓,Splatter,Xenium_LymphNode,0.9686306944810036,False,cosine_divergence,False
+Cos Div ↓,Splatter Simple,Xenium_LymphNode,0.8300879490263633,False,cosine_divergence,False
+Cos Div ↓,scCube,Xenium_LymphNode,0.5844905962201594,False,cosine_divergence,False
 Library WDist ↓,FEAST,DLPFC_151670,92.65488505747128,True,library_size_wasserstein,False
 Library WDist ↓,SRTsim,DLPFC_151670,15.120402298850578,True,library_size_wasserstein,False
 Library WDist ↓,Splatter,DLPFC_151670,188.99454022988505,False,library_size_wasserstein,False
@@ -414,17 +435,17 @@ Library WDist ↓,Splatter,DLPFC_151676,134.37248615563976,False,library_size_wa
 Library WDist ↓,Splatter Simple,DLPFC_151676,57019.75080151558,False,library_size_wasserstein,False
 Library WDist ↓,scCube,DLPFC_151676,1534.2246223078355,False,library_size_wasserstein,False
 Library WDist ↓,FEAST,MERFISH_006,5.693066462363529,True,library_size_wasserstein,False
-Library WDist ↓,SRTsim,MERFISH_006,1.0291131967056069,False,library_size_wasserstein,False
+Library WDist ↓,SRTsim,MERFISH_006,1.0291131967056069,True,library_size_wasserstein,False
 Library WDist ↓,Splatter,MERFISH_006,26.87703505075658,False,library_size_wasserstein,False
 Library WDist ↓,Splatter Simple,MERFISH_006,60774.88019536487,False,library_size_wasserstein,False
 Library WDist ↓,scCube,MERFISH_006,58.04425587299751,False,library_size_wasserstein,False
 Library WDist ↓,FEAST,MERFISH_007,3.1974620860414715,True,library_size_wasserstein,False
-Library WDist ↓,SRTsim,MERFISH_007,0.8691839471783736,False,library_size_wasserstein,False
+Library WDist ↓,SRTsim,MERFISH_007,0.8691839471783736,True,library_size_wasserstein,False
 Library WDist ↓,Splatter,MERFISH_007,19.6024966470649,False,library_size_wasserstein,False
 Library WDist ↓,Splatter Simple,MERFISH_007,60940.95419374805,False,library_size_wasserstein,False
-Library WDist ↓,scCube,MERFISH_007,46.55979870569222,False,library_size_wasserstein,False
+Library WDist ↓,scCube,MERFISH_007,46.55979870569222,True,library_size_wasserstein,False
 Library WDist ↓,FEAST,MERFISH_120,11.505029187247416,True,library_size_wasserstein,False
-Library WDist ↓,SRTsim,MERFISH_120,1.1949259092950135,False,library_size_wasserstein,False
+Library WDist ↓,SRTsim,MERFISH_120,1.1949259092950135,True,library_size_wasserstein,False
 Library WDist ↓,Splatter,MERFISH_120,19.43677593174675,False,library_size_wasserstein,False
 Library WDist ↓,Splatter Simple,MERFISH_120,60886.89524023349,False,library_size_wasserstein,False
 Library WDist ↓,scCube,MERFISH_120,56.81389670113999,False,library_size_wasserstein,False
@@ -432,12 +453,12 @@ Library WDist ↓,FEAST,OpenST_005,14.692377745303585,True,library_size_wasserst
 Library WDist ↓,SRTsim,OpenST_005,10.811339136328016,True,library_size_wasserstein,False
 Library WDist ↓,Splatter,OpenST_005,60.89319524747441,False,library_size_wasserstein,False
 Library WDist ↓,Splatter Simple,OpenST_005,60488.460893322335,False,library_size_wasserstein,False
-Library WDist ↓,scCube,OpenST_005,315.4376200289724,False,library_size_wasserstein,False
+Library WDist ↓,scCube,OpenST_005,315.4376200289724,True,library_size_wasserstein,False
 Library WDist ↓,FEAST,OpenST_006,19.98054727013357,True,library_size_wasserstein,False
 Library WDist ↓,SRTsim,OpenST_006,10.58360783296589,True,library_size_wasserstein,False
 Library WDist ↓,Splatter,OpenST_006,60.11539359356761,False,library_size_wasserstein,False
 Library WDist ↓,Splatter Simple,OpenST_006,60393.177797950986,False,library_size_wasserstein,False
-Library WDist ↓,scCube,OpenST_006,336.102708826472,False,library_size_wasserstein,False
+Library WDist ↓,scCube,OpenST_006,336.102708826472,True,library_size_wasserstein,False
 Library WDist ↓,FEAST,Slideseq_001,45.851486278313416,True,library_size_wasserstein,False
 Library WDist ↓,SRTsim,Slideseq_001,11.25500656130538,True,library_size_wasserstein,False
 Library WDist ↓,Splatter,Slideseq_001,51.564586067210655,False,library_size_wasserstein,False

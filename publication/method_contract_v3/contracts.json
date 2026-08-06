@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "contract_version": "3.0-addendum",
+  "release_authorized": false,
+  "workflows": [
+    {
+      "workflow_id": "FEAST-ART-00-SIM-v3",
+      "legacy_study": "00_simulator_benchmark",
+      "clean_rerun_study": "00_simulator_benchmark",
+      "supersedes": {"path": "publication/method_contract_v2/configs/FEAST-ART-00-SIM-v2.json", "sha256": "f2a593e004d02d79bf37ad0fdad2324b62d86e4be054c18031c45057d90264a3"},
+      "status": "decision_required_source_lineage_break",
+      "configuration_id": "study00-final-metrics-sccube-slideseq-identity-v1",
+      "evidence": [
+        {"path": "00_simulator_benchmark/outputs/final_metrics/simulator_quality_metrics.csv", "sha256": "a315f525ac11fcc0666d94bab5b0840e058744bd4e9fc610eeb7942fddc94fb6"},
+        {"path": "00_simulator_benchmark/outputs/final_metrics/provenance.json", "sha256": "c1756fa40f0401c39479a228a3afe26b52d6747c328a860306a96945de913286"},
+        {"path": "00_simulator_benchmark/outputs/final_metrics/publication_decision.json", "sha256": "085567cab0f4211604174f531ac9c48058f3765756610dcf12490f3efd305c72"},
+        {"path": "00_simulator_benchmark/outputs/sccube_slideseq_rerun_20260719/provenance.json", "sha256": "285b8392cc9dfdbf077a0a34e568a1ee7b70f5554bf473d3b7d264f64d1a1657"}
+      ],
+      "claim_limits": [
+        "metrics_v2 was modified after its frozen hash was recorded and the original bytes are unavailable",
+        "the current final table is directly bound but its transitive base-table lineage is incomplete",
+        "the scCube rerun used an external NumPy 1.23.5 environment unsupported by FEAST",
+        "no composite score, winner, or aggregate ranking is authorized"
+      ],
+      "claim_authorizations": {"publication_claim": false, "figure": false, "composite_score": false, "method_ranking": false, "winner": false},
+      "release": {"authorized": false, "tag": null, "pypi_publication": false}
+    },
+    {
+      "workflow_id": "FEAST-ART-01-CLUSTER-v3",
+      "legacy_study": "01_clustering",
+      "clean_rerun_study": "01_clustering",
+      "supersedes": {"path": "publication/method_contract_v2/configs/FEAST-ART-01-CLUSTER-v2.json", "sha256": "1a110b46d6022dc9f0c2df45c6cf69500077f19c4df8c08c4c032e450f1b8c6d"},
+      "status": "validated_candidate_author_review_required",
+      "configuration_id": "study01-fixed-panel-label-free-v1",
+      "evidence": [
+        {"path": "01_clustering/config.yaml", "sha256": "d7f9b80926881289cd9a85269ac94a634d46b4fbcd63215a1d31ff44da3ef08a"},
+        {"path": "01_clustering/outputs/final_rerun_20260718_report/fixed_panel_benchmark_metrics.csv", "sha256": "10abbadbcf8c26d2b85e92a3357a8380fe4f4bc46882e6d42d2388a3d1882fab"},
+        {"path": "01_clustering/outputs/final_rerun_20260718_report/provenance.json", "sha256": "904c481845137c5f863ec849bbfeb878470cb8f65129f5b5f623e3fcf6e21493"}
+      ],
+      "claim_limits": ["Leiden resolution selection is label-free", "only three-slice method-mean closeness is supported", "no uniform slice-equivalence claim"],
+      "claim_authorizations": {"publication_claim": false, "figure": false, "composite_score": false, "method_ranking": false, "winner": false},
+      "release": {"authorized": false, "tag": null, "pypi_publication": false}
+    },
+    {
+      "workflow_id": "FEAST-ART-02-ALIGN-v3",
+      "legacy_study": "02_alignment",
+      "clean_rerun_study": "02_alignment",
+      "supersedes": {"path": "publication/method_contract_v2/configs/FEAST-ART-02-ALIGN-v2.json", "sha256": "9bd4db86dfbb890c9c4d70f3af7143b7ebb4469903ccec5d7b0b393560377cdb"},
+      "status": "validated_candidate_author_scope_required",
+      "configuration_id": "study02-centered-identity-preserving-v2",
+      "evidence": [
+        {"path": "02_alignment/config.yaml", "sha256": "2259ec688f41e9982c24ba0b29f84cc4ba693895cf036631e51a7e40f8509515"},
+        {"path": "02_alignment/outputs/final_rerun_20260718_v2/scores/alignment_metrics.csv", "sha256": "d405d2b8bea4d834cee729013803d2cb9c3ba2193f25d5c9df08dc1446723e92"},
+        {"path": "02_alignment/outputs/final_rerun_20260718_v2/comparison_v2/publication_decision.json", "sha256": "bc5d5b48933dc8aee4fecb125a11da3bf7ed053c33c84b432e38d2ea1b418601"}
+      ],
+      "claim_limits": ["author must select metric, panel, and alteration scope", "no method winner is authorized", "optional spatial panel uses clean PASTE and Spateo only"],
+      "claim_authorizations": {"publication_claim": false, "figure": false, "composite_score": false, "method_ranking": false, "winner": false},
+      "release": {"authorized": false, "tag": null, "pypi_publication": false}
+    },
+    {
+      "workflow_id": "FEAST-ART-03-DECONV-v3",
+      "legacy_study": "03_deconvolution",
+      "clean_rerun_study": "03_deconvolution",
+      "supersedes": {"path": "publication/method_contract_v2/configs/FEAST-ART-03-DECONV-v2.json", "sha256": "e8eeb08157db8cebfb658c3b9ddcfb8a94248848000fd4996a53d9156395bbb8"},
+      "status": "decision_required_headline_direction_changed",
+      "configuration_id": "study03-common-named-support-v1",
+      "evidence": [
+        {"path": "03_deconvolution/config.yaml", "sha256": "e0494a33915c030573e340a8531346c3d45f7f91c0d3becccaaea7d30e8c6ceb"},
+        {"path": "03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/deconvolution_scores.csv", "sha256": "13442992ca4b4b5a199b9841bc89f383863d06bca7166e29fe879792a90922ce"},
+        {"path": "03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/provenance.json", "sha256": "9a54093ac5ba53f92554403c13108f5821791609140675d035ed0a5f9e240a7f"}
+      ],
+      "claim_limits": ["headline winner directions changed", "no superiority, ranking, winner, table, or figure is authorized", "ground truth was not substituted for predictions"],
+      "claim_authorizations": {"publication_claim": false, "figure": false, "composite_score": false, "method_ranking": false, "winner": false},
+      "release": {"authorized": false, "tag": null, "pypi_publication": false}
+    },
+    {
+      "workflow_id": "FEAST-ART-04-2D-XSLICE-v3",
+      "legacy_study": "04_2d_conditional_transfer",
+      "clean_rerun_study": "05_2d_conditional_transfer",
+      "supersedes": {"path": "publication/method_contract_v2/configs/FEAST-ART-04-2D-XSLICE-v2.json", "sha256": "523ebe90411eb09160513f94d43df5fe596c9ae25472ddd16810cccbb06b0522"},
+      "status": "validated_candidate_claim_reframe_required",
+      "configuration_id": "study05-two-dataset-conditional-half-slice-v2",
+      "evidence": [
+        {"path": "05_2d_conditional_transfer/config.yaml", "sha256": "b9584840f7875c0cbdfe08286be728b57b66c32f689452eb770f4f45d2162683"},
+        {"path": "05_2d_conditional_transfer/outputs/study05_complete_validation.json", "sha256": "63d0aada03bb65e0896a08426e55a8207a4bd05ac6141741325c9c3213c427ae"},
+        {"path": "05_2d_conditional_transfer/outputs/scores/provenance.json", "sha256": "0db3dfe062fd997d11b8426759e11d5a5e5ed354d103c35932c3854b3a64f8c1"}
+      ],
+      "claim_limits": ["target XY and labels are observed", "supported wording is conditional generation, not accurate spot-level prediction", "historical conditional-OT outputs remain noncanonical"],
+      "claim_authorizations": {"publication_claim": false, "figure": false, "composite_score": false, "method_ranking": false, "winner": false},
+      "release": {"authorized": false, "tag": null, "pypi_publication": false}
+    },
+    {
+      "workflow_id": "FEAST-ART-05-3D-IMPUTE-v3",
+      "legacy_study": "05_3d_stack",
+      "clean_rerun_study": "06_3d_stack",
+      "supersedes": {"path": "publication/method_contract_v2/configs/FEAST-ART-05-3D-IMPUTE-v2.json", "sha256": "f4dc9f14a9940d83b854f0415a224da639cfcdb44852dbc13f3b8cf7a059df1c"},
+      "status": "validated_candidate_author_review_required",
+      "configuration_id": "study06-allen-abca1-conditional-stack-v5",
+      "evidence": [
+        {"path": "06_3d_stack/config.yaml", "sha256": "a554d9acff7790650edea45b0fd2bb78ad40cab87cb5f38cb14a06d5efc4c1de"},
+        {"path": "06_3d_stack/outputs/final/validation_summary.json", "sha256": "c41bb104a06a6711070f1888533422ba11596d7e7bebf4fa044bc1aaeabf4a37"},
+        {"path": "06_3d_stack/outputs/final/evaluation/score_provenance.json", "sha256": "2bb9d66f4fc3ad20c4e9683ba7fc5db4dedbb52c86b06ed515e1e9d5cea6c85b"}
+      ],
+      "claim_limits": ["target XY, class labels, and z are observed", "93 targets are ordered z levels rather than biological replicates", "no across-target inference, composite score, or winner ranking"],
+      "claim_authorizations": {"publication_claim": false, "figure": false, "composite_score": false, "method_ranking": false, "winner": false},
+      "release": {"authorized": false, "tag": null, "pypi_publication": false}
+    },
+    {
+      "workflow_id": "FEAST-ART-06-DEVCCF-E15-v3",
+      "legacy_study": "06_3d_transfer",
+      "clean_rerun_study": "07_3d_transfer",
+      "supersedes": {"path": "publication/method_contract_v2/configs/FEAST-ART-06-DEVCCF-E15-v2.json", "sha256": "0464d916395f7fdc40ca34874d4dcfd93a751efe03adf1850640c2839453a076"},
+      "status": "validated_candidate_descriptive_only",
+      "configuration_id": "study07-full-devccf-transfer-v5",
+      "evidence": [
+        {"path": "07_3d_transfer/config.yaml", "sha256": "111197eecf141b09583459ee2a9ba6b1d077c6fbf7f58a863c55d57a89fb9e4b"},
+        {"path": "07_3d_transfer/outputs/final/validation.json", "sha256": "2e9a1607b8e21e1e035c2b8353a0be78bcf96782a58ba7266d0138183b17aa1f"},
+        {"path": "07_3d_transfer/outputs/final/evaluation/provenance.json", "sha256": "6e41d14bdff42dba10ee473f3b2477efd63bfd7fcfe2b648168ea738a906453c"},
+        {"path": "07_3d_transfer/outputs/final/E15.5/manifest.csv", "sha256": "eb5c9bde48028cb4b9b2826c207f1d4488533ec3bb7d8f98ef34f8b4624d6a73"},
+        {"path": "07_3d_transfer/outputs/final/E18.5/manifest.csv", "sha256": "543e7042edf47b8eb0e717d9521b839573685adb36d207bf873ef83a5e74f336"}
+      ],
+      "claim_limits": ["both volumes observe DevCCF geometry and region labels", "no target expression exists", "continuity is descriptive and is not an accuracy metric", "no smoothing, composite score, or winner ranking"],
+      "claim_authorizations": {"publication_claim": false, "figure": false, "composite_score": false, "method_ranking": false, "winner": false},
+      "release": {"authorized": false, "tag": null, "pypi_publication": false}
+    },
+    {
+      "workflow_id": "FEAST-ART-08-BATCH-v3",
+      "legacy_study": "08_batch_effect_removal",
+      "clean_rerun_study": "04_batch_effect_removal",
+      "supersedes": {"path": "publication/method_contract_v2/configs/FEAST-ART-08-BATCH-v2.json", "sha256": "cded1b35ce7d3910f2834339138620ac635020d6bf67b8fe86c0ee7343529b33"},
+      "status": "validated_candidate_supplementary_only",
+      "configuration_id": "study04-batch-removal-v2",
+      "evidence": [
+        {"path": "04_batch_effect_removal/config.yaml", "sha256": "f73d5a4468b236cec9fe53877db2e0bece584108a0683ddfd587e45e8dcf9dc5"},
+        {"path": "04_batch_effect_removal/outputs/final_rerun_20260718_v2/method_run_manifest.csv", "sha256": "a12c9133caadb2a3692085a1cc25c0932c23bce7cb8af44f5ab1d8777a1410fe"},
+        {"path": "04_batch_effect_removal/outputs/final_rerun_20260718_v2/validation/manifest.csv", "sha256": "f48b6c4d8284c6710d26ca352a715daee504178d9b19b12e3fd2b7a50066ce1d"},
+        {"path": "04_batch_effect_removal/outputs/final_rerun_20260718_v2/metrics/atomic_metrics.csv", "sha256": "a6c78a602d4b0025628917d2c8a015cb7de19c962dfe14aedac8b333c18a4b2a"}
+      ],
+      "claim_limits": ["supplementary candidate only", "zero cross-batch edges are asserted", "external method NumPy limitations remain explicit", "no winner ranking"],
+      "claim_authorizations": {"publication_claim": false, "figure": false, "composite_score": false, "method_ranking": false, "winner": false},
+      "release": {"authorized": false, "tag": null, "pypi_publication": false}
+    }
+  ]
+}

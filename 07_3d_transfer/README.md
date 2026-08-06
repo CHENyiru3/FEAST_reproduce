@@ -18,6 +18,16 @@ contains only exact DevCCF XY,
 region, voxel identity, and z; target expression is never read or fabricated.
 No cross-z smoothing is part of the publication candidate.
 
+Completion status (2026-07-31): the age-specific CUDA canaries and all 360
+fresh generations completed. Final consolidation contains 158 unique E15.5
+levels and 202 unique E18.5 levels. Independent validation reopened every
+H5AD, verified exact blueprint identity and all 12,290 transport records, and
+found positive convergence evidence throughout. The validation SHA-256 is
+`2e9a1607b8e21e1e035c2b8353a0be78bcf96782a58ba7266d0138183b17aa1f`.
+The descriptive evaluation provenance SHA-256 is
+`6e41d14bdff42dba10ee473f3b2477efd63bfd7fcfe2b648168ea738a906453c`.
+Candidate status remains noncanonical pending author review.
+
 ## Fixed scientific contract
 
 - Provisional FEAST 1.1.0 wheel SHA-256
@@ -61,9 +71,9 @@ CANDIDATE="$REPRO_ROOT/../FEAST/validation/package_builds/20260719_ot_log_repair
 From this directory:
 
 ```bash
-python prepare.py --preflight-only
-python prepare.py --age both
-python calibrate.py
+"$FEAST_PY" prepare.py --preflight-only
+"$FEAST_PY" prepare.py --age both
+"$FEAST_PY" calibrate.py
 ```
 
 Preparation validates the 18 pinned input hashes, inspects all 15 H5AD
@@ -76,8 +86,8 @@ Run canaries before broad execution. These cover both endpoints, a central
 slice, and the densest level.
 
 ```bash
-python run.py --age E15.5 --shard-id canary --canary
-python run.py --age E18.5 --shard-id canary --canary
+"$FEAST_PY" run.py --age E15.5 --shard-id canary --canary
+"$FEAST_PY" run.py --age E18.5 --shard-id canary --canary
 ```
 
 The executable selection is derived from the prepared blueprint: endpoints,
@@ -91,10 +101,10 @@ indices be divided into non-overlapping shards. For example, the ranges below
 avoid all age-specific canary indices and can run in parallel:
 
 ```bash
-python run.py --age E15.5 --shard-id low --start-index 0 --stop-index 79 --exclude-indices 0 12 47 78
-python run.py --age E15.5 --shard-id high --start-index 79 --stop-index 158 --exclude-indices 157
-python run.py --age E18.5 --shard-id low --start-index 0 --stop-index 101 --exclude-indices 0 62 100
-python run.py --age E18.5 --shard-id high --start-index 101 --stop-index 202 --exclude-indices 201
+"$FEAST_PY" run.py --age E15.5 --shard-id low --start-index 0 --stop-index 79 --exclude-indices 0 12 47 78
+"$FEAST_PY" run.py --age E15.5 --shard-id high --start-index 79 --stop-index 158 --exclude-indices 157
+"$FEAST_PY" run.py --age E18.5 --shard-id low --start-index 0 --stop-index 101 --exclude-indices 0 62 100
+"$FEAST_PY" run.py --age E18.5 --shard-id high --start-index 101 --stop-index 202 --exclude-indices 201
 ```
 
 Shard directories are single-use. Each completed slice receives an atomic
@@ -106,9 +116,9 @@ a second active shard: consolidation rejects duplicates.
 ## Consolidation and decision
 
 ```bash
-python consolidate.py --age E15.5
-python consolidate.py --age E18.5
-python validate.py --age both
+"$FEAST_PY" consolidate.py --age E15.5
+"$FEAST_PY" consolidate.py --age E18.5
+"$FEAST_PY" validate.py --age both
 ```
 
 Consolidation requires one and only one validated artifact for every original
@@ -117,9 +127,13 @@ large H5AD payload. Final validation reopens all 360 slices and checks exact
 spot IDs, XY/XYZ geometry, regions, gene order, counts, matrix/file hashes,
 seeds, configuration lineage, and positive convergence. Passing both volumes
 writes a candidate-gate decision with `publication_canonical=false`; canonical
-status remains pending article-level continuity metrics, visualization, and
-author review.
+status remains pending author review of the now-completed descriptive metrics
+and visualization.
 
-The workflow deliberately contains no metrics or figures yet. Article-level
-continuity metrics and visualization should be added only after this complete
-identity/convergence gate succeeds.
+The completed descriptive evaluation reports full-axis region support and
+adjacent-z gene-mean continuity. It deliberately has no target-expression
+accuracy claim or composite score. The editable diagnostic is
+`../visualization/07_3d_transfer/figures/full_axis_transfer_diagnostic.pdf`
+(SHA-256
+`62eb4085709d39e2abfea521e8ee33df8cba9b3131ce21eb8a64a831c6ddd098`).
+It remains unpromoted pending author review.

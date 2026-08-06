@@ -1,45 +1,67 @@
 {
-  "schema_version": 1,
-  "figure_set": "study01_fixed_panel_baseline_comparison",
+  "schema_version": 4,
+  "figure_set": "study01_alteration_sensitivity",
   "source": {
     "publication_manifest": "PUBLICATION_MANIFEST.json",
-    "publication_manifest_sha256": "7271bb0e7396c4fe4fbf48929898add3e411538acb067b9d392b931c661cb441",
+    "publication_manifest_sha256": "d0fb543b18de728c502aae2049e816123b9753c29bc3262fae2b907493ce770d",
     "metrics_csv": "01_clustering/outputs/final_rerun_20260718_report/fixed_panel_benchmark_metrics.csv",
     "metrics_sha256": "10abbadbcf8c26d2b85e92a3357a8380fe4f4bc46882e6d42d2388a3d1882fab",
     "publication_decision": "01_clustering/outputs/final_rerun_20260718_comparison_v2/publication_decision.json",
     "publication_decision_sha256": "aa7dac0ad2cb41b9fd2c11c89336da14e87e48ab240ab2d7543bad92d74493e9",
+    "expanded_metrics_csv": "01_clustering/outputs/expanded_mean_variance_fc_0_20_5_20260806/report/expanded_benchmark_metrics.csv",
+    "expanded_metrics_sha256": "dbd3cb7bd781bb58c71edc93469e84abafabfee8614980bd99cdba9c2bca3d24",
+    "expanded_diagnostics_csv": "01_clustering/outputs/expanded_mean_variance_fc_0_20_5_20260806/report/realized_alteration_diagnostics.csv",
+    "expanded_diagnostics_sha256": "9b29d274326384fc69224d6638696aee854348811b638713c91591174f583d8d",
+    "expanded_validation": "01_clustering/outputs/expanded_mean_variance_fc_0_20_5_20260806/report/validation.json",
+    "expanded_validation_sha256": "1db5ecebd35c5c5fd7cf6676ac858a598319fe2587d32c8f4c7b762f444cc98e",
     "plot_script": "visualization/01_clustering/plot.py",
-    "plot_script_sha256": "7602a4c90334eba30fae1857da908ae04156c80b27590d30d48bdc125cf5b1fc"
+    "plot_script_sha256": "2eba7d2145670ac59f8d64b50684aa86460da26d75778b2b6601113caa2df352"
   },
   "design": {
-    "headline_scope": "three_slice_method_means",
-    "slice_level_uniformity_claimed": false,
-    "winner_claimed": false,
-    "methods": [
-      "GraphST",
-      "STAGATE_mclust",
-      "Leiden_unsupervised"
-    ],
     "metrics": [
       "ARI",
       "NMI",
       "AMI"
     ],
+    "methods": [
+      "GraphST",
+      "STAGATE_mclust",
+      "Leiden_unsupervised"
+    ],
+    "ordered_alterations": [
+      "mean",
+      "variance",
+      "sparsity"
+    ],
+    "baseline_reference": "real_baseline",
+    "sparsity_merged": true,
+    "var_hetero_removed": true,
+    "combined_removed": true,
+    "shared_y_per_metric": true,
+    "mean_variance_x_scale": "log",
+    "mean_variance_nominal_levels_added": [
+      0.2,
+      5.0
+    ],
+    "mean_variance_levels_are_requested_not_realized": true,
+    "slice_variation_encoding": "thin individual-slice traces; solid three-slice mean traces",
+    "neutral_setting_encoding": "dashed vertical line",
+    "raw_slice_reference_lines_drawn": false,
     "slice_ids": [
-      "151508",
-      "151670",
-      "151676"
+      151508,
+      151670,
+      151676
     ],
     "n_slices": 3,
-    "maximum_absolute_three_slice_method_mean_gap": 0.007860153270417003,
-    "maximum_absolute_slice_level_gap": 0.07748122448874828
+    "n_alteration_rows": 198,
+    "n_expanded_alteration_rows": 36,
+    "winner_claimed": false
   },
   "scientific_disposition": {
     "figure_promotion_authorized": false,
     "aggregate_method_ranking_authorized": false,
     "winner_claim_authorized": false,
-    "slice_level_equivalence_authorized": false,
-    "supported_interpretation": "FEAST-baseline and raw-slice clustering scores are closely matched only as method means across the three registered slices."
+    "supported_interpretation": "Clustering sensitivity across ordered requested alteration levels, including the validated mean and variance extreme-level extension. Nominal fold changes must be interpreted with the realized diagnostics."
   },
   "render_environment": {
     "matplotlib": "3.11.0",
@@ -47,11 +69,10 @@
     "pandas": "2.3.3"
   },
   "outputs": {
-    "baseline_clustering_comparison.pdf": "7c2ef87b7b8d536f17619e99de061bb2447a00e2f9d3b52c87b88ec8587283f5",
-    "baseline_clustering_comparison.png": "edd8acd5f9b5fa73359ec9e8f7737d00cd90a616865ca0feddc4fbb8cb12e9dc",
-    "baseline_clustering_comparison.svg": "e990683abe04399aef34160f2edfbd3efb6c5230f6e14c6a9a76f37fdd5902ae",
-    "baseline_method_means.csv": "674e6cc4699c786f71be01417967423fd38aeb7eb437eb73c81b5bbe6d378766",
-    "baseline_slice_gaps.csv": "a2bbd2e614a6a025365f1d6ab6cdd3e8dc0867a1ac02588c6e6082c183fb2a0c",
-    "baseline_slice_values.csv": "143e95b09f9f523e273d431ebab04a099446a7f65ff7f8dd0a2b7e4b3868b35a"
+    "alteration_plot_data.csv": "741a7375387efe05e3aa68aa030683137ab6da5ce59e5a1ffa9cb21b24f825b3",
+    "alteration_sensitivity.pdf": "66a93ff9a12d6665799b369a6ac803bc1df9e0561b48737259209d844c83707e",
+    "alteration_sensitivity.png": "cb711ca4b24694ad41af34bb99348b3509b20d3e2aee5252150a87567f7286f6",
+    "alteration_sensitivity.svg": "741712ec3a5ab32fe4f85e160e0b240e4dc843e427c95e035b0574fda1b7cfa8",
+    "baseline_reference.csv": "de8d3c2af6e582e81d3a7f0dea8ea1615f10f12c1f1acd39cc3029eeaf93ed9c"
   }
 }

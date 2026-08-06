@@ -1,33 +1,34 @@
 # Study 07 CUDA canary status
 
-Updated: 2026-07-20  
-Status: pending external GPU execution allowance
+Updated: 2026-07-31
+Status: passed; complete production scope validated
 
 The installed FEAST candidate passed focused CUDA log-domain parity tests, and
 exact audits completed both the former E18.5 failure block and an E15.5
-24,994,980-pair block on the RTX A6000. No Study 07 workflow shard has yet been
-created.
+24,994,980-pair block on the RTX A6000. All nine declared canary indices then
+passed with positive convergence evidence; the workflow proceeded without a
+CPU or method fallback.
 
-Further elevated Python/CUDA launches were rejected because the execution
-service exhausted its current usage allowance. This is not a FEAST exception,
-CUDA out-of-memory event, or method failure. The sandbox cannot see
-`/dev/nvidia*`, and the workflow intentionally does not fall back to CPU.
-
-When GPU execution is available, run these bounded gates in order from this
-directory with
-`/maiziezhou_lab2/yiru/envs/feast-publication-cuda-py311/bin/python`:
+The bounded gates were run from this directory with the pinned CUDA interpreter
+declared in `../environments/README.md`:
 
 ```bash
-python run.py --age E15.5 --shard-id canary_otlog_v5_e15_z12 --z-indices 12
-python run.py --age E18.5 --shard-id canary_otlog_v5_e18_edge_middle --z-indices 0 100
+"$FEAST_PY" run.py --age E15.5 --shard-id canary_otlog_v5_e15_z12 --z-indices 12
+"$FEAST_PY" run.py --age E18.5 --shard-id canary_otlog_v5_e18_edge_middle --z-indices 0 100
 ```
 
 Validate their per-slice records, hashes, exact identity, and positive solver
 evidence before expanding to the complete declared canary sets:
 
 ```bash
-python run.py --age E15.5 --shard-id canary_otlog_v5_e15_remaining --z-indices 0 78 47 157
-python run.py --age E18.5 --shard-id canary_otlog_v5_e18_remaining --z-indices 62 201
+"$FEAST_PY" run.py --age E15.5 --shard-id canary_otlog_v5_e15_remaining --z-indices 0 78 47 157
+"$FEAST_PY" run.py --age E18.5 --shard-id canary_otlog_v5_e18_remaining --z-indices 62 201
 ```
 
-Do not start broad shards until all nine age-specific canary indices pass.
+All canaries passed before broad shards were started. Production,
+consolidation, and independent validation are complete: 158/158 E15.5 and
+202/202 E18.5 levels, exact blueprint identity, and 12,290/12,290 converged
+transport records. The final validation SHA-256 is
+`2e9a1607b8e21e1e035c2b8353a0be78bcf96782a58ba7266d0138183b17aa1f`.
+This closes the CUDA execution gate; article promotion remains a separate
+author decision.

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "figure_set": "study01_spatial_expression",
+  "display_slice": "151676",
+  "marker_gene": "MBP",
+  "normalization": "Shared log1p scale, vmin=0, pooled 99.5th percentile vmax.",
+  "source": {
+    "plot_script": "visualization/01_clustering/plot_spatial_expression.py",
+    "plot_script_sha256": "a51145ad2be3c5a4e97de878e12a093d1305be9e49fd706c99c26b96bbdceae2",
+    "inputs": {
+      "01_clustering/data/local/151676.h5ad": "8080cafb777fc8f45bc90ec33afbe27a0074e2d6cb70a7c3f8563c28aff55fb1",
+      "01_clustering/outputs/final_rerun_20260718/simulations/simulations/151676/baseline.h5ad": "d77850b9b17e33cb2c0e248ee513bd6e9abdbcacfbd02204e209ddfb292316e0",
+      "01_clustering/outputs/final_rerun_20260718/simulations/simulations/151676/mean_0_50.h5ad": "2954ce3f76fb602aeb87563e35cc66ff050539a63c09f6aecfb51aaaeab3bb9c",
+      "01_clustering/outputs/final_rerun_20260718/simulations/simulations/151676/mean_2.h5ad": "3065d64efa395bcb443159f2dcf46328c062e8a8d34596089068c89dbf98b940",
+      "01_clustering/outputs/final_rerun_20260718/simulations/simulations/151676/variance_0_50.h5ad": "5902ccb73e6ec9649a0a79c024ff8a7f4e0ee37795522630b334e1dd6d47a4ad",
+      "01_clustering/outputs/final_rerun_20260718/simulations/simulations/151676/variance_2.h5ad": "4258337e637ea6d8664bcb316c19cc91273ff9585c0a8ccd838966f426edd12c",
+      "01_clustering/outputs/final_rerun_20260718/simulations/simulations/151676/sparsity_neg_1.h5ad": "7ae9cd3d10c4d939a4ab400b5b14f3ea5fd5e4a7ba48dca754b5768edca2d0fa",
+      "01_clustering/outputs/final_rerun_20260718/simulations/simulations/151676/sparsity_pos_1.h5ad": "3f9cf4218f94e0d64808ba09a0cc2d66db52182bcd55943e63c2e86fdc9871d0"
+    }
+  },
+  "outputs": {
+    "alteration_spatial_expression.pdf": "970eaac9f29810c1d5c52569f856dc14eecd04d543c0226189c2bc043efb6bd7",
+    "alteration_spatial_expression.png": "cb46d51b0854f93112d8393f331f2ab53200fe616db0e3754543719ee58f7238",
+    "alteration_spatial_expression.svg": "3c015ebc550e07ddf07fe993671731428722d9c62b52d8fdbd131a0623305a6c"
+  },
+  "scientific_disposition": {
+    "figure_promotion_authorized": false,
+    "supported_interpretation": "Descriptive spatial comparison of a registered representative slice."
+  }
+}

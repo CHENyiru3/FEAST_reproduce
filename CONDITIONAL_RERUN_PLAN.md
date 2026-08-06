@@ -12,25 +12,27 @@ legacy experiment numbers are mapped to new sequential clean-study numbers:
 Historical FEAST outputs remain audit evidence only. No historical H5AD,
 metric, manifest, or figure is copied into a fresh candidate root.
 
-Implementation checkpoint (2026-07-19): all three generation, validation, and
-comparison workflows are implemented. Their isolated test gate reports 16, 16,
-and 11 passing tests. Study 05 completed and independently validated all 45
-fresh candidates, scores, the historical common-panel comparison, and the
-editable review figure. Study 06 has a verified real metadata plan, and both
-complete Study 07 expression-free blueprints are prepared. Study 06 is blocked
-before generation after three strict full-preflight POT failures. Study 07 was
-corrected to the historical 550-gene E15.5 reference-fit contract for both
-ages; E18.5 reference-only calibration selected 0.5 and age canaries are the
-only generation currently authorized.
+Implementation checkpoint (2026-07-31): all three generation, validation, and
+evaluation workflows are implemented. Their isolated workflow gates report 16,
+16, and 16 passing tests. Study 05 completed and independently validated all
+45 fresh candidates, scores, the historical common-panel comparison, and the
+editable review figure. Study 06 completed 93/93 CUDA generations, strict
+validation, atomic evaluation, and its editable diagnostic. Study 07 completed
+158/158 E15.5 plus 202/202 E18.5 CUDA generations, consolidation, strict
+validation, descriptive continuity evaluation, and its editable diagnostic.
+All three remain subject to the scientific wording and author-review limits
+declared below.
 
 ## Shared execution contract
 
-All three workflows must import the installed wheel recorded in
-`FEAST_BUILD.txt`, not the mutable FEAST checkout or a historical experiment
+Study 05 imports the installed 1.0.2 wheel recorded in `FEAST_BUILD.txt`.
+Studies 06 and 07 import the repaired 1.1.0 candidate recorded in
+`../FEAST/validation/package_builds/20260719_ot_log_repair_v2/provenance.json`.
+No workflow imports the mutable FEAST checkout or a historical experiment
 directory. Before a canary or full run, the selected interpreter must pass:
 
 ```bash
-python scripts/verify_feast_install.py
+python scripts/verify_feast_install.py [--candidate-provenance <path>]
 python -m pip check
 ```
 
@@ -50,9 +52,11 @@ transport_nonconvergence: raise
 ```
 
 The iteration limit changes the historical contract value of 200 to the
-unified FEAST v1.0.2 value of 1000. It is a declared numerical configuration
-change and must appear in old-versus-new records. A finite plan is not proof of
-convergence. Every saved transport record must report `converged=true`, a
+declared unified-OT value of 1000. It is a declared numerical configuration
+change and must appear in the workflow's repair decision or score provenance;
+the tracked old-versus-new CSVs separately report the calibrated scientific
+parameter changes. A finite plan is not proof of convergence. Every saved
+transport record must report `converged=true`, a
 finite final error below its recorded tolerance, finite positive transported
 mass, and policy `raise`. A solver warning or missing positive evidence makes
 the candidate fail.
@@ -113,15 +117,16 @@ The validated evidence remains unpromoted pending author review.
 - Z regularization and spot smoothing: disabled.
 
 Assignment randomness is estimated once per density using reference data only.
-The expected values are dense `0.35`, medium `0.25`, and sparse `0.35`. The
+The reproducible v5 values are dense `0.35`, medium `0.30`, and sparse `0.35`. The
 preflight writes the estimates and stops if they differ; accepted values are
 then frozen for every target in that arm.
 
-Current gate: the initial full preflight and two independent one-thread repeats
-all failed during the first dense-gap-3 estimator call with POT numerical
-errors at iteration 0. Isolated calls can pass, so no declared AR is accepted
-and no canary may run. The blocker and required versioned solver/estimator
-repair are recorded in `06_3d_stack/PREFLIGHT_BLOCKER.md`.
+Completion gate: the initial ordinary-POT preflight failure was repaired by the
+versioned log-domain candidate without relaxing the fail-closed policy. The
+fresh v5 preflight, CUDA canaries, all 93 generations, independent validation,
+and atomic evaluation passed. The repair classification and exact hashes are
+recorded in `06_3d_stack/PREFLIGHT_BLOCKER.md` and
+`06_3d_stack/OT_LOG_REPAIR_DECISION.md`.
 
 Each target uses exact observed XY, class labels, and z. Primary reference
 weights are linear between the bracketing slices. Any out-of-bracket label
@@ -164,6 +169,13 @@ retains the same ordered 550-gene input panel for E15.5 and E18.5; stricter
 package defaults would retain only 169 and 181 genes, respectively, and are
 not part of this publication design.
 
+Completion record: consolidation retained exactly 158 E15.5 and 202 E18.5
+unique levels. Independent validation confirmed exact blueprint identity and
+positive convergence for all 12,290 transport records. Descriptive full-axis
+coverage and adjacent-z continuity metrics and an editable diagnostic are
+complete. Because no target expression exists, these outputs do not support an
+expression-accuracy claim.
+
 Canaries cover both endpoints, a middle level, and the densest level for each
 age. E15.5 additionally reruns historical failure level z=-3.88 first. After
 canaries pass, age-specific z-index shards write to `.work/`. Consolidation
@@ -176,20 +188,18 @@ H5AD. The two final age roots remain separate and are visualized side by side.
 1. Build input checksum manifests and verify the installed FEAST wheel.
 2. Run the representative fixed-seed RNG and strict-convergence canaries.
 3. Freeze reference-only assignment-randomness decisions.
-4. Keep Study 06 stopped until its versioned estimator/solver repair passes
-   reproducible full preflights; Study 05 is complete.
-5. Run Study 07 in measured z-index shards, beginning with E15.5 and E18.5
-   canaries before allocating full workers.
-6. Independently validate outputs, recompute metrics, and write old-versus-new
-   tables.
-7. Stop any workflow whose headline conclusion changes. Do not update figures,
-   canonical decisions, or the scientific disposition until author review.
-8. After all accepted candidates pass, regenerate remaining visualizations,
-   update the figure-source map, revalidate all method contracts, and rebuild
-   the final artifact freeze and clean-environment engineering gate. Study 05's
-   review figure and source-map entry are already complete.
+4. Study 06 and Study 07 completed their CUDA canaries before production.
+5. Study 06 completed 93 targets; Study 07 completed its measured E15.5/E18.5
+   z-index shards and exact consolidation.
+6. Independent validation and declared evaluation are complete. Study 06 has
+   no historical comparison because no separately approved hash-pinned summary
+   was supplied; Study 07 has no target-expression ground truth.
+7. Do not update canonical decisions or the scientific disposition until
+   author review of the supported wording and diagnostic figures.
+8. After all accepted candidates and author decisions are recorded, rebuild
+   the terminal artifact freeze and clean-environment engineering gate.
 
-The current implementation is NumPy/POT CPU code. CUDA does not accelerate
-these transports. Parallelism is therefore across independent direction,
-target, or z-index jobs with explicit BLAS thread limits and measured memory
-use; it must not change seeds, configuration IDs, or output identity.
+Study 05 uses the declared NumPy/POT CPU path. Studies 06 and 07 use the pinned
+Torch/CUDA log-domain implementation and completed on the NVIDIA RTX A6000
+without silent CPU or solver fallback. Parallel independent target/z-index
+workers did not change seeds, configuration IDs, or output identity.

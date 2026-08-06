@@ -12,7 +12,7 @@
   "sources": {
     "publication_manifest": {
       "path": "PUBLICATION_MANIFEST.json",
-      "sha256": "7271bb0e7396c4fe4fbf48929898add3e411538acb067b9d392b931c661cb441"
+      "sha256": "d0fb543b18de728c502aae2049e816123b9753c29bc3262fae2b907493ce770d"
     },
     "decision": {
       "path": "03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/publication_decision.json",
@@ -28,7 +28,7 @@
     },
     "plot_script": {
       "path": "visualization/03_deconvolution/plot.py",
-      "sha256": "681b8b0fd7bd3ecb07c4d26e389e1fb38de21004ab01c4e8a976a8175b5b5700"
+      "sha256": "14c5c5de43d55b24999f4a940b66c00ba54db1255c262142fa945ca71b79774a"
     }
   },
   "design": {
@@ -49,9 +49,9 @@
   },
   "outputs": {
     "common_support_audit_plot.csv": "9233c419abe6f5be3e35184dbedefa030e16b3ea8ae50c47301d685cc011a63c",
-    "common_support_diagnostic.pdf": "fcc4f60eafb2547dbd4497cac4ca4ca6dea19562da92c0bcce2fc40ef9248e5d",
-    "common_support_diagnostic.png": "241d60457c2e7bbf96d0c7390cc7c76753ec52971b201b3b1e4758a1c913e5bb",
-    "common_support_diagnostic.svg": "4cb918ba0b0b4f02273f29dcb5e07c80bbd4061672aaa058fd26929653ea60ed",
+    "common_support_diagnostic.pdf": "f090f8967fba63c0296ffdc1db91f25ec64d40a8288cf6bd84cf4153b221c3cc",
+    "common_support_diagnostic.png": "3252f04368c6c1c7278e111455137e89b7f2ac42b44b6898034c9be625a9bf55",
+    "common_support_diagnostic.svg": "a955954d03acae82d259294ef0060f25a3b92d5a9435abecb9785baeea44cade",
     "common_support_scores_plot.csv": "29d1d3b7fc497bb202ee85ffb50e149791cfb1e4ecc2648537d5ba866c53f180",
     "headline_direction_audit_plot.csv": "f107e8404f70a9b67b33270cb641a51548c578aaf443ad5d25b4cec4dc791518"
   }

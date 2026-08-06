@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate six FEAST inputs and run matched RCTD/Cell2location jobs."""
+"""Generate declared FEAST inputs and run selected deconvolution jobs."""
 
 from __future__ import annotations
 
@@ -343,13 +343,37 @@ def main() -> int:
     parser.add_argument("--input-dir", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--feast-commit", required=True)
-    parser.add_argument("--rscript", type=Path, required=True)
-    parser.add_argument("--cell2location-python", type=Path, required=True)
+    parser.add_argument("--rscript", type=Path)
+    parser.add_argument("--cell2location-python", type=Path)
     parser.add_argument("--rctd-python", type=Path, default=Path(sys.executable))
     parser.add_argument("--config", type=Path, default=Path(__file__).with_name("config.yaml"))
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument(
+        "--simulate-only",
+        action="store_true",
+        help="write FEAST simulations and ground-truth proportions, but do not start a method job",
+    )
+    parser.add_argument(
+        "--methods",
+        choices=("rctd", "cell2location"),
+        nargs="+",
+        default=("rctd", "cell2location"),
+        help="method jobs to run after simulation (default: both)",
+    )
+    parser.add_argument(
+        "--only-resolution",
+        type=float,
+        action="append",
+        help="run only declared resolution(s); useful for a memory-isolated resume",
+    )
     args = parser.parse_args()
+
+    if not args.simulate_only:
+        if args.rscript is None:
+            parser.error("--rscript is required unless --simulate-only is used")
+        if args.cell2location_python is None:
+            parser.error("--cell2location-python is required unless --simulate-only is used")
 
     config = yaml.safe_load(args.config.read_text())
     config_hash = sha256_file(args.config)
@@ -376,14 +400,36 @@ def main() -> int:
     for reference_path in references.values():
         if sha256_file(reference_path) != expected_inputs.get(reference_path.name):
             raise RuntimeError(f"input checksum mismatch: {reference_path}")
-    for path in [*references.values(), args.rscript, args.cell2location_python, args.rctd_python]:
+    required_paths = [*references.values()]
+    if not args.simulate_only:
+        required_paths.extend([args.rscript, args.cell2location_python, args.rctd_python])
+    for path in required_paths:
         if not path.is_file():
             raise FileNotFoundError(path)
-    pairs = [(slice_id, float(resolution)) for slice_id in config["slices"] for resolution in config["resolutions"]]
-    if len(pairs) != 6:
-        raise RuntimeError("configuration must declare exactly six simulation pairs")
+    declared_resolutions = [float(resolution) for resolution in config["resolutions"]]
+    selected_resolutions = declared_resolutions
+    if args.only_resolution:
+        requested = [float(resolution) for resolution in args.only_resolution]
+        unknown = [
+            resolution for resolution in requested
+            if not any(np.isclose(resolution, declared) for declared in declared_resolutions)
+        ]
+        if unknown:
+            raise RuntimeError(f"requested undeclared resolution(s): {unknown}")
+        selected_resolutions = [
+            resolution for resolution in declared_resolutions
+            if any(np.isclose(resolution, requested_resolution) for requested_resolution in requested)
+        ]
+    pairs = [(slice_id, resolution) for slice_id in config["slices"] for resolution in selected_resolutions]
+    if not pairs or len(set(pairs)) != len(pairs):
+        raise RuntimeError("configuration must declare a non-empty set of unique simulation pairs")
+    n_method_jobs = 0 if args.simulate_only else len(pairs) * len(args.methods)
     if args.dry_run:
-        print(json.dumps({"simulations": 6, "method_jobs": 12, "pairs": pairs}, indent=2))
+        print(json.dumps({
+            "simulations": len(pairs), "method_jobs": n_method_jobs,
+            "pairs": pairs, "simulate_only": bool(args.simulate_only),
+            "methods": list(args.methods),
+        }, indent=2))
         return 0
     if args.output_dir.exists() and not args.resume:
         raise FileExistsError(f"refusing to overwrite output root: {args.output_dir}")
@@ -409,18 +455,19 @@ def main() -> int:
         }
 
     pair_order = [f"{slice_id}__resolution_{resolution:g}" for slice_id, resolution in pairs]
+    manifest_pair_order = list(dict.fromkeys([*previous_simulations, *pair_order]))
 
     def write_simulation_manifest(current: list[dict]) -> None:
         merged = dict(previous_simulations)
         merged.update({record["pair_id"]: record for record in current})
-        pd.DataFrame([merged[key] for key in pair_order if key in merged]).to_csv(
+        pd.DataFrame([merged[key] for key in manifest_pair_order if key in merged]).to_csv(
             simulation_manifest_path, index=False
         )
 
     method_order = [
         (pair_id, method)
         for pair_id in pair_order
-        for method in ("rctd", "cell2location")
+        for method in args.methods
     ]
 
     def write_method_manifest(current: list[dict]) -> None:
@@ -521,21 +568,52 @@ def main() -> int:
         write_simulation_manifest(simulation_rows)
         print(f"SIMULATED {pair_id}", flush=True)
 
+    if args.simulate_only:
+        simulation_provenance = {
+            "configuration_id": CONFIGURATION_ID,
+            "generated_utc": datetime.now(timezone.utc).isoformat(),
+            "run_stage": "simulation_only",
+            "feast_version": str(feast_version),
+            "feast_commit": args.feast_commit,
+            "config_path": str(args.config.resolve()),
+            "config_sha256": config_hash,
+            "input_manifest_path": str(input_manifest_path.resolve()),
+            "input_manifest_sha256": input_manifest_hash,
+            "orchestration_runner_path": str(orchestration_runner),
+            "orchestration_runner_sha256": orchestration_runner_hash,
+            "reference_inputs": {
+                slice_id: {"path": str(path.resolve()), "sha256": sha256_file(path)}
+                for slice_id, path in references.items()
+            },
+            "simulation_manifest_path": str(simulation_manifest_path.resolve()),
+            "simulation_manifest_sha256": sha256_file(simulation_manifest_path),
+            "public_seed": int(config["seed"]),
+            "simulations": len(pairs),
+            "method_jobs_started": 0,
+            "planned_methods": list(args.methods),
+            "same_expression_by_construction": True,
+        }
+        (args.output_dir / "simulation_provenance.json").write_text(
+            json.dumps(simulation_provenance, indent=2) + "\n"
+        )
+        return 0
+
     method_rows = []
     rctd_script = Path(__file__).parent / "methods" / "run_rctd.py"
     c2l_script = Path(__file__).parent / "methods" / "run_cell2location.py"
     for row in simulation_rows:
         pair_id, slice_id, resolution = row["pair_id"], row["slice_id"], row["resolution"]
-        jobs = [
-            (
-                "rctd", args.rctd_python, rctd_script,
+        candidates = {
+            "rctd": (
+                args.rctd_python, rctd_script,
                 args.output_dir / "methods" / "rctd" / slice_id / f"resolution_{resolution:g}_proportions.csv",
             ),
-            (
-                "cell2location", args.cell2location_python, c2l_script,
+            "cell2location": (
+                args.cell2location_python, c2l_script,
                 args.output_dir / "methods" / "cell2location" / slice_id / f"resolution_{resolution:g}_proportions.csv",
             ),
-        ]
+        }
+        jobs = [(method, *candidates[method]) for method in args.methods]
         for method, interpreter, script, output in jobs:
             output.parent.mkdir(parents=True, exist_ok=True)
             metadata = output.with_name(output.stem + "_metadata.json")
@@ -659,7 +737,8 @@ def main() -> int:
         "simulation_manifest_sha256": sha256_file(simulation_manifest_path),
         "method_manifest_path": str(method_manifest_path.resolve()),
         "method_manifest_sha256": sha256_file(method_manifest_path),
-        "public_seed": int(config["seed"]), "simulations": 6, "method_jobs": 12,
+        "public_seed": int(config["seed"]), "simulations": len(pairs),
+        "method_jobs": n_method_jobs, "methods": list(args.methods),
         "resume_mode": bool(args.resume),
         "same_expression_by_construction": True,
         "external_method_limitation": (

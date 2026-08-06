@@ -25,10 +25,10 @@
   },
   "studies": {
     "00_simulator_benchmark": {
-      "status": "validated_complete",
-      "remaining": "author claim authorization and final cross-study integration",
+      "status": "decision_required_source_lineage_break",
+      "remaining": "author disposition of the overwritten frozen metrics_v2 lineage and review of the scCube-complete final table; no ranking or figure promotion",
       "canonical_candidate": {
-        "configuration_id": "study00-reference-rank-global-v1",
+        "configuration_id": "study00-final-metrics-sccube-slideseq-identity-v1",
         "public_seed": 2026,
         "assignment_solver": "scipy",
         "assignment_blocks": false,
@@ -36,32 +36,44 @@
         "simulation_manifest_sha256": "a7919681f5e376f1f8a7d1435892d0531d143389cf60254e6f9e87e9a658f7eb",
         "simulation_provenance": "00_simulator_benchmark/outputs/final_rerun_20260718/provenance.json",
         "simulation_provenance_sha256": "6e4e29c4074f03abef3ccb272da7ee46cc38231b6b58b46d8d63b94213446238",
-        "metrics": "00_simulator_benchmark/outputs/final_rerun_20260718_metrics_v2/simulator_quality_metrics.csv",
-        "metrics_sha256": "b80e01a740ac084867997189ac80c148e4f52ceee79c4f721985d9d98df75879",
-        "metrics_provenance": "00_simulator_benchmark/outputs/final_rerun_20260718_metrics_v2/provenance.json",
-        "metrics_provenance_sha256": "5ebefdc07f5afc039b8418ff0b2c5f7b5a32271dd1e2c919ca76fa4898348700",
-        "old_vs_new": "00_simulator_benchmark/outputs/final_rerun_20260718_comparison/old_vs_new_metrics.csv",
-        "old_vs_new_sha256": "021e5890adea341224285493be88235736954550c0908a6a6a953f2057e7dab3",
-        "decision": "00_simulator_benchmark/outputs/final_rerun_20260718_comparison/publication_decision.json",
-        "decision_sha256": "2933fb61c69a70de9d3ab37c035b7704315298b1c413d17a4b8b3a77c11b5250",
-        "comparison_provenance": "00_simulator_benchmark/outputs/final_rerun_20260718_comparison/provenance.json",
-        "comparison_provenance_sha256": "bc662e9278cea7bb05992dbbc0ca6e1e8f7bb05a1699d7f023183c002f381839",
+        "metrics": "00_simulator_benchmark/outputs/final_metrics/simulator_quality_metrics.csv",
+        "metrics_sha256": "a315f525ac11fcc0666d94bab5b0840e058744bd4e9fc610eeb7942fddc94fb6",
+        "metrics_provenance": "00_simulator_benchmark/outputs/final_metrics/provenance.json",
+        "metrics_provenance_sha256": "c1756fa40f0401c39479a228a3afe26b52d6747c328a860306a96945de913286",
+        "old_vs_new": "00_simulator_benchmark/outputs/final_metrics/sccube_slideseq_old_vs_new.json",
+        "old_vs_new_sha256": "619cd99c7b2d1c904e4cc2a3c62e3d8f5a903e49c0d71b6fc8c435020b0a8672",
+        "support_audit": "00_simulator_benchmark/outputs/final_metrics/support_audit.json",
+        "support_audit_sha256": "aca8dd0632f03491977a828055bff2a01a60a8068a0a8e0c537645acf5f7d29d",
+        "decision": "00_simulator_benchmark/outputs/final_metrics/publication_decision.json",
+        "decision_sha256": "085567cab0f4211604174f531ac9c48058f3765756610dcf12490f3efd305c72",
+        "figure": "visualization/00_simulator_benchmark/figures/simulator_benchmark_boxplots.pdf",
+        "figure_sha256": "fb462f5f6fb32ecf2c2940f30496ff07a0a916d707cfe389ae932c70c65ff0a2",
+        "figure_provenance": "visualization/00_simulator_benchmark/figures/figure_provenance.json",
+        "figure_provenance_sha256": "0eb81f7c7993421b50c9c783f1cff6c1e33b2586124869d9c933afe952be6b18",
+        "sccube_slideseq_provenance": "00_simulator_benchmark/outputs/sccube_slideseq_rerun_20260719/provenance.json",
+        "sccube_slideseq_provenance_sha256": "285b8392cc9dfdbf077a0a34e568a1ee7b70f5554bf473d3b7d264f64d1a1657",
         "rng_gate": "validation/rng_article_gate_20260718_v2.json",
         "rng_gate_sha256": "482182d689d745098899de0f1e92ee7c2938e3abc2a14179a5ee638b0c6a610f",
         "fresh_feast_rows": 12,
         "frozen_external_rows": 48,
-        "headline_direction_unchanged": true,
+        "scCube_slideseq_pairwise_metrics_available": true,
+        "source_lineage_complete": false,
+        "frozen_metrics_v2_expected_sha256": "b80e01a740ac084867997189ac80c148e4f52ceee79c4f721985d9d98df75879",
+        "frozen_metrics_v2_observed_sha256": "f497e386d0d6d7acf32f672140a5653af14b971bbe7b6e37f9da564d866044d3",
+        "external_method_environment_supported_by_feast": false,
+        "headline_direction_unchanged": null,
         "publication_claim_authorized": false,
         "worsened_atomic_metrics": [
           "gene_variance_wasserstein"
         ],
         "composite_score_present": false,
-        "historical_ot_arm_included": false
+        "historical_ot_arm_included": false,
+        "figure_promotion_authorized": false
       }
     },
     "01_clustering": {
       "status": "validated_complete",
-      "remaining": "figure rendering and final cross-study integration",
+      "remaining": "author acceptance of the bounded three-slice method-mean statement and final cross-study integration; the alteration-sensitivity figure is rendered but unpromoted",
       "canonical_candidate": {
         "metrics": "01_clustering/outputs/final_rerun_20260718_report/fixed_panel_benchmark_metrics.csv",
         "metrics_sha256": "10abbadbcf8c26d2b85e92a3357a8380fe4f4bc46882e6d42d2388a3d1882fab",
@@ -75,7 +87,7 @@
     },
     "02_alignment": {
       "status": "validated_complete",
-      "remaining": "author scope decision, figure rendering, and final cross-study integration",
+      "remaining": "author scope decision and final cross-study integration; the alignment diagnostic is rendered but unpromoted",
       "canonical_candidate": {
         "metrics": "02_alignment/outputs/final_rerun_20260718_v2/scores/alignment_metrics.csv",
         "metrics_sha256": "d405d2b8bea4d834cee729013803d2cb9c3ba2193f25d5c9df08dc1446723e92",
@@ -253,8 +265,8 @@
       }
     },
     "06_3d_stack": {
-      "status": "blocked_reference_ar_solver_instability",
-      "remaining": "versioned FEAST estimator/solver repair followed by reproducible full preflight before any generation",
+      "status": "validated_complete_author_review_required",
+      "remaining": "author review of the atomic diagnostic and supported wording; optional historical comparison only from a separately approved hash-pinned summary",
       "authorized_scope": {
         "dense_gap3": 49,
         "medium_gap5": 29,
@@ -265,6 +277,7 @@
         "spot_smoothing": false
       },
       "implementation_evidence": {
+        "configuration_id": "study06-allen-abca1-conditional-stack-v5",
         "tests_passed": 16,
         "real_metadata_plan_verified": true,
         "planned_targets": {
@@ -272,26 +285,54 @@
           "medium_gap5": 29,
           "sparse_gap10": 15
         },
-        "config_sha256": "4211c061e0e286bf8ce7c22a6e72ae321e38cb91e6a2c0331ecb6a44d64c60d6",
+        "config_sha256": "a554d9acff7790650edea45b0fd2bb78ad40cab87cb5f38cb14a06d5efc4c1de",
         "input_files_verified": 147,
         "input_manifest_sha256": "8d3ac86215cee6782e6d64a122bfa9b6aca7f04aff9412a5c3adcca42598036a",
-        "full_preflight_attempts": 3,
-        "full_preflight_failures": 3,
-        "failure_stage": "first dense-gap-3 reference-only assignment-randomness estimate",
-        "failure": "POT divide by zero and numerical errors at iteration 0",
-        "assignment_randomness_preflight_complete": false,
-        "generation_jobs_complete": 0,
+        "assignment_randomness_preflight_complete": true,
+        "assignment_randomness": {
+          "dense_gap3": 0.35,
+          "medium_gap5": 0.3,
+          "sparse_gap10": 0.35
+        },
+        "plan_sha256": "f4a852dafbadef60e6cdffb7616ab2523845cc78f7db89f57ed71f95b1fd0f33",
+        "cuda_canaries_passed": 3,
+        "generation_jobs_complete": 93,
+        "validated_generation_jobs": 93,
+        "strict_positive_transport_evidence": true,
         "blocker": "06_3d_stack/PREFLIGHT_BLOCKER.md",
-        "blocker_sha256": "0d459a5529a8ec2c0c2cc8ede9bcf9e80731f08ab40632eabc0123e9be2e731e"
+        "blocker_closed_for_declared_scope": true
       },
       "preflight_execution_started": true,
-      "full_execution_started": false,
+      "full_execution_started": true,
       "historical_conditional_outputs_consumed": false,
-      "canonical_candidate": null
+      "canonical_candidate": {
+        "configuration_id": "study06-allen-abca1-conditional-stack-v5",
+        "feast_version": "1.1.0",
+        "feast_commit": "68816e5c1862a6fa2a49bc30609d617c7fa4b449",
+        "feast_wheel_sha256": "3ad31888faf367a91aec9d46902a5e89759837b5c7ea0e45ca93276674e68883",
+        "candidate_provenance_sha256": "9fbe12912ab0853d9c637ef0651b55157af2f015e90187947619d7936e42e898",
+        "public_seed": 2026,
+        "old_vs_new": "06_3d_stack/assignment_randomness_old_vs_new.csv",
+        "old_vs_new_sha256": "434f44d24a8eed7f8adf29f4653ccfe35cee556550de5e0bea1b9385dd8a3b9a",
+        "validation": "06_3d_stack/outputs/final/validation_summary.json",
+        "validation_sha256": "c41bb104a06a6711070f1888533422ba11596d7e7bebf4fa044bc1aaeabf4a37",
+        "validation_csv_sha256": "e32c3f2a2ca85a5606394d6aa2153ef5e5c221d1368392e524cd14c6b6086b35",
+        "score_provenance": "06_3d_stack/outputs/final/evaluation/score_provenance.json",
+        "score_provenance_sha256": "2bb9d66f4fc3ad20c4e9683ba7fc5db4dedbb52c86b06ed515e1e9d5cea6c85b",
+        "validated_generated_artifacts_sha256": "e34a053127cecb094bc09c88e4dfced865b78a373d274788518612728693e11c",
+        "figure": "visualization/06_3d_stack/figures/conditional_stack_diagnostic.pdf",
+        "figure_sha256": "7f018ad5af52557240fd455b4546436204ced627a8f6cb0aa55d3f884bc3bb80",
+        "figure_provenance": "visualization/06_3d_stack/figures/figure_provenance.json",
+        "figure_provenance_sha256": "b117a1d68d2e1786210774eda6ab5f1cc0367822e969f139530be640c01ce85a",
+        "target_expression_loaded_by_generation": false,
+        "publication_canonical": false,
+        "publication_claim_authorized": false,
+        "figure_promotion_authorized": false
+      }
     },
     "07_3d_transfer": {
-      "status": "calibration_complete_canaries_pending",
-      "remaining": "strict age-specific canaries, full generation, consolidation, metrics, visualization, and author review",
+      "status": "validated_complete_descriptive_only_author_review_required",
+      "remaining": "author review of the descriptive full-axis diagnostic; no target-expression accuracy claim is available",
       "authorized_scope": {
         "E15.5": {
           "z_min": -4.12,
@@ -311,9 +352,9 @@
         "genes": 550
       },
       "implementation_evidence": {
-        "configuration_id": "study07-full-devccf-transfer-v2",
-        "config_sha256": "52b4b58a1f82731a555cdc836fa3c4f1ae8523cbf50c6d0480dfd7728542f028",
-        "tests_passed": 13,
+        "configuration_id": "study07-full-devccf-transfer-v5",
+        "config_sha256": "111197eecf141b09583459ee2a9ba6b1d077c6fbf7f58a863c55d57a89fb9e4b",
+        "tests_passed": 16,
         "verified_inputs": 18,
         "reference_gene_order_sha256": "f1c73c202b90cfd62a727a92c4f36aec1865afa5be3f57c09bdb30a9be4cdb59",
         "reference_fit": {
@@ -325,26 +366,60 @@
         },
         "blueprints": {
           "E15.5": {
-            "sha256": "15a8ecf002c2bfa03d0ebe55a1822e51097293f11cf8ca3d476067c092c1254a",
-            "provenance_sha256": "d4727b6f8b4f95313ef368000303f180089e00d4f22e87093728c41e153283f6",
+            "sha256": "b03b48ee68929f0cfb8571ef1d7b7251bef9f95a3d253303f95701ca471bc1ff",
+            "provenance_sha256": "9c7a0405eb658e90315376b141bd20c1368da13045c0285fae744320cb9d5614",
             "manifest_sha256": "44ae919aa574f0bd8fd1e333b100c543c5e0eca8570ab8160b7a70f96fb1f279"
           },
           "E18.5": {
-            "sha256": "59524de6d47bd93e14eb5c73e80cf4b785874b6f1dd0c0cf6feb6dac7d04dd17",
-            "provenance_sha256": "40d9775547d95e1817c75c90c8e628f1dc11b3b2758d105fdba299e3c718b96a",
+            "sha256": "b05fefd347163ae42ee74ef4852f9fe3bae045888b6248913981f4b39b7fce9b",
+            "provenance_sha256": "c7ca8e70cff25077061d93e2a2d32bb97a2efb3afab772f799d56dbd87e75cd2",
             "manifest_sha256": "12b3036a15550efd738448a15118c0139f059e206882a70b6856800e9b06f729"
           }
         },
         "e18_assignment_randomness_calibration_complete": true,
         "e18_assignment_randomness": 0.5,
-        "e18_assignment_randomness_calibration_sha256": "8c917f3c195aed3a001874826eaa4e0ead84122b9e62cdd7a0a9de043225810d",
+        "e18_assignment_randomness_calibration_sha256": "cb5f54537332fc15ec626cf5afc8c10664781bc3364543ec87c8d076d533c445",
+        "e18_assignment_randomness_manifest_sha256": "92f35fd29f9f1496480e741487f69c07ef1c0f5590d7ed803708faa7a870d332",
         "canary_execution_started": true,
-        "generation_jobs_complete": 0
+        "canary_indices_passed": 9,
+        "generation_jobs_complete": 360,
+        "validated_generation_jobs": 360,
+        "transport_records_converged": 12290,
+        "exact_blueprint_identity": true,
+        "duplicate_active_records_resolved_non_destructively": true
       },
-      "full_execution_started": false,
+      "full_execution_started": true,
       "historical_conditional_outputs_consumed": false,
-      "canonical_candidate": null
+      "canonical_candidate": {
+        "configuration_id": "study07-full-devccf-transfer-v5",
+        "feast_version": "1.1.0",
+        "feast_commit": "68816e5c1862a6fa2a49bc30609d617c7fa4b449",
+        "feast_wheel_sha256": "3ad31888faf367a91aec9d46902a5e89759837b5c7ea0e45ca93276674e68883",
+        "candidate_provenance_sha256": "9fbe12912ab0853d9c637ef0651b55157af2f015e90187947619d7936e42e898",
+        "public_seed": 2026,
+        "seed_formula": "2026 + original sorted z index",
+        "old_vs_new": "07_3d_transfer/calibration_old_vs_new.csv",
+        "old_vs_new_sha256": "8af4f86fa42c651cc41ecee1d32fe5544f3b3c4a4280518cc56f91b8e122be95",
+        "validation": "07_3d_transfer/outputs/final/validation.json",
+        "validation_sha256": "2e9a1607b8e21e1e035c2b8353a0be78bcf96782a58ba7266d0138183b17aa1f",
+        "E15.5_manifest": "07_3d_transfer/outputs/final/E15.5/manifest.csv",
+        "E15.5_manifest_sha256": "eb5c9bde48028cb4b9b2826c207f1d4488533ec3bb7d8f98ef34f8b4624d6a73",
+        "E15.5_provenance_sha256": "4947544bacc266ecc47084c05e2877f7bbb5b44527e62fa574b4f58888d4f85c",
+        "E18.5_manifest": "07_3d_transfer/outputs/final/E18.5/manifest.csv",
+        "E18.5_manifest_sha256": "543e7042edf47b8eb0e717d9521b839573685adb36d207bf873ef83a5e74f336",
+        "E18.5_provenance_sha256": "0a3dea34b784abc76aa33cf91d8b360c9685c38c286fb2dc42a4cccd55bcbbe1",
+        "evaluation_provenance": "07_3d_transfer/outputs/final/evaluation/provenance.json",
+        "evaluation_provenance_sha256": "6e41d14bdff42dba10ee473f3b2477efd63bfd7fcfe2b648168ea738a906453c",
+        "figure": "visualization/07_3d_transfer/figures/full_axis_transfer_diagnostic.pdf",
+        "figure_sha256": "62eb4085709d39e2abfea521e8ee33df8cba9b3131ce21eb8a64a831c6ddd098",
+        "figure_provenance": "visualization/07_3d_transfer/figures/figure_provenance.json",
+        "figure_provenance_sha256": "ef53d938ae35558da635cb60013279a0a7ee48911e99f11757342b16694f81fc",
+        "publication_canonical": false,
+        "target_expression_accuracy_claim_authorized": false,
+        "publication_claim_authorized": false,
+        "figure_promotion_authorized": false
+      }
     }
   },
-  "unified_release_policy": "All fresh article candidates bind FEAST 1.0.2 commit 68816e5c1862a6fa2a49bc30609d617c7fa4b449 exactly. Historical artifacts retain their recorded provenance and are never relabelled."
+  "unified_release_policy": "Studies 00-05 retain their pinned FEAST 1.0.2 build. Studies 06-07 explicitly bind the unreleased FEAST 1.1.0 log-domain repair candidate at source commit 68816e5c1862a6fa2a49bc30609d617c7fa4b449 plus its recorded source patch. No release build is unified or authorized until author decisions and a new terminal gate are complete. Historical artifacts retain their recorded provenance and are never relabelled."
 }

@@ -49,19 +49,21 @@ later without changing the scientific scripts.
 
 ## FEAST environment
 
-Use a wheel built from the exact clean source recorded in
-[`FEAST_BUILD.txt`](FEAST_BUILD.txt). The supported execution environment is
-Python 3.11.15 with NumPy 1.26.4. External methods use the environments listed
-in [`environments/README.md`](environments/README.md); those environments do
-not expand FEAST's supported dependency range.
+Studies 00–05 use the wheel recorded in [`FEAST_BUILD.txt`](FEAST_BUILD.txt).
+Studies 06 and 07 use the separately hash-pinned unreleased FEAST 1.1.0
+log-domain repair candidate documented by their READMEs. Both clean FEAST
+environments use supported Python 3.11.15 and NumPy 1.26.4. External methods
+use the environments listed in
+[`environments/README.md`](environments/README.md); those environments do not
+expand FEAST's supported dependency range.
 
 Before any full rerun:
 
 ```bash
 python scripts/check_repository.py
 python scripts/check_conditional_workflows.py
-python scripts/test_conditional_workflows.py
-python scripts/verify_feast_install.py
+<candidate-python> scripts/test_conditional_workflows.py
+<study-build-python> scripts/verify_feast_install.py
 python -m pip check
 python scripts/verify_rng.py \
   --input /path/to/one/real/article_input.h5ad \
@@ -74,10 +76,10 @@ The RNG check launches three fresh processes with ambient NumPy seeds 1,
 99991, and repeated 1. It requires identical output matrices from the fixed
 public FEAST seed.
 
-The unified FEAST package refactor is deliberately separate from these frozen
-article runs. Completed outputs retain their recorded v1.0.2 provenance;
-migrating a study to the current release requires a fresh output root and a new
-impact decision.
+Studies 00–05 retain their recorded v1.0.2 provenance. Studies 06 and 07 were
+freshly regenerated under the explicit repaired 1.1.0 candidate and retain
+that separate lineage. No package release is unified or authorized by these
+workflow results.
 
 ## Execution
 
@@ -91,7 +93,8 @@ assignment. They must not use OT or the historical `PrefitSimulator` shortcut.
 
 Studies 05–07 use the installed public conditional API (`fit_reference` and
 `simulate_from_reference`) with explicit unified-OT settings and fail-closed
-convergence. Their complete scope, configuration changes, canary order, and
+convergence. Study 05 pins FEAST 1.0.2; Studies 06/07 pin the repaired 1.1.0
+candidate. Their complete scope, configuration changes, canary order, and
 validation rules are recorded in
 [`CONDITIONAL_RERUN_PLAN.md`](CONDITIONAL_RERUN_PLAN.md). Historical
 conditional-OT H5ADs are audit evidence only and are never resumed or promoted.
