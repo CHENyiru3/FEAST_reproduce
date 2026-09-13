@@ -1,130 +1,54 @@
-# Study 06: conditional 3D stack reconstruction
+# Study 06: local generative reconstruction
 
-This directory cleanly regenerates the Allen Zhuang ABCA-1 semi-reference
-stack benchmark. It produces 93 conditional FEAST slices: 49 for gap 3, 29
-for gap 5, and 15 for gap 10. Historical outputs are never read or reused.
+Active configuration: `config_1.0.6_precision.yaml`. Historical workflow files
+are in `archive/pre_generative_20260905`; historical outputs remain unchanged and
+are legacy. The active output is `outputs/generative_five_reference_1.0.6_precision_v1`.
 
-Completion status (2026-07-31): the exact POT underflow defect is repaired and
-the historical medium-gap `0.25` value was classified as unpinned and
-nonreproducible. Versioned configuration v5 declares the reproducible `0.30`
-value. Its fresh full preflight, three CUDA canaries, all 93 CUDA generations,
-independent validation, and atomic evaluation completed successfully. The
-validation summary reports 93/93 outputs with positive convergence evidence
-(SHA-256
-`c41bb104a06a6711070f1888533422ba11596d7e7bebf4fa044bc1aaeabf4a37`).
-The score provenance SHA-256 is
-`2bb9d66f4fc3ad20c4e9683ba7fc5db4dedbb52c86b06ed515e1e9d5cea6c85b`.
-These are validated candidate artifacts, not automatic article authorization.
+The latest recorded run uses the separate FEAST 1.0.6 precision build declared
+in the configuration. Its September 13 notes report production in progress;
+full completion was not established during repository cleanup. Earlier runs
+remain local and separate. This source repository does not include their outputs.
 
-The target slice contributes only observed identity and geometry (`obs_names`,
-`class`, `z`, `spatial`, `spatial_3d`, and gene names) during generation.
-Target expression is reserved for the later `aggregate.py` evaluation stage.
-Bracketing reference expression and explicitly declared reference-only label
-donors are the sole expression inputs to FEAST.
+The three retained reference pools contain 49, 30, and 17 slices. Generate 95,
+114, and 127 targets, respectively, covering 144 positions per reconstruction.
+Slices 4–150, absent IDs 75/94/112, boundary anchors 4/150, gap-10 anchor 89, and
+all 1,122 genes are preserved. Target expression is evaluation-only.
 
-The scientific contract is fail-closed:
+`FEAST.simulate_local_references` selects five primary references, including the
+actual-z bracket. Its exponential bandwidth is the median adjacent actual-z
+spacing of the retained pool. Local groups with positive reference populations
+below 50 merge through within-slice 6-NN contacts. Original labels are retained.
+Explicit supporting donors remain separate references and contribute only to
+unsupported groups. There is no cross-z smoothing or global statistical model.
 
-- reference-only assignment-randomness preflight must reproduce 0.35, 0.30,
-  and 0.35 for gaps 3, 5, and 10;
-- unified OT uses 1,000 iterations, tolerance `1e-5`, a 25-million-pair block
-  cap, and `transport_nonconvergence="raise"`;
-- every saved transport record must contain positive convergence evidence;
-- target spot order, coordinates, classes, z, and the 1,122-gene order must
-  match exactly;
-- no smoothing or z regularization is permitted;
-- failed or interrupted work never becomes a final target artifact.
+Reference gene-statistic tables use generative parameter clouds, hybrid global
+SciPy Hungarian assignment, threefold candidates, and interpolated PPFs. FEAST
+1.0.6 uses direct Student-t inversion at quantiles >= 0.995 and numerical scaling
+to prevent spline overflow. Candidates exceeding float64 use extended precision
+until the existing bounded assignment features are calculated; selected parameters
+must be representable in float64 before count generation. Tables
+are cached by reference identity, merged members, genes and parameter seed.
+Each target fuses tables in log/logit space, applies one shared theta-space
+batch draw (SD 0.005), then uses full count conversion at the target group size
+and the spatial-intensity decoder with boundary multiplier 1.1.
 
-All FEAST stages must run from the clean installed wheel recorded by the
-repository, not the mutable source checkout. Verify the interpreter first:
+Run `preflight.py --config config_1.0.6_precision.yaml --data-dir ... --output-dir <fresh-run>`
+with the installed local research build. It performs three whole-reference
+holdouts per density and the AR grid 0–0.5 by 0.05, fitting all genes and scoring
+20 genes selected only from training references. Generation uses strict CUDA
+float64 OT, epsilon 0.05, 1,000 iterations, tolerance 1e-5, 25-million-pair cap,
+and raises on nonconvergence. Use two workers on GPU 0 with two CPU threads each.
+Run `run.py --output-dir <fresh-run> --gap 3 --shard-index 0 --shard-count 2` (and the
+other nonoverlapping shards), then `validate.py` and `aggregate.py`.
 
-```bash
-FEAST_PY=/path/to/clean-feast-environment/bin/python
-REPRO_ROOT=..
-CANDIDATE="$REPRO_ROOT/../FEAST/validation/package_builds/20260719_ot_log_repair_v2/provenance.json"
-"$FEAST_PY" "$REPRO_ROOT/scripts/verify_feast_install.py" \
-  --candidate-provenance "$CANDIDATE"
-```
+`diagnose_generative.py` is a bounded two-reference empirical, two-reference
+core, and five-reference core diagnostic. Its smaller reference scope is
+explicitly recorded and is not production calibration.
 
-## 1. Freeze inputs and the target plan
 
-Use a new output root. Preflight hashes all 147 source H5ADs, constructs the
-93-target plan and donor support, runs the reference-only AR estimator, and
-binds the result to the exact configuration and FEAST commit.
-
-```bash
-FEAST_PY=/path/to/clean-feast-environment/bin/python
-DATA=/path/to/Allen_Zhuang_ABCA_1/h5ad
-OUT=outputs/canary
-
-$FEAST_PY preflight.py --data-dir "$DATA" --output-dir "$OUT"
-```
-
-If any AR differs from the declared value, preflight writes
-`PREFLIGHT_FAILED.json` and stops. Do not override it; review the FEAST build,
-input hashes, and estimator diagnostics.
-
-## 2. Canaries and parallel shards
-
-Run one declared target from each density first in the ignored canary root. A
-target directory must not already exist; there is intentionally no reuse or
-resume mode. The runner itself checks exact identity and positive convergence
-before atomically exposing each canary.
-
-```bash
-$FEAST_PY run.py --output-dir "$OUT" --gap 3 --target-id 5
-$FEAST_PY run.py --output-dir "$OUT" --gap 5 --target-id 6
-$FEAST_PY run.py --output-dir "$OUT" --gap 10 --target-id 6
-```
-
-After reviewing the canary provenance, repeat preflight into the one publication
-root, then shard production. Independent workers do not change original target
-indices or seeds:
-
-```bash
-OUT=outputs/final
-$FEAST_PY preflight.py --data-dir "$DATA" --output-dir "$OUT"
-$FEAST_PY run.py --output-dir "$OUT" --gap 3 --shard-index 0 --shard-count 8
-$FEAST_PY run.py --output-dir "$OUT" --gap 5 --shard-index 0 --shard-count 4
-$FEAST_PY run.py --output-dir "$OUT" --gap 10 --shard-index 0 --shard-count 2
-```
-
-Launch the remaining shard indices as independent jobs. Shards must use the
-same frozen preflight root. `.work/` holds interrupted or failed attempts;
-only an atomically completed target directory is a candidate artifact.
-
-## 3. Validate and evaluate
-
-```bash
-$FEAST_PY validate.py --output-dir "$OUT"
-$FEAST_PY aggregate.py --output-dir "$OUT"
-```
-
-`validate.py` independently checks all 93 artifacts, exact target identity,
-declared references/donors/weights/seeds, input and output hashes, count
-validity, and every OT convergence record. `aggregate.py` is the first stage
-allowed to read target expression. It atomically writes per-target and
-per-density metrics, class–gene z trajectories, a deterministic within-slice
-real-data split-half continuity baseline, score provenance, and an artifact
-manifest under `evaluation/`. The 93 targets are ordered z levels, not
-independent biological replicates; no across-target p-values are produced.
-
-The completed editable diagnostic is
-`../visualization/06_3d_stack/figures/conditional_stack_diagnostic.pdf`
-(SHA-256
-`7f018ad5af52557240fd455b4546436204ced627a8f6cb0aa55d3f884bc3bb80`).
-It remains unpromoted and prohibits composite scores and winner rankings.
-
-The historical comparison is a separate, hash-pinned review step. It does not
-import historical code or accept historical H5ADs:
-
-```bash
-HISTORICAL=/path/to/pinned/cross_density_summary.csv
-$FEAST_PY compare_historical.py \
-  --output-dir "$OUT" \
-  --historical-summary "$HISTORICAL"
-```
-
-This writes `evaluation/old_vs_new/` and declares the solver change from 200
-to 1,000 iterations separately from comparable atomic metric changes. Every
-comparison remains pending author review; it cannot update figures or
-canonical decisions automatically.
+Pass the selected configuration to `preflight.py`. Generation, validation, and
+aggregation read `frozen_config.yaml` from that output root; they do not accept
+`--config`. Inspect `--help` for each stage. The older
+`config_reference_density.yaml` and `config_1.0.6.yaml` are retained for prior
+runs and existing validation tools. Do not infer the intended run from defaults.
+Historical launch commands and session logs are local archive material.

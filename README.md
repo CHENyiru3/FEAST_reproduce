@@ -1,103 +1,64 @@
-# FEAST publication reruns
+# FEAST methodology and reproduction
 
-Current execution counts and scientific dispositions are tracked in
-[`RUN_STATUS.md`](RUN_STATUS.md).
+Code for the FEAST simulation studies, downstream benchmarks, and manuscript
+visualizations. The FEAST method implementation is maintained separately; this
+repository contains the experiment configurations, runners, evaluation code,
+and figure builders.
 
-This repository is the clean execution copy for the final FEAST article
-reruns. The historical workspace at `FEAST_experiments` remains the audit
-record; its repair attempts, archives, logs, and prior FEAST outputs are not
-inputs to these workflows.
+This is a **code-only repository**. Datasets, generated H5ADs, fitted models,
+metrics, rendered figures, logs, and local archives are excluded from Git.
+Use the [preprocessing scripts](preprocessing/README.md) to prepare upstream
+inputs, then run the relevant analysis before building its figures.
 
-The original Git history is retained on `archive/legacy-experiments` and at
-the annotated tag `legacy-experiments-20260630`. This clean line is a normal
-descendant, so the cleanup is reviewable without rewriting the archive. See
-[`ARCHIVE_POLICY.md`](ARCHIVE_POLICY.md) and the machine-readable
-[`PUBLICATION_MANIFEST.json`](PUBLICATION_MANIFEST.json).
-Current review figures and their exact numerical sources are listed in
-[`FIGURE_SOURCE_MAP.md`](FIGURE_SOURCE_MAP.md).
+## Studies
 
-## Active studies
-
-| Study | Workflow | Fresh work required |
+| Study | Scope | Instructions |
 |---|---|---|
-| 00 | Simulator benchmark | 12 reference-rank FEAST simulations and all metrics |
-| 01 | Clustering | 81 simulations, 84 fixed-panel inputs, 252 method outputs |
-| 02 | Alignment | 20 rotation inputs and 40 method outputs |
-| 03 | Deconvolution | 6 simulations and 12 method outputs |
-| 04 | Batch-effect removal | 12 batch inputs and 36 method outputs |
-| 05 | 2D conditional transfer | 40 cross-slice plus 5 half-slice outputs |
-| 06 | Conditional 3D stack | 93 held-out target-slice outputs |
-| 07 | DevCCF 3D transfer | 158 E15.5 and 202 E18.5 z-level outputs |
+| 00 | Simulator quality benchmarks | [Simulator benchmark](00_simulator_benchmark/README.md) |
+| 01 | Clustering under expression perturbations | [Clustering](01_clustering/README.md) |
+| 02 | Fixed-plate alignment with PASTE2 and Spateo | [Alignment](02_alignment/README.md) |
+| 03 | Cell-class deconvolution with RCTD and Cell2location | [Deconvolution](03_deconvolution/README.md) |
+| 04 | Controlled batch removal and real-slice robustness | [Batch-effect removal](04_batch_effect_removal/README.md) |
+| 05 | Cross-slice transfer and half-slice conditional generation | [2D transfer](05_2d_conditional_transfer/README.md) |
+| 06 | Local 3D reconstruction across reference densities | [3D reconstruction](06_3d_stack/README.md) |
+| 07 | Expression transfer to DevCCF atlas coordinates | [3D transfer](07_3d_transfer/README.md) |
 
-Study 04 is the clean name for legacy Study 08. Publication figure builders
-live in [`visualization/`](visualization/); only studies with complete,
-validated clean outputs are added there.
+## Reproduce a study
 
-## What may be reused
+1. Select a study and read its README and YAML configuration. Working-directory
+   conventions differ; use the directory shown in that study's commands.
+2. Install the study's recorded FEAST build and the required external-method
+   environments. See [environment notes](environments/README.md) and
+   [the original FEAST build record](FEAST_BUILD.txt). Studies use different
+   builds; one installation does not reproduce every study.
+3. Supply the processed datasets at the configured paths, usually under
+   `<study>/data/local/`. The small `data/input_checksums.csv` files record input
+   identities. [Download helpers](preprocessing/downloads/README.md) and
+   [preprocessing instructions](preprocessing/README.md) are included; some
+   annotation tables must be supplied separately.
+4. Run preparation/generation, downstream methods, scoring, and validation in
+   the order documented by the study. Use a fresh output directory for a new
+   run and only the documented resume options for interrupted work.
+5. Build figures with the scripts in [visualization/](visualization/README.md).
+   The [source map](FIGURE_SOURCE_MAP.md) connects plotting code to analysis
+   inputs. Generated figures and plot-data tables stay local.
 
-Only processed source datasets and the frozen external-simulator outputs used
-by Study 00 may be materialized from the old workspace. The historical 12
-FEAST OT-spatial outputs are removed from scope rather than regenerated or
-relabelled. Each reused file must
-match its declared SHA-256 before it is used. All FEAST-generated data,
-downstream method outputs, metrics, and reports are regenerated under this
-repository.
+Study 07's completed two-reference float32 workflow is in
+[`07_3d_transfer/two_reference_float32/`](07_3d_transfer/two_reference_float32/README.md).
+Study 06's latest recorded configuration is `config_1.0.6_precision.yaml`;
+its full production completion was not established by this cleanup.
 
-Local input hardlinks belong below each study's `data/local/` directory and
-are ignored by Git. Publication cloud locations can replace those hardlinks
-later without changing the scientific scripts.
+## Repository layout
 
-## FEAST environment
+- `preprocessing/`: upstream converters, annotation code, and download helpers.
+- `00_*`–`07_*`: study code, configurations, input identifiers, and tests.
+- `visualization/`: plotting scripts and workflow illustrations.
+- `environments/`: recorded dependency inventories and setup notes.
+- `scripts/`, `publication/`: existing validation and publication-provenance tools.
+- `.archive/`, `.work/`, `outputs/`, `figures/`: local artifacts, excluded from Git.
 
-Studies 00–05 use the wheel recorded in [`FEAST_BUILD.txt`](FEAST_BUILD.txt).
-Studies 06 and 07 use the separately hash-pinned unreleased FEAST 1.1.0
-log-domain repair candidate documented by their READMEs. Both clean FEAST
-environments use supported Python 3.11.15 and NumPy 1.26.4. External methods
-use the environments listed in
-[`environments/README.md`](environments/README.md); those environments do not
-expand FEAST's supported dependency range.
-
-Before any full rerun:
-
-```bash
-python scripts/check_repository.py
-python scripts/check_conditional_workflows.py
-<candidate-python> scripts/test_conditional_workflows.py
-<study-build-python> scripts/verify_feast_install.py
-python -m pip check
-python scripts/verify_rng.py \
-  --input /path/to/one/real/article_input.h5ad \
-  --input-artifact-id MERFISH_007 \
-  --seed 2026 \
-  --output validation/rng_article_gate_20260718.json
-```
-
-The RNG check launches three fresh processes with ambient NumPy seeds 1,
-99991, and repeated 1. It requires identical output matrices from the fixed
-public FEAST seed.
-
-Studies 00–05 retain their recorded v1.0.2 provenance. Studies 06 and 07 were
-freshly regenerated under the explicit repaired 1.1.0 candidate and retain
-that separate lineage. No package release is unified or authorized by these
-workflow results.
-
-## Execution
-
-There is no global experiment launcher. Follow each study README and run its
-existing-style entry points in numerical order. Every command requires a new
-output directory. Resume commands may skip only outputs that pass that study's
-validation script.
-
-Studies 00 and 01 use reference-rank spatial assignment and exact global gene
-assignment. They must not use OT or the historical `PrefitSimulator` shortcut.
-
-Studies 05–07 use the installed public conditional API (`fit_reference` and
-`simulate_from_reference`) with explicit unified-OT settings and fail-closed
-convergence. Study 05 pins FEAST 1.0.2; Studies 06/07 pin the repaired 1.1.0
-candidate. Their complete scope, configuration changes, canary order, and
-validation rules are recorded in
-[`CONDITIONAL_RERUN_PLAN.md`](CONDITIONAL_RERUN_PLAN.md). Historical
-conditional-OT H5ADs are audit evidence only and are never resumed or promoted.
-
-If a fresh table materially changes a reported conclusion, preserve that
-study's run and stop before integrating it into the publication results.
+The [repository review](docs/REPOSITORY_REVIEW.md) records remaining portability
+and reproducibility issues. Historical execution notes are archived locally;
+[ARCHIVE_POLICY.md](ARCHIVE_POLICY.md) describes preservation and release rules.
+The publication manifest retains its existing release-authorization status;
+code preparation does not declare a final scientific release.

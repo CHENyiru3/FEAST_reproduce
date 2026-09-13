@@ -1,12 +1,25 @@
 seed: 2026
-required_feast_commit: 68816e5c1862a6fa2a49bc30609d617c7fa4b449
+required_feast_commit: 6b10a227563856552d534bc185341ee0d2d9c5b0
 alterations:
   - baseline
   - mean_0.5
   - variance_2.0
   - sparsity_0.5
-angles: [1, 5, 10, 30, 45]
+angles: [5, 15, 25, 35, 45, 60, 75]
 geometry_tolerance: 1.0e-8
+
+rotation:
+  plate_bounds_source: reference_spatial_min_max
+  pivot_half_extent_fraction: 0.5
+  crop_inclusive: true
+  expected_retained_spots:
+    5: 3532
+    15: 3397
+    25: 3144
+    35: 2918
+    45: 2691
+    60: 2384
+    75: 2058
 
 simulation:
   min_cells: 30

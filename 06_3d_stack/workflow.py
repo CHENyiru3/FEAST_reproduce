@@ -1,9 +1,5 @@
-#!/usr/bin/env python3
 """Shared, experiment-owned contracts for clean Study 06 execution."""
-
 from __future__ import annotations
-
-import hashlib
 import json
 import math
 import subprocess
@@ -11,16 +7,10 @@ import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
-
 import numpy as np
 import yaml
-
-
 STUDY_ROOT = Path(__file__).resolve().parent
-CONFIG_PATH = STUDY_ROOT / "config.yaml"
-ZERO_Z_EPSILON = 1.0e-6
-REQUIRED_WHEEL_SHA256 = "3ad31888faf367a91aec9d46902a5e89759837b5c7ea0e45ca93276674e68883"
-
+CONFIG_PATH = STUDY_ROOT / 'config_reference_density.yaml'
 
 @dataclass(frozen=True)
 class SliceInfo:
@@ -29,19 +19,14 @@ class SliceInfo:
     z: float
     n_obs: int
     n_vars: int
-    sha256: str = ""
-
 
 @dataclass(frozen=True)
 class DensitySpec:
     name: str
     gap: int
-    radius: int
-    start: int
-    expected_targets: int
+    extra_anchor_slices: list[int]
     expected_references: int
-    expected_assignment_randomness: float
-
+    expected_targets: int
 
 @dataclass(frozen=True)
 class TargetAssignment:
@@ -61,202 +46,99 @@ class TargetAssignment:
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
-
-def load_config(path: Path = CONFIG_PATH) -> dict[str, Any]:
-    with path.open(encoding="utf-8") as handle:
+def load_config(path: Path=CONFIG_PATH) -> dict[str, Any]:
+    with path.open(encoding='utf-8') as handle:
         config = yaml.safe_load(handle)
     if not isinstance(config, dict):
-        raise ValueError("config must contain a YAML mapping")
-    required = {
-        "configuration_id",
-        "study_id",
-        "public_seed",
-        "feast_version",
-        "required_feast_commit",
-        "required_wheel_sha256",
-        "required_source_patch_sha256",
-        "required_feast_provenance",
-        "required_feast_provenance_sha256",
-        "dataset",
-        "densities",
-        "reference_fit",
-        "generation",
-        "transport",
-        "validation",
-        "evaluation",
-        "historical_comparison",
-    }
+        raise ValueError('config must contain a YAML mapping')
+    required = {'configuration_id', 'study_id', 'public_seed', 'feast_version', 'required_feast_commit', 'required_feast_provenance', 'dataset', 'anchor_selection', 'densities', 'reference_fit', 'generation', 'transport', 'validation', 'evaluation', 'historical_comparison'}
     missing = required - set(config)
     if missing:
-        raise ValueError(f"config is missing fields: {sorted(missing)}")
-    if str(config["study_id"]) != "06":
+        raise ValueError(f'config is missing fields: {sorted(missing)}')
+    if str(config['study_id']) != '06':
         raise ValueError("study_id must remain '06'")
     validate_fixed_contract(config)
     return config
 
-
 def validate_fixed_contract(config: Mapping[str, Any]) -> None:
-    generation = config["generation"]
-    transport = config["transport"]
-    dataset = config["dataset"]
-    if int(dataset["expected_genes"]) != 1122:
-        raise ValueError("Study 06 must retain the declared 1,122-gene panel")
-    if int(config["reference_fit"]["min_gene_spots"]) != 0:
-        raise ValueError("reference_fit.min_gene_spots must remain zero to retain all 1,122 genes")
-    if str(config["required_wheel_sha256"]) != REQUIRED_WHEEL_SHA256:
-        raise ValueError("required_wheel_sha256 differs from the publication wheel")
-    expected = {3: (49, 95, 0.35), 5: (29, 57, 0.30), 10: (15, 16, 0.35)}
-    observed = {
-        int(row["gap"]): (
-            int(row["expected_targets"]),
-            int(row["expected_references"]),
-            float(row["expected_assignment_randomness"]),
-        )
-        for row in config["densities"]
-    }
+    generation = config['generation']
+    transport = config['transport']
+    dataset = config['dataset']
+    if int(dataset['expected_genes']) != 1122:
+        raise ValueError('Study 06 must retain the declared 1,122-gene panel')
+    if int(config['reference_fit']['min_gene_spots']) != 0:
+        raise ValueError('reference_fit.min_gene_spots must remain zero to retain all 1,122 genes')
+    if int(dataset['first_slice']) != 4 or int(dataset['last_slice']) != 150:
+        raise ValueError('the corrected modeled range must remain slices 4 through 150')
+    if tuple(map(int, dataset.get('excluded_conflicting_slices', []))) != (1, 2, 3):
+        raise ValueError('slices 1, 2, and 3 must remain excluded from the corrected study')
+    if tuple(map(int, dataset['intentionally_absent_slices'])) != (75, 94, 112):
+        raise ValueError('the three absent source slices changed')
+    anchors = config['anchor_selection']
+    if anchors.get('unit') != 'rank_among_available_slices' or anchors.get('phase') != 'first_available_slice' or tuple(map(int, anchors.get('boundary_slices', []))) != (4, 150):
+        raise ValueError('the approved rank-based anchor policy changed')
+    expected = {3: (49, 95, ()), 5: (30, 114, ()), 10: (17, 127, (89,))}
+    observed = {int(row['gap']): (int(row['expected_references']), int(row['expected_targets']), tuple(map(int, row['extra_anchor_slices']))) for row in config['densities']}
     if observed != expected:
-        raise ValueError(f"density contract changed: {observed!r}")
-    required_transport = {
-        "sinkhorn_iter": 1000,
-        "sinkhorn_tol": 1.0e-5,
-        "transport_nonconvergence": "raise",
-        "max_transport_pairs": 25_000_000,
-        "sinkhorn_method": "sinkhorn_log",
-        "transport_backend": "torch",
-        "transport_device": "cuda:0",
-        "transport_dtype": "float64",
-    }
+        raise ValueError(f'density contract changed: {observed!r}')
+    required_transport = {'sinkhorn_iter': 1000, 'sinkhorn_tol': 1e-05, 'transport_nonconvergence': 'raise', 'max_transport_pairs': 25000000, 'sinkhorn_method': 'sinkhorn_log', 'transport_backend': 'torch', 'transport_device': 'cuda:0', 'transport_dtype': 'float64'}
     for key, expected_value in required_transport.items():
         if transport.get(key) != expected_value:
-            raise ValueError(f"transport.{key} must remain {expected_value!r}")
-    if generation.get("target_expression_access") != "evaluation_only":
-        raise ValueError("target expression must remain evaluation-only")
-    if generation.get("smoothing") is not False or generation.get("z_regularization") is not False:
-        raise ValueError("Study 06 prohibits smoothing and z regularization")
-    evaluation = config["evaluation"]
-    if evaluation.get("targets_are_biological_replicates") is not False:
-        raise ValueError("the 93 targets must not be treated as biological replicates")
-    baseline = evaluation.get("real_continuity_baseline", {})
-    if int(baseline.get("minimum_class_spots", -1)) != 2 or int(baseline.get("minimum_z_levels", -1)) != 3:
-        raise ValueError("real split-half continuity baseline contract changed")
-    historical = config["historical_comparison"]
-    if historical.get("expected_sha256") != "639b298ed6d093dda24417f1fa04a813557aaab217e338a3ffab9c54456e1b25":
-        raise ValueError("historical comparison artifact hash changed")
-    if int(historical.get("historical_sinkhorn_iter", -1)) != 200:
-        raise ValueError("historical Sinkhorn iteration contract changed")
-
+            raise ValueError(f'transport.{key} must remain {expected_value!r}')
+    if generation.get('target_expression_access') != 'evaluation_only':
+        raise ValueError('target expression must remain evaluation-only')
+    if generation.get('smoothing') is not False or generation.get('z_regularization') is not False:
+        raise ValueError('Study 06 prohibits smoothing and z regularization')
+    evaluation = config['evaluation']
+    if evaluation.get('targets_are_biological_replicates') is not False:
+        raise ValueError('the simulated targets must not be treated as biological replicates')
+    baseline = evaluation.get('real_continuity_baseline', {})
+    if int(baseline.get('minimum_class_spots', -1)) != 2 or int(baseline.get('minimum_z_levels', -1)) != 3:
+        raise ValueError('real split-half continuity baseline contract changed')
+    historical = config['historical_comparison']
+    if historical.get('status') != 'superseded_different_scientific_question' or historical.get('comparable_to_corrected_design') is not False:
+        raise ValueError('the superseded 93-output design must not be treated as comparable')
 
 def density_specs(config: Mapping[str, Any]) -> list[DensitySpec]:
-    return [DensitySpec(**row) for row in config["densities"]]
+    return [DensitySpec(**row) for row in config['densities']]
 
-
-def sha256_file(path: Path, chunk_size: int = 8 * 1024 * 1024) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        while chunk := handle.read(chunk_size):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
-def sha256_json(payload: Any) -> str:
-    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
-    return hashlib.sha256(encoded).hexdigest()
-
-
-def sha256_strings(values: Iterable[Any], prefix: str) -> str:
-    digest = hashlib.sha256()
-    digest.update(prefix.encode("utf-8") + b"\0")
-    for value in values:
-        encoded = str(value).encode("utf-8")
-        digest.update(len(encoded).to_bytes(8, "little"))
-        digest.update(encoded)
-    return digest.hexdigest()
-
-
-def sha256_array(values: Any, prefix: str) -> str:
-    array = np.asarray(values)
-    if array.dtype.kind in {"O", "U", "S"}:
-        return sha256_strings(array.reshape(-1), f"{prefix}:{array.shape}")
-    canonical = np.ascontiguousarray(array, dtype="<f8")
-    digest = hashlib.sha256()
-    digest.update(f"{prefix}:{canonical.shape}".encode("utf-8") + b"\0")
-    digest.update(memoryview(canonical).cast("B"))
-    return digest.hexdigest()
-
-
-def adjusted_reference_z(slice_id: int, z: float) -> float:
-    if 1 <= int(slice_id) <= 4 and math.isclose(float(z), 0.0, rel_tol=0.0, abs_tol=1e-12):
-        return float((int(slice_id) - 1) * ZERO_Z_EPSILON)
-    return float(z)
-
-
-def build_assignments(
-    slice_infos: Mapping[int, SliceInfo],
-    spec: DensitySpec,
-    public_seed: int,
-) -> tuple[list[TargetAssignment], list[int]]:
-    available = set(slice_infos)
+def build_assignments(slice_infos: Mapping[int, SliceInfo], spec: DensitySpec, public_seed: int) -> tuple[list[TargetAssignment], list[int]]:
+    available = sorted(slice_infos, key=lambda item: (float(slice_infos[item].z), int(item)))
     if not available:
-        raise ValueError("no input slices were discovered")
-    minimum, maximum = min(available), max(available)
-    target_ids = [item for item in range(spec.start, maximum + 1, spec.gap) if item in available]
+        raise ValueError('no input slices were discovered')
+    references = set(available[::int(spec.gap)])
+    references.update((available[0], available[-1]))
+    extras = {int(item) for item in spec.extra_anchor_slices}
+    missing_extras = extras - set(available)
+    if missing_extras:
+        raise ValueError(f'{spec.name} extra anchors are unavailable: {sorted(missing_extras)}')
+    references.update(extras)
+    target_ids = [item for item in available if item not in references]
     rows: list[TargetAssignment] = []
-    references: set[int] = set()
     for target_index, target_id in enumerate(target_ids):
-        lower_nominal = target_id - spec.radius
-        upper_nominal = target_id + spec.radius
-        lower = (
-            minimum
-            if lower_nominal < minimum and minimum < target_id
-            else snap_lower(available, lower_nominal, minimum)
-        )
-        upper = (
-            maximum
-            if upper_nominal > maximum and maximum > target_id
-            else snap_upper(available, upper_nominal, maximum)
-        )
-        if lower is None or upper is None or not lower < target_id < upper:
-            raise ValueError(f"target {target_id:03d} cannot be strictly bracketed for gap {spec.gap}")
         target_z = float(slice_infos[target_id].z)
-        z0 = adjusted_reference_z(lower, slice_infos[lower].z)
-        z1 = adjusted_reference_z(upper, slice_infos[upper].z)
+        lower_candidates = [item for item in references if float(slice_infos[item].z) < target_z]
+        upper_candidates = [item for item in references if float(slice_infos[item].z) > target_z]
+        if not lower_candidates or not upper_candidates:
+            raise ValueError(f'target {target_id:03d} cannot be strictly bracketed for gap {spec.gap}')
+        lower = max(lower_candidates, key=lambda item: (float(slice_infos[item].z), int(item)))
+        upper = min(upper_candidates, key=lambda item: (float(slice_infos[item].z), int(item)))
+        z0 = float(slice_infos[lower].z)
+        z1 = float(slice_infos[upper].z)
         if not z0 < target_z < z1:
-            raise ValueError(f"target {target_id:03d} z is not strictly inside its reference interval")
+            raise ValueError(f'target {target_id:03d} z is not strictly inside its reference interval')
         tau = (target_z - z0) / (z1 - z0)
-        rows.append(
-            TargetAssignment(
-                density_name=spec.name,
-                gap=spec.gap,
-                target_index=target_index,
-                target_slice=target_id,
-                lower_ref_slice=lower,
-                upper_ref_slice=upper,
-                target_z=target_z,
-                z0=z0,
-                z1=z1,
-                tau=float(tau),
-                reference_gap_z=float(z1 - z0),
-                seed=int(public_seed) + int(spec.gap) * 10_000 + target_index,
-            )
-        )
-        references.update((lower, upper))
+        rows.append(TargetAssignment(density_name=spec.name, gap=spec.gap, target_index=target_index, target_slice=target_id, lower_ref_slice=lower, upper_ref_slice=upper, target_z=target_z, z0=z0, z1=z1, tau=float(tau), reference_gap_z=float(z1 - z0), seed=int(public_seed) + int(spec.gap) * 10000 + target_index))
     reference_ids = sorted(references)
     if len(rows) != spec.expected_targets:
-        raise ValueError(f"{spec.name} expected {spec.expected_targets} targets, found {len(rows)}")
+        raise ValueError(f'{spec.name} expected {spec.expected_targets} targets, found {len(rows)}')
     if len(reference_ids) != spec.expected_references:
-        raise ValueError(
-            f"{spec.name} expected {spec.expected_references} references, found {len(reference_ids)}"
-        )
-    return rows, reference_ids
-
-
-def snap_lower(available: set[int], start: int, minimum: int) -> int | None:
-    return next((item for item in range(int(start), int(minimum) - 1, -1) if item in available), None)
-
-
-def snap_upper(available: set[int], start: int, maximum: int) -> int | None:
-    return next((item for item in range(int(start), int(maximum) + 1) if item in available), None)
-
+        raise ValueError(f'{spec.name} expected {spec.expected_references} references, found {len(reference_ids)}')
+    if set(reference_ids) & set(target_ids):
+        raise ValueError(f'{spec.name} real and simulated partitions overlap')
+    if set(reference_ids) | set(target_ids) != set(available):
+        raise ValueError(f'{spec.name} real and simulated partitions do not cover all available slices')
+    return (rows, reference_ids)
 
 def representative_reference_ids(reference_ids: Sequence[int], count: int) -> list[int]:
     values = sorted({int(item) for item in reference_ids})
@@ -265,69 +147,31 @@ def representative_reference_ids(reference_ids: Sequence[int], count: int) -> li
     indices = sorted({int(round(position)) for position in np.linspace(0, len(values) - 1, count)})
     return [values[index] for index in indices]
 
-
-def choose_donor(
-    label: str,
-    target_slice: int,
-    target_z: float,
-    label_support: Mapping[str, Sequence[int]],
-    slice_infos: Mapping[int, SliceInfo],
-) -> int:
+def choose_donor(label: str, target_slice: int, target_z: float, label_support: Mapping[str, Sequence[int]], slice_infos: Mapping[int, SliceInfo]) -> int:
     candidates = [int(item) for item in label_support.get(str(label), []) if int(item) != int(target_slice)]
     if not candidates:
-        raise ValueError(f"no declared reference donor supports label {label!r} for target {target_slice:03d}")
-    distances = {
-        item: abs(adjusted_reference_z(item, slice_infos[item].z) - float(target_z))
-        for item in candidates
-    }
+        raise ValueError(f'no declared reference donor supports label {label!r} for target {target_slice:03d}')
+    distances = {item: abs(float(slice_infos[item].z) - float(target_z)) for item in candidates}
     minimum = min(distances.values())
     tied = [item for item, distance in distances.items() if math.isclose(distance, minimum, rel_tol=0.0, abs_tol=1e-12)]
     return min(tied)
 
-
 def verify_clean_wheel(config: Mapping[str, Any]) -> dict[str, Any]:
-    verifier = STUDY_ROOT.parent / "scripts" / "verify_feast_install.py"
-    provenance = (STUDY_ROOT / str(config["required_feast_provenance"])).resolve()
-    completed = subprocess.run(
-        [
-            sys.executable,
-            str(verifier),
-            "--candidate-provenance",
-            str(provenance),
-        ],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
+    verifier = STUDY_ROOT.parent / 'scripts' / 'verify_feast_install.py'
+    provenance = (STUDY_ROOT / str(config['required_feast_provenance'])).resolve()
+    completed = subprocess.run([sys.executable, str(verifier), '--candidate-provenance', str(provenance)], check=True, capture_output=True, text=True)
     record = json.loads(completed.stdout)
-    expected = {
-        "status": "OK",
-        "version": str(config["feast_version"]),
-        "commit": str(config["required_feast_commit"]),
-        "wheel_sha256": str(config["required_wheel_sha256"]),
-        "source_patch_sha256": str(config["required_source_patch_sha256"]),
-        "candidate_provenance_sha256": str(
-            config["required_feast_provenance_sha256"]
-        ),
-    }
+    expected = {'status': 'OK', 'version': str(config['feast_version']), 'commit': str(config['required_feast_commit'])}
     for key, value in expected.items():
         if record.get(key) != value:
-            raise RuntimeError(f"clean FEAST wheel verifier field {key!r} changed")
-    imported = Path(str(record["import_path"]))
-    if "site-packages" not in imported.parts:
-        raise RuntimeError(f"FEAST is not imported from an installed wheel: {imported}")
+            raise RuntimeError(f'clean FEAST wheel verifier field {key!r} changed')
+    imported = Path(str(record['import_path']))
+    if 'site-packages' not in imported.parts:
+        raise RuntimeError(f'FEAST is not imported from an installed wheel: {imported}')
     return record
 
-
 def write_json(path: Path, payload: Any) -> None:
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8")
-
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + '\n', encoding='utf-8')
 
 def read_json(path: Path) -> Any:
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-def require_sha(path: Path, expected: str, description: str) -> None:
-    actual = sha256_file(path)
-    if actual != expected:
-        raise ValueError(f"{description} hash changed: expected {expected}, observed {actual}")
+    return json.loads(path.read_text(encoding='utf-8'))

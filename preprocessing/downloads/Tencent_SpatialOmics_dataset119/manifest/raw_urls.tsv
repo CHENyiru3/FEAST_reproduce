@@ -1,0 +1,17 @@
+SampleID	data_type	data_id	sample_name	filename	expected_bytes	url
+GSM6025950_ECM10	h5ad	2387	GSM6025950_ECM10	Slide-seqV2_Biermann2022Dissecting_GSM6025950_ECM10_data.h5ad	187316118	https://gene.ai.tencent.com/SpatialOmics/api/download_data/2387
+GSM6025936_MBM05_rep2	h5ad	2388	GSM6025936_MBM05_rep2	Slide-seqV2_Biermann2022Dissecting_GSM6025936_MBM05_rep2_data.h5ad	154854540	https://gene.ai.tencent.com/SpatialOmics/api/download_data/2388
+GSM6025940_MBM08	h5ad	2389	GSM6025940_MBM08	Slide-seqV2_Biermann2022Dissecting_GSM6025940_MBM08_data.h5ad	158433946	https://gene.ai.tencent.com/SpatialOmics/api/download_data/2389
+GSM6025948_ECM06	h5ad	2390	GSM6025948_ECM06	Slide-seqV2_Biermann2022Dissecting_GSM6025948_ECM06_data.h5ad	104213627	https://gene.ai.tencent.com/SpatialOmics/api/download_data/2390
+GSM6025946_ECM01_rep1	h5ad	2391	GSM6025946_ECM01_rep1	Slide-seqV2_Biermann2022Dissecting_GSM6025946_ECM01_rep1_data.h5ad	150201535	https://gene.ai.tencent.com/SpatialOmics/api/download_data/2391
+GSM6025938_MBM06	h5ad	2392	GSM6025938_MBM06	Slide-seqV2_Biermann2022Dissecting_GSM6025938_MBM06_data.h5ad	157037373	https://gene.ai.tencent.com/SpatialOmics/api/download_data/2392
+GSM6025935_MBM05_rep1	h5ad	2393	GSM6025935_MBM05_rep1	Slide-seqV2_Biermann2022Dissecting_GSM6025935_MBM05_rep1_data.h5ad	140432998	https://gene.ai.tencent.com/SpatialOmics/api/download_data/2393
+GSM6025944_MBM13	h5ad	2394	GSM6025944_MBM13	Slide-seqV2_Biermann2022Dissecting_GSM6025944_MBM13_data.h5ad	141060530	https://gene.ai.tencent.com/SpatialOmics/api/download_data/2394
+GSM6025941_MBM11_rep1	h5ad	2395	GSM6025941_MBM11_rep1	Slide-seqV2_Biermann2022Dissecting_GSM6025941_MBM11_rep1_data.h5ad	109187722	https://gene.ai.tencent.com/SpatialOmics/api/download_data/2395
+GSM6025947_ECM01_rep2	h5ad	2396	GSM6025947_ECM01_rep2	Slide-seqV2_Biermann2022Dissecting_GSM6025947_ECM01_rep2_data.h5ad	136784778	https://gene.ai.tencent.com/SpatialOmics/api/download_data/2396
+GSM6025943_MBM11_rep3	h5ad	2397	GSM6025943_MBM11_rep3	Slide-seqV2_Biermann2022Dissecting_GSM6025943_MBM11_rep3_data.h5ad	42996298	https://gene.ai.tencent.com/SpatialOmics/api/download_data/2397
+GSM6025937_MBM05_rep3	h5ad	2398	GSM6025937_MBM05_rep3	Slide-seqV2_Biermann2022Dissecting_GSM6025937_MBM05_rep3_data.h5ad	40740964	https://gene.ai.tencent.com/SpatialOmics/api/download_data/2398
+GSM6025939_MBM07	h5ad	2399	GSM6025939_MBM07	Slide-seqV2_Biermann2022Dissecting_GSM6025939_MBM07_data.h5ad	204880134	https://gene.ai.tencent.com/SpatialOmics/api/download_data/2399
+GSM6025945_MBM18	h5ad	2400	GSM6025945_MBM18	Slide-seqV2_Biermann2022Dissecting_GSM6025945_MBM18_data.h5ad	189547669	https://gene.ai.tencent.com/SpatialOmics/api/download_data/2400
+GSM6025949_ECM08	h5ad	2401	GSM6025949_ECM08	Slide-seqV2_Biermann2022Dissecting_GSM6025949_ECM08_data.h5ad	136408624	https://gene.ai.tencent.com/SpatialOmics/api/download_data/2401
+GSM6025942_MBM11_rep2	h5ad	2402	GSM6025942_MBM11_rep2	Slide-seqV2_Biermann2022Dissecting_GSM6025942_MBM11_rep2_data.h5ad	193564671	https://gene.ai.tencent.com/SpatialOmics/api/download_data/2402

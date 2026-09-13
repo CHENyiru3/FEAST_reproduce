@@ -29,3 +29,22 @@ dist/
 build/
 *.whl
 *.tar.gz
+
+# Code-only GitHub repository: generated figures include plot tables/provenance.
+visualization/**/figures/
+visualization/**/candidate_figures/
+publication/final_freeze_*/
+validation/
+
+# Superseded scripts and machine-local work.
+**/archive/
+.ruff_cache/
+.agents/
+.codex/
+
+# Payloads produced if acquisition scripts are run inside the source checkout.
+preprocessing/downloads/*/samples/
+preprocessing/downloads/*/components/
+preprocessing/downloads/*/checksums/
+preprocessing/downloads/*/manifest/downloaded_files.tsv
+preprocessing/downloads/*/manifest/*_metadata.json

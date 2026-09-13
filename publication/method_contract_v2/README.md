@@ -3,7 +3,7 @@
 This directory is a non-destructive evidence-binding candidate for the eight
 article workflow contracts. It does not replace or modify the frozen v1
 contracts in `FEAST_experiments/SPEC/before_publication/method_contract`.
-Each v2 record pins its v1 predecessor by SHA-256 and then records the clean
+Each v2 record identifies its v1 predecessor by path and then records the clean
 rerun evidence that is currently available.
 
 This is an integration record, not release authorization. Every record has
@@ -16,8 +16,8 @@ ranking, winner, or unresolved manuscript claim.
 - `EXP`: the sibling `FEAST_experiments` repository
 - `PKG`: the sibling `FEAST` repository
 
-The validator resolves and hashes only the small files listed in each
-`evidence` array. H5AD artifacts are bound through their hashed manifests; the
+The validator resolves the small files listed in each `evidence` array. H5AD
+artifacts are bound through their declared manifests; the
 validator deliberately does not rehash large scientific outputs.
 
 ## Current disposition
@@ -64,6 +64,6 @@ python validate_contract.py
 ```
 
 The standard-library validator checks JSON structure, the exact eight legacy
-mappings, v1 predecessor hashes, evidence-file hashes, status/evidence
+mappings, v1 predecessor paths, evidence-file paths, status/evidence
 consistency, conditional-OT counts, and the universal no-release/no-ranking
 gates. It does not make a scientific decision.

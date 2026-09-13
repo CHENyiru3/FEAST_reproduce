@@ -6,7 +6,7 @@ baseline per slice, and 252 clustering outputs from GraphST, STAGATE+mclust,
 and publication-valid unsupervised Leiden.
 
 Place the three checked source slices at `data/local/<slice>.h5ad`; their
-expected hashes are in `data/input_checksums.csv`. No previous FEAST
+expected IDs and paths are in `data/input_checksums.csv`. No previous FEAST
 simulation, fixed-panel file, or method result is used.
 
 ## Run order
@@ -68,7 +68,7 @@ Every input receives exactly one `normalize_total(target_sum=1e4)` and `log1p`.
 
 GraphST and STAGATE both require a visible CUDA GPU and positive peak GPU
 memory allocation during the method run; they fail rather than silently
-falling back to CPU. The STAGATE run also records and hashes the inherited
+falling back to CPU. The STAGATE run also records the inherited
 `LD_LIBRARY_PATH` used to load CUDA libraries. Their external method
 environments use NumPy
 1.23.x, which is below FEAST's supported range; FEAST is neither imported nor

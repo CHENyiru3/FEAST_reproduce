@@ -30,7 +30,7 @@
       "legacy_study": "01_clustering",
       "clean_rerun_study": "01_clustering",
       "supersedes": {"path": "publication/method_contract_v2/configs/FEAST-ART-01-CLUSTER-v2.json", "sha256": "1a110b46d6022dc9f0c2df45c6cf69500077f19c4df8c08c4c032e450f1b8c6d"},
-      "status": "validated_candidate_author_review_required",
+      "status": "superseded_scientific_design",
       "configuration_id": "study01-fixed-panel-label-free-v1",
       "evidence": [
         {"path": "01_clustering/config.yaml", "sha256": "d7f9b80926881289cd9a85269ac94a634d46b4fbcd63215a1d31ff44da3ef08a"},
@@ -101,7 +101,7 @@
         {"path": "06_3d_stack/outputs/final/validation_summary.json", "sha256": "c41bb104a06a6711070f1888533422ba11596d7e7bebf4fa044bc1aaeabf4a37"},
         {"path": "06_3d_stack/outputs/final/evaluation/score_provenance.json", "sha256": "2bb9d66f4fc3ad20c4e9683ba7fc5db4dedbb52c86b06ed515e1e9d5cea6c85b"}
       ],
-      "claim_limits": ["target XY, class labels, and z are observed", "93 targets are ordered z levels rather than biological replicates", "no across-target inference, composite score, or winner ranking"],
+      "claim_limits": ["the preserved 93-output run answers a different target-spacing question", "it is not evidence for the corrected reference-density design", "no publication claim, figure, composite score, method ranking, or winner is authorized"],
       "claim_authorizations": {"publication_claim": false, "figure": false, "composite_score": false, "method_ranking": false, "winner": false},
       "release": {"authorized": false, "tag": null, "pypi_publication": false}
     },

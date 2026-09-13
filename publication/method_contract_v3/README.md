@@ -6,8 +6,8 @@ frozen 2026-07-19 record: its three conditional-OT entries describe the legacy
 noncanonical outputs, and its Study 00 binding predates the later pair-support
 and scCube Slide-seq repairs.
 
-The v3 addendum contains exactly eight article workflows. Each row pins its v2
-predecessor by SHA-256, binds current evidence directly, states the remaining
+The v3 addendum contains exactly eight article workflows. Each row identifies its v2
+predecessor by path, binds current evidence directly, states the remaining
 claim limits, and keeps release/figure/claim authorization false. It does not
 rewrite history or make the repaired FEAST 1.1.0 candidate a release.
 

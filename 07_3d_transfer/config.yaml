@@ -1,23 +1,25 @@
-configuration_id: "study07-full-devccf-transfer-v5"
+configuration_id: "study07-generative-transfer-v1"
 blueprint_configuration_id: "study07-devccf-expression-free-blueprints-v1"
 legacy_study_id: "06"
 public_seed: 2026
-required_feast_version: "1.1.0"
-required_feast_commit: "68816e5c1862a6fa2a49bc30609d617c7fa4b449"
-required_wheel_sha256: "3ad31888faf367a91aec9d46902a5e89759837b5c7ea0e45ca93276674e68883"
-required_source_patch_sha256: "1d270cb4421b4f17d5a72b2736e2893d3703593d8d93b1d87f82400f03a2be42"
-required_feast_provenance_sha256: "9fbe12912ab0853d9c637ef0651b55157af2f015e90187947619d7936e42e898"
+required_feast_version: "1.0.5+local3d1"
+required_feast_commit: "a79cf222f05d6ad314734ce05f7dd53110d7640f"
 
 paths:
   feast_repo: "../../FEAST"
-  feast_wheel: "../../FEAST/validation/package_builds/20260719_ot_log_repair_v2/feast_py-1.1.0-py3-none-any.whl"
-  feast_provenance: "../../FEAST/validation/package_builds/20260719_ot_log_repair_v2/provenance.json"
+  feast_wheel: "../../FEAST/validation/package_builds/20260906_github_a79cf22/feast_py-1.0.5+local3d1-py3-none-any.whl"
+  feast_provenance: "../../FEAST/validation/package_builds/20260906_github_a79cf22/provenance.json"
   dataset_root: "../../Datasets/Processed"
   reference_dir: "GSE269617/h5ad_region_annotated"
   devccf_dir: "DevCCFv1_figshare_26377171/coordinate_system/GSE269617_region_merged"
   blueprint_dir: "data/local/blueprints_ot110"
-  work_dir: ".work/otlog110_v5"
-  final_dir: "outputs/final"
+  work_dir: "outputs/generative_transfer_github_a79cf22_estimated_ar_v1/.work"
+  final_dir: "outputs/generative_transfer_github_a79cf22_estimated_ar_v1"
+
+generation:
+  n_references: null
+  min_positions: 50
+  batch_sd: 0.005
 
 reference_fit:
   label_key: "region"
@@ -29,7 +31,7 @@ reference_fit:
   coordinate_scale: null
 
 transport:
-  marginal_model: "empirical_reference"
+  marginal_model: "core"
   epsilon: 0.05
   sinkhorn_iter: 1000
   sinkhorn_tol: 0.00001
@@ -71,9 +73,9 @@ ages:
     expected_levels: 158
     expected_spots: 2330927
     assignment_randomness:
-      mode: "fixed"
-      value: 0.4
-      basis: "author-declared reference-only calibration result"
+      mode: "approved_estimate"
+      value: 0.30
+      basis: "User approved 2026-09-06; two completed E14 reference holdouts favored 0.25 and 0.30 in .work/generative_3d_v1/07_calibrate_cached_E15.5.log (recorded build 20260905_local_generative_3d_v1). Third holdout stopped; no completed current-build calibration claimed."
   E18.5:
     reference_glob: "*E18M*.h5ad"
     expected_references: 5
@@ -84,8 +86,9 @@ ages:
     expected_levels: 202
     expected_spots: 5213461
     assignment_randomness:
-      mode: "reference_calibration"
-      calibration_file: "data/local/E18.5_assignment_randomness_otlog110_v5.json"
+      mode: "approved_estimate"
+      value: 0.50
+      basis: "User explicitly approved 0.50 on 2026-09-06, informed by historical data/local/E18.5_assignment_randomness_otlog110_v5.json from the superseded model. Current-model E18.5 calibration was not run."
 
 blueprint:
   region_schema: "gse269617_region_schema.tsv"

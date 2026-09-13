@@ -1,0 +1,87 @@
+configuration_id: "study04b-real-slice-robustness-v1"
+
+paths:
+  feast_python: "../../../envs/feast-prepublication-py311/bin/python3.11"
+  feast_source_repo: "../../../FEAST"
+  data_dir: "data/local"
+  output_dir: "outputs/production_v1"
+
+feast:
+  version: "1.0.2"
+  required_source_commit: "68816e5c1862a6fa2a49bc30609d617c7fa4b449"
+  build_record: "../../FEAST_BUILD.txt"
+  simulation_seed: 42
+
+inputs:
+  reference_slice: "151675"
+  query_slice: "151676"
+  donor_id: "Br8100"
+  layer_key: "ground_truth"
+  spatial_key: "spatial"
+
+deformation:
+  name: "independent_diagonal_affine_151673_to_151508"
+  D: [0.9506859713168332, 0.5067732090337828, 0.9215737834857423]
+  b: [-0.9666024309148558, 0.011108308402325857, 1.0822184425747938]
+
+conditions:
+  - {name: "raw", alpha: null, role: "natural_data_anchor"}
+  - {name: "sim_0.00", alpha: 0.0, role: "resampling_control"}
+  - {name: "sim_0.50", alpha: 0.5, role: "interpolation"}
+  - {name: "sim_1.00", alpha: 1.0, role: "primary_endpoint"}
+  - {name: "sim_1.50", alpha: 1.5, role: "extrapolation_stress_test"}
+
+fixed_panel:
+  n_genes: 2000
+  source_layer: "counts"
+  flavor: "seurat_v3"
+
+analysis:
+  primary_condition: "sim_1.00"
+  method_seeds: [42, 43, 44]
+  scoring_seed: 42
+  n_neighbors: 30
+  graphst_primary_components: 10
+  graphst_sensitivity_components: 20
+  pairwise_distance_sample: 100000
+  composite_score: "prohibited"
+  winner_ranking: "prohibited"
+
+methods:
+  GraphST:
+    python: "../../../envs/GraphST/bin/python"
+    script: "../methods/graphst.py"
+    environment:
+      R_HOME: "../../../envs/GraphST/lib/R"
+    kwargs:
+      expected_panel_size: 2000
+      epochs: 600
+      device: "cuda"
+  STAMP:
+    python: "../../../miniconda3/envs/sctm-pub-20260718/bin/python"
+    script: "../methods/stamp.py"
+    kwargs:
+      expected_panel_size: 2000
+      n_topics: 10
+      n_layers: 1
+      hidden_size: 128
+      mode: "sgc"
+      learning_rate: 0.005
+      max_epochs: 800
+      min_epochs: 100
+      patience: 20
+      device: "cuda:0"
+      zero_library_strategy: "raw_zero_likelihood_within_batch_sgc_encoder_v1"
+  scVI:
+    python: "../../../miniconda3/envs/scvi-tools/bin/python"
+    script: "../methods/scvi.py"
+    kwargs:
+      expected_panel_size: 2000
+      n_latent: 10
+      n_layers: 1
+      n_hidden: 128
+      dropout_rate: 0.1
+      max_epochs: 400
+      learning_rate: 0.001
+      accelerator: "gpu"
+      devices: 1

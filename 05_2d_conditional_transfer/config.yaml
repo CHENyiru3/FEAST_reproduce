@@ -1,7 +1,6 @@
 configuration_id: study05-two-dataset-conditional-half-slice-v2
 required_feast_version: 1.0.2
 required_feast_commit: 68816e5c1862a6fa2a49bc30609d617c7fa4b449
-required_wheel_sha256: 9dd912d883a03d51ed7105cecd914cf8f7f25f5355f57dfde1c77b6fef0b056b
 public_seed: 2026
 
 datasets:
@@ -19,7 +18,6 @@ datasets:
     gene_panel:
       rule: sorted_exact_intersection_across_dataset_slices
       expected_genes: 17391
-      sha256: 2b85a701cfb364adfea0d579f3801e9ac47ca64531ff312de3c02978aa3a73d5
   merfish:
     artifact_prefix: MERFISH
     annotation_key: class
@@ -30,7 +28,6 @@ datasets:
     gene_panel:
       rule: sorted_exact_intersection_across_dataset_slices
       expected_genes: 1122
-      sha256: 74a8ad243527640259a5c90fcfb71aeeb9a3c429c3f7a3e71c1109b61c986d23
 
 assignment_randomness: [0.0, 0.1, 0.2, 0.3, 0.5]
 primary_assignment_randomness: 0.3

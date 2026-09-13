@@ -2,17 +2,15 @@
 
 The primary sensitivity figure combines the Study 01 metrics and decision
 registered in `../../PUBLICATION_MANIFEST.json` with the validated additive
-mean/variance extreme-level extension. The script verifies the frozen source
-hashes and the extension hashes recorded in its `validation.json` before
+mean/variance extreme-level extension. The script verifies the declared source
+paths and the extension validation recorded in its `validation.json` before
 reading either table. Historical tables and figures are not inputs.
 
 The registered metric source is
-`../../01_clustering/outputs/final_rerun_20260718_report/fixed_panel_benchmark_metrics.csv`
-(SHA-256
-`10abbadbcf8c26d2b85e92a3357a8380fe4f4bc46882e6d42d2388a3d1882fab`).
+`../../01_clustering/outputs/final_rerun_20260718_report/fixed_panel_benchmark_metrics.csv`.
 The additive source is
 `../../01_clustering/outputs/expanded_mean_variance_fc_0_20_5_20260806/report/expanded_benchmark_metrics.csv`;
-its checksum and complete 12-simulation/36-method-result validation are read
+its complete 12-simulation/36-method-result validation is read
 from the adjacent `validation.json`.
 Rebuild from the repository root with:
 
@@ -22,6 +20,7 @@ python visualization/01_clustering/plot_spatial_expression.py
 python visualization/01_clustering/plot_clustering_spatial.py
 python visualization/01_clustering/plot_intervention_profile.py
 python visualization/01_clustering/plot_clustering_stability.py
+python visualization/01_clustering/plot_main_figure.py
 ```
 
 `alteration_sensitivity.{pdf,svg,png}` is a 3 × 3 summary (ARI/NMI/AMI ×
@@ -44,8 +43,8 @@ Each `alteration_clustering_spatial_*` figure displays all seven registered
 levels of one factor in columns, with the neutral FEAST baseline centred and
 the three clustering methods in rows. Colours denote independently produced,
 panel-local cluster IDs and do not imply a cross-method domain correspondence.
-The adjacent spatial provenance JSON files record exact inputs, source script
-hashes, display slice, and outputs.
+The adjacent spatial provenance JSON files record exact input paths, source
+scripts, display slice, and outputs.
 
 `intervention_profile.{pdf,svg,png}` is a cohort-level simulator diagnostic.
 It reads FEAST's recorded realized relative mean, variance, and zero-fraction
@@ -59,5 +58,12 @@ It displays the intuitive partition-change quantity **1 − ARI**: zero means an
 identical partition and a higher value means a stronger reorganization. ARI
 and NMI remain in the adjacent CSV, and both are invariant to a permutation of
 cluster labels, so no predicted-to-reference label matching is used. Every
-input `clusters.csv` is checked against the recorded method-run checksum. This
+input `clusters.csv` is checked for the recorded method-run schema and spot order. This
 is a descriptive response profile, not a cross-method winner ranking.
+
+`clustering_intervention_response.{pdf,svg,png}` is the compact main-figure
+candidate. Its left panel shows the pre-specified lower and higher simulation
+settings relative to FEAST baseline for each control in representative slice
+151676; its right panel shows the corresponding descriptive partition response
+across all registered slices. It uses the existing shared spatial-expression
+scale and baseline-relative 1 − ARI calculation, and it does not rank methods.

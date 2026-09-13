@@ -1,0 +1,3 @@
+SampleID	data_type	url	component	key	expected_bytes	md5	file_id	notes
+GSE269617	geo_raw_tar	https://ftp.ncbi.nlm.nih.gov/geo/series/GSE269nnn/GSE269617/suppl/GSE269617_RAW.tar	suppl	GSE269617_RAW.tar	29549885440	-	GSE269617_RAW.tar	GEO supplementary archive
+GSE269617	geo_filelist	https://ftp.ncbi.nlm.nih.gov/geo/series/GSE269nnn/GSE269617/suppl/filelist.txt	suppl	filelist.txt	8431	-	filelist.txt	GEO supplementary file list

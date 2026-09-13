@@ -1,0 +1,148 @@
+configuration_id: study06-generative-five-reference-1.0.6
+study_id: '06'
+legacy_study_id: '05'
+public_seed: 2026
+feast_version: 1.0.6
+required_feast_commit: a79cf222f05d6ad314734ce05f7dd53110d7640f
+required_feast_provenance: ../../FEAST/validation/package_builds/20260913_study06_1.0.6_precision/provenance.json
+dataset:
+  artifact_id: Allen_Zhuang_ABCA_1_processed_h5ad
+  filename_prefix: Zhuang-ABCA-1
+  first_slice: 4
+  last_slice: 150
+  excluded_conflicting_slices:
+  - 1
+  - 2
+  - 3
+  intentionally_absent_slices:
+  - 75
+  - 94
+  - 112
+  expected_files: 144
+  expected_genes: 1122
+  label_key: class
+  z_key: z
+  spatial_key: spatial
+  spatial_3d_key: spatial_3d
+  counts_layer: counts
+anchor_selection:
+  unit: rank_among_available_slices
+  phase: first_available_slice
+  boundary_slices:
+  - 4
+  - 150
+densities:
+- name: dense_gap3
+  gap: 3
+  extra_anchor_slices: []
+  expected_references: 49
+  expected_targets: 95
+- name: medium_gap5
+  gap: 5
+  extra_anchor_slices: []
+  expected_references: 30
+  expected_targets: 114
+- name: sparse_gap10
+  gap: 10
+  extra_anchor_slices:
+  - 89
+  expected_references: 17
+  expected_targets: 127
+assignment_randomness_preflight:
+  estimator: FEAST.calibrate_local_references
+  representative_reference_slices: 3
+  n_genes: 20
+  step: 0.05
+  maximum: 0.5
+  spatial_neighbors: 6
+  seed_formula: public_seed + gap * 1000 + representative_index
+  transport_backend: torch
+  transport_device: cpu
+  transport_dtype: float64
+reference_fit:
+  min_gene_spots: 0
+  min_gene_mean: 0.0
+  max_gene_zero_prop: 1.0
+  boundary_neighbors: 6
+  coordinate_scale: null
+generation:
+  n_references: 5
+  min_positions: 50
+  batch_sd: 0.005
+  parameter_cache: outputs/generative_five_reference_1.0.6_precision_v1/reference_parameters.sqlite
+  public_api: FEAST.simulate_local_references
+  condition_on: class
+  marginal_model: core
+  target_expression_access: evaluation_only
+  target_observed_fields:
+  - obs_names
+  - class
+  - z
+  - spatial
+  - spatial_3d
+  - var_names
+  seed_formula: public_seed + gap * 10000 + target_index
+  reference_weight_formula: exp(-abs(target_z-reference_z)/median_adjacent_reference_z_spacing)
+  donor_support_scope: full density-specific reference pool
+  donor_selection: nearest actual z, then lowest slice id
+  smoothing: false
+  z_regularization: false
+  assignment_randomness_source: estimated from corrected real-anchor pool during preflight
+  diffusion_level: 0.0
+  boundary_softness: 0.0
+  boundary_multiplier: 1.1
+  reference_weight_eta: 4.0
+  quantile_field_mode: auto
+  rank_scope: auto
+  target_parameter_mode: reference_weighted_log
+  tie_policy: stable_ordinal
+  tie_jitter_scale: 1.0e-09
+  min_rank_scope_size: 20
+  store_latent_scores: false
+  store_quantiles: false
+  reference_conflict_policy: average
+transport:
+  epsilon: 0.05
+  sinkhorn_iter: 1000
+  sinkhorn_tol: 1.0e-05
+  unbalanced_transport: true
+  reg_m: 5.0
+  transport_nonconvergence: raise
+  sinkhorn_method: sinkhorn_log
+  transport_backend: torch
+  transport_device: cuda:0
+  transport_dtype: float64
+  geometry_weight: 1.0
+  boundary_weight: 0.25
+  latent_clip_eps: 1.0e-06
+  gene_chunk_size: 512
+  max_transport_pairs: 25000000
+validation:
+  coordinate_atol: 1.0e-08
+  expected_outputs: 336
+  expected_positions_per_stack: 144
+  require_positive_transport_convergence: true
+  require_exact_target_identity: true
+  require_declared_donor_support: true
+  prohibit_target_expression_during_generation: true
+evaluation:
+  fidelity_unit: simulated target slice
+  continuity_unit: class-gene trajectory across all 144 reconstructed z levels within
+    each density
+  targets_are_biological_replicates: false
+  inferential_statistics_across_targets: prohibited
+  real_continuity_baseline:
+    method: deterministic within-slice within-class split-half means, correlated across
+      z
+    seed_formula: public_seed + target_slice
+    minimum_class_spots: 2
+    minimum_z_levels: 3
+  normalized_z_coherence: median reconstructed-vs-original z coherence / median real
+    split-half z coherence
+  composite_score: prohibited
+historical_comparison:
+  artifact_id: study06-conditional-stack-v5-93-output-design
+  status: superseded_different_scientific_question
+  comparable_to_corrected_design: false
+  historical_sinkhorn_iter: 1000
+  fresh_sinkhorn_iter: 1000

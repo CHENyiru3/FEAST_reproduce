@@ -1,0 +1,7 @@
+SampleID	data_type	component	key	expected_bytes	url
+Zhuang-ABCA-1	log2_h5ad	Expression_Matrices	expression_matrices/Zhuang-ABCA-1/20230830/Zhuang-ABCA-1-log2.h5ad	2128478610	https://allen-brain-cell-atlas.s3.us-west-2.amazonaws.com/expression_matrices/Zhuang-ABCA-1/20230830/Zhuang-ABCA-1-log2.h5ad
+Zhuang-ABCA-1	raw_h5ad	Expression_Matrices	expression_matrices/Zhuang-ABCA-1/20230830/Zhuang-ABCA-1-raw.h5ad	1193452436	https://allen-brain-cell-atlas.s3.us-west-2.amazonaws.com/expression_matrices/Zhuang-ABCA-1/20230830/Zhuang-ABCA-1-raw.h5ad
+Zhuang-ABCA-1	cell_metadata	Metadata	metadata/Zhuang-ABCA-1/20241115/cell_metadata.csv	661035596	https://allen-brain-cell-atlas.s3.us-west-2.amazonaws.com/metadata/Zhuang-ABCA-1/20241115/cell_metadata.csv
+Zhuang-ABCA-1	gene_metadata	Metadata	metadata/Zhuang-ABCA-1/20241115/gene.csv	84677	https://allen-brain-cell-atlas.s3.us-west-2.amazonaws.com/metadata/Zhuang-ABCA-1/20241115/gene.csv
+Zhuang-ABCA-1	cell_metadata_cluster_annotation	Metadata	metadata/Zhuang-ABCA-1/20241115/views/cell_metadata_with_cluster_annotation.csv	871047338	https://allen-brain-cell-atlas.s3.us-west-2.amazonaws.com/metadata/Zhuang-ABCA-1/20241115/views/cell_metadata_with_cluster_annotation.csv
+Zhuang-ABCA-1	ccf_coordinates	CCF_Coordinates	metadata/Zhuang-ABCA-1-CCF/20230830/ccf_coordinates.csv	220766326	https://allen-brain-cell-atlas.s3.us-west-2.amazonaws.com/metadata/Zhuang-ABCA-1-CCF/20230830/ccf_coordinates.csv

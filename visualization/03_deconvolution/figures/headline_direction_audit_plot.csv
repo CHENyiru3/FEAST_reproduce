@@ -1,4 +1,0 @@
-metric,historical_direction,fresh_direction,fresh_rctd_minus_cell2location,headline_direction_changed,scientific_stop,publication_claim_authorized,aggregate_winner_ranking_authorized
-jsd_mean,rctd,rctd,-0.201210134,False,True,False,False
-pearson_mean,cell2location,rctd,0.184470966526,True,True,False,False
-summed_rmse,cell2location,rctd,-0.0307780485958,True,True,False,False

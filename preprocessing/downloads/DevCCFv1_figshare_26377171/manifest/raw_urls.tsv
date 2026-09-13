@@ -1,0 +1,14 @@
+SampleID	data_type	url	component	key	expected_bytes	md5	file_id	notes
+DevCCFv1	figshare_file	https://ndownloader.figshare.com/files/48169828	root	E11.5.zip	37115519	c447b34c58c3303354119513a451d135	48169828	Figshare article 26377171
+DevCCFv1	figshare_file	https://ndownloader.figshare.com/files/48169831	root	E13.5.zip	59025402	7c8a2d332539ad940b3f709a3ff2a22b	48169831	Figshare article 26377171
+DevCCFv1	figshare_file	https://ndownloader.figshare.com/files/48169834	root	E15.5.zip	145262477	0efdb5abf63757a0c0c973c9ec9c59ca	48169834	Figshare article 26377171
+DevCCFv1	figshare_file	https://ndownloader.figshare.com/files/48169837	root	E18.5.zip	167172877	a9e44a9abab3f097bf547155688888f1	48169837	Figshare article 26377171
+DevCCFv1	figshare_file	https://ndownloader.figshare.com/files/48169840	root	P04.zip	408983254	07faa5fbae0d9c60fce9b5b22e1dafe4	48169840	Figshare article 26377171
+DevCCFv1	figshare_file	https://ndownloader.figshare.com/files/48169846	root	P14.zip	681810778	05c617c9f57a6101aff16a7285231d5b	48169846	Figshare article 26377171
+DevCCFv1	figshare_file	https://ndownloader.figshare.com/files/48169843	root	P56.zip	406834574	9acc8b145745f920549bd2d6804e734c	48169843	Figshare article 26377171
+DevCCFv1	figshare_file	https://ndownloader.figshare.com/files/48169813	ITK-SNAP Label Definitions	ITK-SNAP Label Definitions/CCFv3_ITK_SNAP_label_u16.txt	114443	e00d7130d05ee2fc14b36733129c03c8	48169813	Figshare article 26377171
+DevCCFv1	figshare_file	https://ndownloader.figshare.com/files/48169816	ITK-SNAP Label Definitions	ITK-SNAP Label Definitions/DevCCFv1_ITK-SNAP_label.txt	203726	88f8d9559b486795945aa766936fe220	48169816	Figshare article 26377171
+DevCCFv1	figshare_file	https://ndownloader.figshare.com/files/48169819	ITK-SNAP Label Definitions	ITK-SNAP Label Definitions/MolecularAtlas_ITK_SNAP_label.txt	11152	6646d4f1944051d135ccabb596d8b358	48169819	Figshare article 26377171
+DevCCFv1	figshare_file	https://ndownloader.figshare.com/files/48169822	root	CCFv3_OntologyStructure_u16.xlsx	163783	5f6d3a261618c90c67c0fc6df4967418	48169822	Figshare article 26377171
+DevCCFv1	figshare_file	https://ndownloader.figshare.com/files/48169825	root	DevCCFv1_OntologyStructure.xlsx	389454	91c948371bc4a3ca35610edb65d31f8a	48169825	Figshare article 26377171
+DevCCFv1	figshare_file	https://ndownloader.figshare.com/files/48169873	root	DevCCFv1_ReadMe.md	9098	c11a4e1ad8b06477a8417a995cc084a9	48169873	Figshare article 26377171

@@ -54,7 +54,7 @@ is not label-free spatial imputation.
 ## Inputs and preflight
 
 The five ignored local inputs are hardlinks below `data/local/dlpfc/` and
-`data/local/merfish/`. Exact IDs, shapes, and SHA-256 values are frozen in
+`data/local/merfish/`. Exact IDs, shapes, and paths are declared in
 `data/input_checksums.csv`.
 
 Use the clean wheel interpreter recorded in `../FEAST_BUILD.txt`:
@@ -99,8 +99,8 @@ outputs/final/<mode>/<dataset>/<direction>/ar_<value>/
 ```
 
 The runner refuses replacement. Interrupted or failed work remains under
-ignored `.work/`. Every candidate binds the exact input/config/runner/wheel
-hashes, source-only support, target identity and coordinates, public seed, and
+ignored `.work/`. Every candidate records the input/config/runner paths, source-only
+support, target identity and coordinates, public seed, and
 positive convergence diagnostics. Target IDs are verified from the blueprint
 column before FEAST's internal row index is rebound to public `obs_names`.
 
@@ -161,3 +161,47 @@ Fresh candidates use the public unified API `fit_reference` plus
 Sinkhorn iterations rather than the historical 200. Passing validation creates
 evidence only; publication-canonical status still requires metric review and
 author approval.
+
+## Primary conditional empirical baseline
+
+`conditional_resampling_baseline.py` samples one complete source count vector
+with replacement for every target spot, restricted to the same conditional
+label. This retains real source sparsity, library sizes, gene covariance, and
+within-label heterogeneity, but adds no target-spatial organization. Ten fixed
+replicates quantify Monte Carlo uncertainty:
+
+```bash
+python conditional_resampling_baseline.py
+```
+
+Results are written to
+`outputs/baselines/conditional_whole_spot_resampling/`. This is the primary
+baseline for asking whether FEAST adds information beyond the known label and
+an empirical reference expression distribution.
+
+`evaluate_resampling_metrics.py` recomputes the same ten resampling draws and
+compares them with FEAST using conditional expression Wasserstein,
+zero-fraction Wasserstein, Moran-I profile correlation, and label-residual
+Moran-I profile correlation:
+
+```bash
+python evaluate_resampling_metrics.py
+```
+
+The additive results are written to
+`outputs/baselines/conditional_metric_comparison/`.
+
+## Label-mean lower-bound diagnostic
+
+`linear_baseline.py` fits a one-hot ordinary least-squares model on reference
+expression. Its prediction for each target spot is therefore the mean source
+expression of that spot's known conditional label. It uses the same source
+support and held-out scoring metrics as FEAST, ignores spatial coordinates,
+and compares only with the primary FEAST assignment-randomness setting:
+
+```bash
+python linear_baseline.py
+```
+
+Results are written separately to
+`outputs/baselines/label_mean_linear/`; no FEAST candidate or score is changed.

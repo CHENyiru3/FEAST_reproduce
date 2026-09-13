@@ -9,6 +9,7 @@ import importlib.metadata
 import json
 from pathlib import Path
 import subprocess
+import tempfile
 import zipfile
 
 
@@ -33,19 +34,96 @@ def fields() -> dict[str, str]:
     return result
 
 
+def verify_checkout(feast_repo: Path, required_commit: str) -> dict[str, object]:
+    """Allow unrelated checkout changes while retaining the recorded build ID."""
+    package_paths = (
+        "src/FEAST", "pyproject.toml", "setup.py", "setup.cfg",
+        "MANIFEST.in", "environment.yml", "requirements.txt",
+    )
+
+    def git(*args: str) -> str:
+        return subprocess.run(
+            ["git", "-C", str(feast_repo), *args],
+            check=True, capture_output=True, text=True,
+        ).stdout.strip()
+
+    # Resolving the recorded commit also rejects missing/invalid build history.
+    build_commit = git("rev-parse", "--verify", f"{required_commit}^{{commit}}")
+    head = git("rev-parse", "HEAD")
+    changed = git("diff", "--name-only", build_commit, "--", *package_paths)
+    untracked = git("ls-files", "--others", "--exclude-standard", "--", *package_paths)
+    if changed or untracked:
+        raise RuntimeError(
+            "FEAST checkout package/build files differ from recorded build "
+            f"{build_commit}: {(changed + chr(10) + untracked).strip().splitlines()}"
+        )
+    return {"checkout_head": head, "checkout_package_matches_build": True}
+
+
+def verify_local_build_source(feast_repo: Path, required_commit: str,
+                              wheel: Path, build_dir: Path) -> dict[str, object]:
+    """Verify the saved local build source independently of later checkout edits.
+
+    The local build records its tracked changes in source.patch and its new
+    module in new_local.py. Reconstruct those inputs from the recorded base;
+    never infer the executed source from the current checkout HEAD.
+    """
+    patch = build_dir / 'source.patch'
+    added_module = build_dir / 'new_local.py'
+    if not patch.is_file() or not added_module.is_file():
+        raise RuntimeError('local build is missing its recorded source inputs')
+    base = subprocess.check_output(
+        ['git', '-C', str(feast_repo), 'rev-parse', '--verify', f'{required_commit}^{{commit}}'],
+        text=True).strip()
+    paths = subprocess.check_output(
+        ['git', '-C', str(feast_repo), 'ls-tree', '-r', '--name-only', base,
+         '--', 'src/FEAST', 'pyproject.toml'], text=True).splitlines()
+    with tempfile.TemporaryDirectory(prefix='feast-recorded-source-') as directory:
+        snapshot = Path(directory)
+        for name in paths:
+            destination = snapshot / name
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(subprocess.check_output(
+                ['git', '-C', str(feast_repo), 'show', f'{base}:{name}']))
+        subprocess.run(['git', 'apply', str(patch.resolve())], cwd=snapshot,
+                       check=True, capture_output=True, text=True)
+        module = snapshot / 'src/FEAST/de_novo/local.py'
+        module.parent.mkdir(parents=True, exist_ok=True)
+        module.write_bytes(added_module.read_bytes())
+        with zipfile.ZipFile(wheel) as archive:
+            wheel_files = {name for name in archive.namelist()
+                           if name.startswith('FEAST/') and not name.endswith('/')}
+            source_root = snapshot / 'src'
+            source_files = {path.relative_to(source_root).as_posix()
+                            for path in (source_root / 'FEAST').rglob('*') if path.is_file()}
+            if source_files != wheel_files:
+                raise RuntimeError('recorded source file set differs from recorded wheel')
+            for name in wheel_files:
+                if (source_root / name).read_bytes() != archive.read(name):
+                    raise RuntimeError(f'recorded source differs from recorded wheel: {name}')
+            current_root = feast_repo / 'src'
+            current_files = {path.relative_to(current_root).as_posix()
+                             for path in (current_root / 'FEAST').rglob('*')
+                             if path.is_file() and '__pycache__' not in path.parts and path.suffix != '.pyc'}
+            checkout_matches = current_files == wheel_files and all(
+                (current_root / name).read_bytes() == archive.read(name) for name in wheel_files)
+    head = subprocess.check_output(
+        ['git', '-C', str(feast_repo), 'rev-parse', 'HEAD'], text=True).strip()
+    return {'checkout_head': head, 'checkout_package_matches_build': checkout_matches,
+            'recorded_source_matches_build': True, 'source_mode': 'local_working_tree'}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--candidate-provenance",
         type=Path,
-        help="verify a provisional wheel and source snapshot instead of FEAST_BUILD.txt",
+        help="verify a provisional wheel record instead of FEAST_BUILD.txt",
     )
     args = parser.parse_args()
     import FEAST
 
     candidate_record: dict | None = None
-    provenance_hash: str | None = None
-    source_patch_hash: str | None = None
     if args.candidate_provenance is None:
         record = fields()
         required_commit = record["Required source commit"]
@@ -64,8 +142,6 @@ def main() -> int:
         required_version = str(candidate_record["candidate_version"])
         wheel_hash = str(candidate_record["wheel"]["sha256"])
         wheel = provenance.parent / str(candidate_record["wheel"]["path"])
-        provenance_hash = sha256(provenance)
-        source_patch_hash = str(candidate_record["source_patch_sha256"])
     if sha256(wheel) != wheel_hash:
         raise RuntimeError("FEAST wheel checksum differs from its build record")
 
@@ -98,27 +174,10 @@ def main() -> int:
         raise RuntimeError(f"installed wheel files differ: {mismatches[:5]}")
 
     feast_repo = (ROOT.parent / "FEAST").resolve()
-    if candidate_record is not None:
-        mismatched_sources = []
-        for relative, expected_hash in candidate_record["source_files"].items():
-            source = feast_repo / str(relative)
-            if not source.is_file() or sha256(source) != str(expected_hash):
-                mismatched_sources.append(str(relative))
-        if mismatched_sources:
-            import sys
-            print(
-                f"WARNING: candidate source snapshot differs (wheel-only deployment): "
-                f"{mismatched_sources[:5]}",
-                file=sys.stderr,
-            )
-    head = subprocess.run(
-        ["git", "-C", str(feast_repo), "rev-parse", "HEAD"],
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.strip()
-    if head != required_commit:
-        raise RuntimeError(f"FEAST HEAD {head} != recorded build commit {required_commit}")
+    if candidate_record is not None and candidate_record.get('source_mode') == 'local_working_tree':
+        checkout = verify_local_build_source(feast_repo, required_commit, wheel, provenance.parent)
+    else:
+        checkout = verify_checkout(feast_repo, required_commit)
 
     print(
         json.dumps(
@@ -126,11 +185,10 @@ def main() -> int:
                 "status": "OK",
                 "version": required_version,
                 "commit": required_commit,
+                **checkout,
                 "wheel_sha256": wheel_hash,
                 "import_path": str(imported),
                 "verified_package_files": checked,
-                "source_patch_sha256": source_patch_hash,
-                "candidate_provenance_sha256": provenance_hash,
                 "candidate_status": (
                     None
                     if candidate_record is None

@@ -122,7 +122,6 @@ def configure_matplotlib() -> None:
         "pdf.fonttype": 42,
         "ps.fonttype": 42,
         "svg.fonttype": "none",
-        "svg.hashsalt": "feast-study00-delta-spatial",
     })
 
 

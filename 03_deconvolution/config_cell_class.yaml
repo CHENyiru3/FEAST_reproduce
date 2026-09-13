@@ -1,0 +1,43 @@
+configuration_id: study03-fresh-same-expression-cell-class-v1
+seed: 2026
+required_feast_commit: 68816e5c1862a6fa2a49bc30609d617c7fa4b449
+slices: ["007", "050", "100"]
+resolutions: [0.1, 0.25]
+reference_pattern: "Zhuang-ABCA-1.{slice_id}.h5ad"
+cell_type_key: cell_class
+
+simulation:
+  parameter_mode: hungarian
+  spatial_mode: reference_rank
+  assignment_solver: scipy
+  assignment_blocks: false
+  # RCTD and Cell2location require raw integer counts. FEAST's optional
+  # post-decoding overshoot clip is disabled so aggregation remains integer.
+  clip_overshoot_factor: 0.0
+  ppf_method: interp
+  beta_n_jobs: 4
+  beta_early_stopping_patience: 2
+  convert_n_jobs: 4
+  grid_type: hexagonal
+  alpha: 0.01
+
+rctd:
+  mode: full
+  min_cells_per_type: 50
+  max_cores: 1
+  cache_dir: /tmp/rctd_cache_pub
+  timeout_seconds: 21600
+
+cell2location:
+  accelerator: cuda
+  min_cells_per_type: 50
+  positive_library_only: true
+  reference_epochs: 250
+  reference_batch_size: 2500
+  reference_learning_rate: 0.002
+  reference_posterior_samples: 1000
+  spatial_epochs: 25000
+  spatial_learning_rate: 0.002
+  spatial_posterior_samples: 1000
+  detection_alpha: 20.0
+  abundance_key: means_cell_abundance_w_sf

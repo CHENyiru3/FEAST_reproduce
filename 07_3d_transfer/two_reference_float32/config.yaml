@@ -1,0 +1,96 @@
+configuration_id: study07-two-reference-float32-v1
+blueprint_configuration_id: study07-devccf-expression-free-blueprints-v1
+legacy_study_id: '06'
+public_seed: 2026
+paths:
+  feast_repo: ../../../FEAST
+  dataset_root: ../../../Datasets/Processed
+  reference_dir: GSE269617/h5ad_region_annotated
+  devccf_dir: DevCCFv1_figshare_26377171/coordinate_system/GSE269617_region_merged
+  blueprint_dir: ../data/local/blueprints_ot110
+  work_dir: ../outputs/generative_transfer_two_reference_float32_v1/.work
+  final_dir: ../outputs/generative_transfer_two_reference_float32_v1
+generation:
+  n_references: 2
+  min_positions: 50
+  batch_sd: 0.005
+reference_fit:
+  label_key: region
+  expected_genes: 550
+  min_gene_spots: 1
+  min_gene_mean: 0.0
+  max_gene_zero_prop: 1.0
+  boundary_neighbors: 6
+  coordinate_scale: null
+transport:
+  marginal_model: core
+  epsilon: 0.05
+  sinkhorn_iter: 1000
+  sinkhorn_tol: 1.0e-05
+  unbalanced_transport: true
+  reg_m: 5.0
+  transport_nonconvergence: raise
+  sinkhorn_method: sinkhorn_log
+  transport_backend: torch
+  transport_device: cuda:0
+  transport_dtype: float32
+  geometry_weight: 1.0
+  boundary_weight: 0.25
+  latent_clip_eps: 1.0e-06
+  gene_chunk_size: 512
+  max_transport_pairs: 25000000
+  quantile_field_mode: latent_reference
+  rank_scope: auto
+  tie_policy: stable_ordinal
+  store_latent_scores: false
+  store_quantiles: false
+assignment_randomness_calibration:
+  n_genes: 20
+  step: 0.05
+  maximum: 0.5
+  n_neighbors: 6
+  transport_backend: torch
+  transport_device: cpu
+  transport_dtype: float64
+ages:
+  E15.5:
+    reference_glob: '*E14*.h5ad'
+    expected_references: 10
+    volume: E15.5_broad_region_annotations.nii.gz
+    z_start: -4.12
+    z_end: -0.98
+    z_step: 0.02
+    expected_levels: 158
+    expected_spots: 2330927
+    assignment_randomness:
+      mode: approved_estimate
+      value: 0.3
+      basis: User approved 2026-09-06; two completed E14 reference holdouts favored
+        0.25 and 0.30 in .work/generative_3d_v1/07_calibrate_cached_E15.5.log (recorded
+        build 20260905_local_generative_3d_v1). Third holdout stopped; no completed
+        current-build calibration claimed.
+  E18.5:
+    reference_glob: '*E18M*.h5ad'
+    expected_references: 5
+    volume: E18.5_broad_region_annotations.nii.gz
+    z_start: -5.56
+    z_end: -1.54
+    z_step: 0.02
+    expected_levels: 202
+    expected_spots: 5213461
+    assignment_randomness:
+      mode: approved_estimate
+      value: 0.5
+      basis: User explicitly approved 0.50 on 2026-09-06, informed by historical data/local/E18.5_assignment_randomness_otlog110_v5.json
+        from the superseded model. Current-model E18.5 calibration was not run.
+blueprint:
+  region_schema: gse269617_region_schema.tsv
+  excluded_labels:
+  - Background
+  - Other
+  coordinate_system: devccf_world
+  grid_type: devccf_coronal
+  technology: MERFISH
+  expression_source: none
+  spot_id_rule: devccf-{age}-z{z_index:03d}-j{voxel_j:03d}-i{voxel_i:03d}-k{voxel_k:03d}
+  smoothing: none

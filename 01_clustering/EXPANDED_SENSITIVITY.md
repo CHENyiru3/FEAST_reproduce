@@ -11,7 +11,7 @@ root is `outputs/expanded_mean_variance_fc_0_20_5_20260806`.
 Run from this directory with the pinned environments:
 
 ```bash
-FEAST_PY=/maiziezhou_lab2/yiru/envs/feast-reproduce-py311-68816e5/bin/python
+FEAST_PY=/path/to/envs/feast-reproduce-py311-68816e5/bin/python
 OUTPUT=outputs/expanded_mean_variance_fc_0_20_5_20260806
 
 $FEAST_PY run_expanded_sensitivity.py --config expanded_config.yaml \
@@ -22,7 +22,7 @@ $FEAST_PY run_expanded_sensitivity.py --config expanded_config.yaml \
 
 $FEAST_PY run_expanded_sensitivity.py \
   --config expanded_config.yaml --output-root "$OUTPUT" method \
-  --method GraphST --python /maiziezhou_lab2/yiru/envs/GraphST/bin/python
+  --method GraphST --python /path/to/envs/GraphST/bin/python
 
 $FEAST_PY run_expanded_sensitivity.py --config expanded_config.yaml \
   --output-root "$OUTPUT" method --method Leiden_unsupervised --python "$FEAST_PY"

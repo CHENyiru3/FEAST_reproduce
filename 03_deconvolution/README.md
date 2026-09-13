@@ -1,5 +1,52 @@
 # Study 03: deconvolution
 
+## Cell-class rerun (current)
+
+The current registered rerun uses `cell_class` consistently for FEAST truth,
+RCTD, and Cell2location. Both methods retain the same slice-specific classes
+with at least 50 reference cells; truth mass from rarer classes is evaluated as
+`Other`. Cell2location fits only positive-library locations and reinserts empty
+locations as zero rows. The previous fine-`cell_type` evidence remains on disk
+for audit but is not the source of the current figures.
+
+The versioned configuration is `config_cell_class.yaml`, and the output root is
+`outputs/cell_class_rerun_20260810_v1`. Run or resume the exact six-pair,
+twelve-job design with:
+
+```bash
+python 03_deconvolution/run.py \
+  --input-dir 03_deconvolution/data/local \
+  --output-dir 03_deconvolution/outputs/cell_class_rerun_20260810_v1 \
+  --feast-commit 68816e5c1862a6fa2a49bc30609d617c7fa4b449 \
+  --rscript /path/to/envs/rctd_bioc/bin/Rscript \
+  --rctd-python /path/to/envs/feast-prepublication-py311/bin/python \
+  --cell2location-python /path/to/envs/cell2loc_env/bin/python \
+  --config 03_deconvolution/config_cell_class.yaml \
+  --methods rctd cell2location --resume
+```
+
+Cell2location remains CUDA-only. Score and independently validate the completed
+matrix with:
+
+```bash
+python 03_deconvolution/score_cell_class.py \
+  --run-dir 03_deconvolution/outputs/cell_class_rerun_20260810_v1 \
+  --config 03_deconvolution/config_cell_class.yaml \
+  --output-dir 03_deconvolution/outputs/cell_class_rerun_20260810_v1/scores_cell_class
+
+python 03_deconvolution/validate_cell_class.py \
+  --run-dir 03_deconvolution/outputs/cell_class_rerun_20260810_v1 \
+  --config 03_deconvolution/config_cell_class.yaml \
+  --scores-dir 03_deconvolution/outputs/cell_class_rerun_20260810_v1/scores_cell_class \
+  --output 03_deconvolution/outputs/cell_class_rerun_20260810_v1/validation_cell_class.csv
+```
+
+## Historical fine-cell-type workflow
+
+The material below documents the earlier fine-`cell_type` design and the
+separate slice-120 preflight. It is retained for audit and does not define the
+current `cell_class` figures.
+
 This workflow regenerates six FEAST simulations and then runs RCTD and
 Cell2location on the exact same H5AD files. No previous FEAST simulation,
 prediction, score, or truth artifact is used; fresh truth is generated from
@@ -7,8 +54,9 @@ the declared aggregation during this run.
 
 The default input directory must contain the three raw, integer-count references named
 `Zhuang-ABCA-1.007.h5ad`, `Zhuang-ABCA-1.050.h5ad`, and
-`Zhuang-ABCA-1.100.h5ad`. The `cell_type` annotation and `obsm['spatial']` are
-required. Local hardlinks may be placed in `data/local/`; their expected hashes
+`Zhuang-ABCA-1.100.h5ad`. The annotation declared by the selected configuration
+(`cell_class` for the current rerun) and `obsm['spatial']` are required. Local
+hardlinks may be placed in `data/local/`; their expected IDs, paths,
 and verified input contracts are recorded in `data/input_checksums.csv`.
 
 ## Zhuang-ABCA-1.120 pre-Cell2location diagnostic
@@ -99,12 +147,12 @@ accepted.
 
 After an interruption, rerun the same command with `--resume`. A simulation or
 method row is skipped only when its configuration, FEAST build, public seed,
-input hash, output hashes, and validated-success metadata still match. Any
+input/output paths, and validated-success metadata still match. Any
 stale partial artifacts are moved below the run's `failures/` directory before
 that row is regenerated.
 
 Scoring requires exact spot identity/order, raw integer counts, common named
-cell types plus `__other__`, and distinct prediction/truth hashes. Zero-library
+cell types plus `__other__`, and distinct prediction/truth data. Zero-library
 spots are retained in Cell2location output but excluded from both methods'
 biological scores because RCTD legitimately omits them.
 
@@ -115,19 +163,19 @@ location during the fresh simulation—not mean UMI count. This construction
 quantity uses geometry only, not cell-type labels, and is recorded in every
 simulation and method artifact. The score stage emits side-by-side atomic
 metrics, a six-pair support audit, and an exact 12-key old-versus-new table. The
-comparison binds the frozen article scores, the prior repaired same-expression
-scores, and the fresh rerun by SHA-256. Its deltas are classified as mixed
+comparison records the frozen article scores, the prior repaired same-expression
+scores, and the fresh rerun by path and configuration. Its deltas are classified as mixed
 workflow changes and are not attributed to a single cause. The historical
 aggregate majority is context only; the gate itself is atomic and stops if any
 declared metric direction changes, ties, or is indeterminate. It never
 authorizes an aggregate method-ranking or publication claim. `provenance.json`
-binds the scorer, config, manifests, historical inputs, every scored input, and
-every scientific output by SHA-256.
+records the scorer, config, manifests, historical inputs, every scored input, and
+every scientific output path.
 
 Both `score.py` and `validate.py` require explicit `--historical-scores`,
 `--prior-scores`, and `--direction-audit` paths. This keeps the reproduction
-repository portable while each file must still match its declared frozen
-SHA-256 before it can enter comparison or provenance.
+repository portable while each file must satisfy its declared semantic contract
+before it can enter comparison or provenance.
 
 This study explicitly sets FEAST's public `clip_overshoot_factor=0.0`. The
 optional post-decoding 1.1x clip can create fractional maxima (for example,

@@ -104,50 +104,63 @@
       }
     },
     "03_deconvolution": {
-      "status": "decision_required_headline_direction_changed",
-      "remaining": "author decision to remove or rewrite the comparative claim; final cross-study integration",
+      "status": "validated_complete_cell_class_mixed_results",
+      "remaining": "final cross-study integration with mixed-result wording; no aggregate method ranking",
       "validated_evidence": {
-        "configuration_id": "study03-fresh-same-expression-v3",
+        "configuration_id": "study03-fresh-same-expression-cell-class-v1",
         "public_seed": 2026,
+        "annotation_key": "cell_class",
+        "min_cells_per_class": 50,
+        "retained_classes_by_slice": {
+          "007": 7,
+          "050": 14,
+          "100": 15
+        },
         "same_expression_by_construction": true,
-        "simulation_manifest": "03_deconvolution/outputs/final_rerun_20260718_v2/simulation_manifest.csv",
-        "simulation_manifest_sha256": "2814086f6b7c5a7deb3b85a14aae7782e731a3e9aa6b1c0e7bb3145c757660c2",
-        "method_manifest": "03_deconvolution/outputs/final_rerun_20260718_v2/method_manifest.csv",
-        "method_manifest_sha256": "2c64cf60591a49aa6cdee05e766a88a803813ed6f25662b7e3cf1f1293d933ae",
-        "run_provenance": "03_deconvolution/outputs/final_rerun_20260718_v2/provenance.json",
-        "run_provenance_sha256": "fa2cfb82033623922560928322b3c3a9a821b33b0478d197ac639324721501e6",
-        "scores": "03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/deconvolution_scores.csv",
-        "scores_sha256": "13442992ca4b4b5a199b9841bc89f383863d06bca7166e29fe879792a90922ce",
-        "old_vs_new": "03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/old_vs_new_deconvolution_scores.csv",
-        "old_vs_new_sha256": "506ce9ef328ee30fd46982168da8b54e92752a1c1f69b9f4ea1a0fdf0c2e2915",
-        "support_audit": "03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/support_audit.csv",
-        "support_audit_sha256": "a8317a61c84020178f9bb913885b7cd2dd8f0c0595e29ce80d1a697be5632b37",
-        "score_provenance": "03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/provenance.json",
-        "score_provenance_sha256": "9a54093ac5ba53f92554403c13108f5821791609140675d035ed0a5f9e240a7f",
-        "decision": "03_deconvolution/outputs/final_rerun_20260718_v2/scores_common_support_20260719_v1/publication_decision.json",
-        "decision_sha256": "1aae6caed6b9901af2c320f63b945f0b0f3050c8c4c5ecfa35c31687cc357cdb",
-        "validation": "03_deconvolution/outputs/final_rerun_20260718_v2/validation_common_support_20260719_v1/validation.csv",
-        "validation_sha256": "5a10758d54c1186a59aefa77fc9f7e30f7da7ca53009805930d150d64b8b68c5",
+        "simulation_manifest": "03_deconvolution/outputs/cell_class_rerun_20260810_v1/simulation_manifest.csv",
+        "simulation_manifest_sha256": "bd553369ecd5426d33e82ff2fa0e7a4b17b9fb06ec6be23b83108343abe31f8c",
+        "method_manifest": "03_deconvolution/outputs/cell_class_rerun_20260810_v1/method_manifest.csv",
+        "method_manifest_sha256": "30b0afb1e311cd43cd8e4114940b85412ab16203421759e6d5e2c4cb8d273d4f",
+        "run_provenance": "03_deconvolution/outputs/cell_class_rerun_20260810_v1/provenance.json",
+        "run_provenance_sha256": "81f183af08e8317ef325d3d7f8c4d802ff344fe00e75d37c1628ca3395ec6809",
+        "scores": "03_deconvolution/outputs/cell_class_rerun_20260810_v1/scores_cell_class/deconvolution_scores.csv",
+        "scores_sha256": "6f2d0c41831e64da9bb27c86c80d3e46c3829f845462a1c81ac5d1f182dbbe3b",
+        "support_audit": "03_deconvolution/outputs/cell_class_rerun_20260810_v1/scores_cell_class/support_audit.csv",
+        "support_audit_sha256": "81b55e5b01b1f478066aef575ec044ce75ce5720bb1977ade543d27b6ac241d4",
+        "score_provenance": "03_deconvolution/outputs/cell_class_rerun_20260810_v1/scores_cell_class/scoring_provenance.json",
+        "score_provenance_sha256": "9cbe1787c05d12d096521e473463f540b5ee4d65216ef2e6578f018caf209078",
+        "validation": "03_deconvolution/outputs/cell_class_rerun_20260810_v1/validation_cell_class.csv",
+        "validation_sha256": "4920e0a3c867e88b4ce53751e28ae19320e7a1df21b151289bcdc317e938e491",
+        "numerical_figure": "visualization/03_deconvolution/figures/common_support_diagnostic.pdf",
+        "numerical_figure_sha256": "1208eb15bcf484cde7305e0742d339585d780b4a349c8e0f05b83ab09a1fcbcf",
+        "numerical_within_slice_resolution_lines": true,
+        "numerical_cross_slice_lines": false,
+        "numerical_vertical_value_jitter": false,
+        "spatial_figure": "visualization/03_deconvolution/figures/deconvolution_spatial.pdf",
+        "spatial_figure_sha256": "88e5821d3f1336ae6507db82b1f1d916639084f612b2d2cd893b3b1f7ff79fb4",
+        "spatial_display_categories": 16,
+        "spatial_rare_truth_class_policy": "aggregate into Other",
         "method_counts": {
           "RCTD": 6,
           "Cell2location": 6
         },
         "fresh_means": {
           "RCTD": {
-            "jsd_mean": 0.32044625071102234,
-            "pearson_mean": 0.7899902967807512,
-            "summed_rmse": 0.05449979375735901
+            "jsd_mean": 0.0637587251784,
+            "pearson_mean": 0.843842034229,
+            "rmse": 0.0614108952936
           },
           "Cell2location": {
-            "jsd_mean": 0.5216563847113732,
-            "pearson_mean": 0.6055193302548733,
-            "summed_rmse": 0.08527784235311398
+            "jsd_mean": 0.0701428271294,
+            "pearson_mean": 0.844145547948,
+            "rmse": 0.0576451457539
           }
         },
-        "changed_metric_directions": [
-          "pearson_mean",
-          "summed_rmse"
-        ],
+        "result_interpretation": "mixed atomic metrics: RCTD lower mean JSD, Cell2location lower mean RMSE, mean Pearson nearly equal",
+        "all_metrics_independently_reproduced": true,
+        "exact_method_support_verified": true,
+        "cuda_execution_verified_for_all_cell2location_jobs": true,
+        "descriptive_figure_authorized": true,
         "publication_claim_authorized": false,
         "aggregate_winner_ranking_authorized": false,
         "external_numpy_limitation": "Cell2location uses NumPy 2.2.6 outside FEAST's supported range; FEAST was not imported in that worker"
@@ -194,8 +207,8 @@
       }
     },
     "05_2d_conditional_transfer": {
-      "status": "validated_complete_claim_reframe_required",
-      "remaining": "author acceptance of the bounded conditional-generation wording and final cross-study integration",
+      "status": "validated_complete_resampling_figure_promoted",
+      "remaining": "final cross-study integration under the bounded conditional-generation wording",
       "authorized_scope": {
         "datasets": {
           "dlpfc": {
@@ -247,26 +260,43 @@
         "support_audit_sha256": "be3fc4200188acfcaed218742a55f0f48bd6348b6930a35be0b64921f85a1a61",
         "score_provenance": "05_2d_conditional_transfer/outputs/scores/provenance.json",
         "score_provenance_sha256": "0db3dfe062fd997d11b8426759e11d5a5e5ed354d103c35932c3854b3a64f8c1",
+        "conditional_metrics": "05_2d_conditional_transfer/outputs/baselines/conditional_metric_comparison/method_metrics.csv",
+        "conditional_metrics_sha256": "99d53f97b65437eb83a07878e422c3505d5b6974f4541ee928cac64587df9c71",
+        "conditional_metrics_provenance": "05_2d_conditional_transfer/outputs/baselines/conditional_metric_comparison/provenance.json",
+        "conditional_metrics_provenance_sha256": "66b6f1d0fd4b619f6c67a3e9a1e7ec59e20a5529ab352847818c3b74b6f6e225",
         "old_vs_new": "05_2d_conditional_transfer/outputs/old_vs_new_metrics.csv",
         "old_vs_new_sha256": "86dcab623cda2a7d3eaf4f3843cf5a75a2d0e6365f3d371f6ba7b8b415f9eae3",
         "comparison_provenance": "05_2d_conditional_transfer/outputs/old_vs_new_metrics_provenance.json",
         "comparison_provenance_sha256": "3f9817afaf1cdebbe479aafea27414882940d727a40c7eef15637a9d03719531",
         "decision": "05_2d_conditional_transfer/PUBLICATION_DECISION.md",
         "decision_sha256": "a244b152eb14f1432f3d876814608e94785daccb4c1012178da09afcfc0506c3",
-        "figure": "visualization/05_2d_conditional_transfer/figures/conditional_transfer_fidelity_and_limits.pdf",
-        "figure_sha256": "03f8fa7c74d9f715e8a8977d518ed6def622f87171b8b0cad65e938574271985",
+        "figure": "visualization/05_2d_conditional_transfer/figures/conditional_transfer_distribution_and_spatial_fidelity.pdf",
+        "figure_sha256": "96344af2c31776774a8f20a0b1a08dcf71bf2f0a5eef663680fb8814e9cf5cb0",
         "figure_provenance": "visualization/05_2d_conditional_transfer/figures/figure_provenance.json",
-        "figure_provenance_sha256": "7dc64ea4b0cd29570df54d1593f472048791c97f358b8aa1ac910f48a1748a43",
+        "figure_provenance_sha256": "c5772d8bc47166012bc75760114eac24f962c40db443d49be291c0467f835d48",
+        "supporting_figures": {
+          "simulation_design": "visualization/05_2d_conditional_transfer/figures/conditional_transfer_simulation_design.pdf",
+          "simulation_design_sha256": "4e62bae1fcb900935d1ae4be57b3371a0d6a97d89c7f005951181201d9882591",
+          "panel_letters": false
+        },
         "target_expression_loaded_by_generation": false,
         "spotwise_prediction_claim_authorized": false,
         "publication_claim_authorized": false,
-        "figure_promotion_authorized": false,
-        "supported_interpretation": "label-aware conditional generation with aggregate distribution and Moran-profile fidelity; not accurate coordinate-wise expression recovery"
+        "figure_promotion_authorized": true,
+        "supported_interpretation": "label-aware conditional generation with improved conditional expression-distribution and spatial-profile similarity relative to whole-spot resampling; not accurate coordinate-wise expression recovery"
       }
     },
     "06_3d_stack": {
-      "status": "validated_complete_author_review_required",
-      "remaining": "author review of the atomic diagnostic and supported wording; optional historical comparison only from a separately approved hash-pinned summary",
+      "status": "corrected_rerun_cuda_canaries_in_progress",
+      "active_configuration": "06_3d_stack/config_reference_density.yaml",
+      "active_expected_h5ad": 336,
+      "active_positions_per_stack": 144,
+      "active_canary_root": "06_3d_stack/outputs/reference_density_rank_v1_canaries_20260905_reset01",
+      "planned_production_root": "06_3d_stack/outputs/reference_density_rank_v1_production_20260905_reset01",
+      "historical_archive_root": ".archive/study06-before-rerun-20260905",
+      "historical_fields_notice": "authorized_scope, implementation_evidence and completion records below describe the archived 93-output design; original paths resolve beneath historical_archive_root",
+      "remaining": "corrected calibration passed; CUDA canaries running in reset session feast-s06-production-20260905, followed by all 336 CUDA simulations in two disjoint shards per gap, validation, evaluation, and author review",
+      "superseded_reason": "the 93-output run treated every gap-th slice as a target rather than a retained real reference",
       "authorized_scope": {
         "dense_gap3": 49,
         "medium_gap5": 29,
@@ -319,11 +349,15 @@
         "validation_csv_sha256": "e32c3f2a2ca85a5606394d6aa2153ef5e5c221d1368392e524cd14c6b6086b35",
         "score_provenance": "06_3d_stack/outputs/final/evaluation/score_provenance.json",
         "score_provenance_sha256": "2bb9d66f4fc3ad20c4e9683ba7fc5db4dedbb52c86b06ed515e1e9d5cea6c85b",
+        "conditional_metrics": "06_3d_stack/outputs/final/baselines/conditional_metric_comparison/method_metrics.csv",
+        "conditional_metrics_sha256": "cae323e64bf35fed8a91ebe49b2a41b6dcc9f3a5596effe1b33bb40cce308a69",
+        "conditional_metrics_provenance": "06_3d_stack/outputs/final/baselines/conditional_metric_comparison/provenance.json",
+        "conditional_metrics_provenance_sha256": "a62619c40e063379f48b7cc552be153f29ebb357549807c181b50a22cc920a35",
         "validated_generated_artifacts_sha256": "e34a053127cecb094bc09c88e4dfced865b78a373d274788518612728693e11c",
-        "figure": "visualization/06_3d_stack/figures/conditional_stack_diagnostic.pdf",
-        "figure_sha256": "7f018ad5af52557240fd455b4546436204ced627a8f6cb0aa55d3f884bc3bb80",
+        "figure": "visualization/06_3d_stack/figures/conditional_stack_distribution_and_spatial_fidelity.pdf",
+        "figure_sha256": "c5fa495595a9c4fedc2e0360ca21650dde7ad253202cf8fc24e26579719ca0d5",
         "figure_provenance": "visualization/06_3d_stack/figures/figure_provenance.json",
-        "figure_provenance_sha256": "b117a1d68d2e1786210774eda6ab5f1cc0367822e969f139530be640c01ce85a",
+        "figure_provenance_sha256": "631f5a5346b171c5e9e72f6d4a4ddb0bc2a27735823773723b3711d8a34ba2bd",
         "target_expression_loaded_by_generation": false,
         "publication_canonical": false,
         "publication_claim_authorized": false,
@@ -331,8 +365,8 @@
       }
     },
     "07_3d_transfer": {
-      "status": "validated_complete_descriptive_only_author_review_required",
-      "remaining": "author review of the descriptive full-axis diagnostic; no target-expression accuracy claim is available",
+      "status": "validated_complete_descriptive_resampling_figure_promoted",
+      "remaining": "final cross-study integration; no target-expression accuracy claim is available",
       "authorized_scope": {
         "E15.5": {
           "z_min": -4.12,
@@ -410,16 +444,20 @@
         "E18.5_provenance_sha256": "0a3dea34b784abc76aa33cf91d8b360c9685c38c286fb2dc42a4cccd55bcbbe1",
         "evaluation_provenance": "07_3d_transfer/outputs/final/evaluation/provenance.json",
         "evaluation_provenance_sha256": "6e41d14bdff42dba10ee473f3b2477efd63bfd7fcfe2b648168ea738a906453c",
+        "conditional_continuity": "07_3d_transfer/outputs/final/baselines/conditional_whole_spot_resampling/adjacent_z_continuity.csv",
+        "conditional_continuity_sha256": "028d1cfb3d53258d8a5882b0c8a30e65cb92b94a08f496647f42ce14405801f0",
+        "conditional_continuity_provenance": "07_3d_transfer/outputs/final/baselines/conditional_whole_spot_resampling/provenance.json",
+        "conditional_continuity_provenance_sha256": "5de2bd414bfcc2cb06ae05af94e9eb617f590de5742a3121ff5f5a275afa9bdd",
         "figure": "visualization/07_3d_transfer/figures/full_axis_transfer_diagnostic.pdf",
-        "figure_sha256": "62eb4085709d39e2abfea521e8ee33df8cba9b3131ce21eb8a64a831c6ddd098",
+        "figure_sha256": "4e432f85fbe125f5ed194f4b3234799540439fd5265c29f656d8f41f73e91eab",
         "figure_provenance": "visualization/07_3d_transfer/figures/figure_provenance.json",
-        "figure_provenance_sha256": "ef53d938ae35558da635cb60013279a0a7ee48911e99f11757342b16694f81fc",
+        "figure_provenance_sha256": "22bd7c4132bc67a2f6148a0ca2dc8e94b677810e27a73d695a67312a88899138",
         "publication_canonical": false,
         "target_expression_accuracy_claim_authorized": false,
         "publication_claim_authorized": false,
-        "figure_promotion_authorized": false
+        "figure_promotion_authorized": true
       }
     }
   },
-  "unified_release_policy": "Studies 00-05 retain their pinned FEAST 1.0.2 build. Studies 06-07 explicitly bind the unreleased FEAST 1.1.0 log-domain repair candidate at source commit 68816e5c1862a6fa2a49bc30609d617c7fa4b449 plus its recorded source patch. No release build is unified or authorized until author decisions and a new terminal gate are complete. Historical artifacts retain their recorded provenance and are never relabelled."
+  "unified_release_policy": "Studies 00-05 retain their pinned FEAST 1.0.2 build. Study 07 and the archived 93-output Study 06 results bind the unreleased FEAST 1.1.0 log-domain repair candidate at source commit 68816e5c1862a6fa2a49bc30609d617c7fa4b449 plus its recorded source patch. Corrected Study 06 uses its recorded 1.0.5 wheel at source commit 449155cb9ba3f481560ae611e18cbec567111538. No release build is unified or authorized until author decisions and a new terminal gate are complete. Historical artifacts retain their recorded provenance and are never relabelled."
 }

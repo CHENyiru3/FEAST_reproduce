@@ -1,0 +1,6 @@
+paste2:
+  alpha: 0.1
+  n_pcs: 50
+  max_iterations: 200
+  relative_tolerance: 1.0e-9
+  absolute_tolerance: 1.0e-9

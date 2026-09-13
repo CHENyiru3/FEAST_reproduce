@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import subprocess
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -39,7 +40,13 @@ def main() -> int:
         if not path.is_dir():
             errors.append(f"missing study directory: {study}")
 
-    for path in sorted(ROOT.rglob("*")):
+    # Inspect the source upload, including new files, rather than local runs.
+    source_paths = subprocess.check_output(
+        ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+        cwd=ROOT,
+    ).decode().split("\0")
+    for relative_path in sorted(set(source_paths) - {""}):
+        path = ROOT / relative_path
         if not path.is_file() or path.suffix.lower() not in TEXT_SUFFIXES:
             continue
         if (

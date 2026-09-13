@@ -72,6 +72,7 @@ PDF, SVG, and 600-DPI PNG files to `figures/`:
 ```bash
 python visualization/00_simulator_benchmark/plot_delta_spatial.py
 python visualization/00_simulator_benchmark/plot_slice_panel.py
+python visualization/00_simulator_benchmark/plot_spatial_comparison.py
 ```
 
 `simulator_delta_spatial` normalizes each platform/gene row by its shared
@@ -83,3 +84,10 @@ visible against the white page. The row label reports the raw q99 delta scale.
 shared 99.5th-percentile log1p scale across its four sources within each
 dataset/gene column; its colorbar reports the resulting column-normalized
 expression.
+
+`simulator_spatial_comparison` combines those two complementary views in one
+six-column framework. Its top four rows show reference and simulated
+expression; the bottom three rows show each simulator's delta from that same
+reference. Expression and delta retain their separate colourbars and are each
+normalized within dataset/gene column, so the combined layout does not imply a
+shared scale across measures or datasets.

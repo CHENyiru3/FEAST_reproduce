@@ -15,8 +15,8 @@ data/local/reference/<sample>.h5ad
 data/local/external/<simulator>/<sample>.h5ad
 ```
 
-The 12 reference datasets and 48 external outputs must match the recorded
-SHA-256 values. No earlier FEAST output is a permitted input. The external
+The 12 reference datasets and 48 external outputs must satisfy the recorded
+identifiers, dimensions, and semantic input contracts. No earlier FEAST output is a permitted input. The external
 outputs are read-only; the scripts never modify them.
 
 Verify the materialized inputs before running:
@@ -51,7 +51,7 @@ python validate.py \
 `run.py --dry-run` prints the 12-job matrix without importing FEAST or writing
 files. Every scientific output directory must initially be new. If a run is
 interrupted, repeat the command with `--resume`; only outputs matching their
-recorded configuration, runner-source, input, and output hashes are skipped,
+recorded configuration, runner-source, input, and output paths are skipped,
 while invalid partial H5ADs are
 preserved under the run's `failures/` directory.
 

@@ -1,52 +1,41 @@
 # Study 02: alignment visualization
 
-Visualization code and rendered figures for Study 02 belong here. Build them
-only from complete, validated outputs under `../../02_alignment/outputs/`;
-historical figures are not inputs.
+Active Study 02 figures compare **PASTE2** and **Spateo** on the fixed-plate
+simulation.  All current visualizations use the independently rerun PASTE2
+outputs in `../../02_alignment/outputs/paste2_rerun_20260807_v1/` and the
+corresponding validated Spateo outputs in
+`../../02_alignment/outputs/fixed_plate_rerun_20260806_v1/`.
 
-The clean 20-row Spateo and 20-row PASTE matrix is complete and validated. The
-registered source is
-`../../02_alignment/outputs/final_rerun_20260718_v2/scores/alignment_metrics.csv`
-(SHA-256
-`d405d2b8bea4d834cee729013803d2cb9c3ba2193f25d5c9df08dc1446723e92`).
-
-The six prespecified sparsity-condition relations have zero reversals versus
-the prior corrected candidate. Historical grid-snapped aggregates are
-noncanonical and not directly comparable. Performance varies by alteration,
-so no aggregate method ranking, winner claim, or publication figure is
-authorized until the author selects the panel, metric, alteration strata, and
-claim. Use `comparison_v2/publication_decision.json` for this disposition.
-
-## Unpromoted diagnostic candidates
-
-`plot.py` reads the Study 02 paths and SHA-256 values directly from
-`../../PUBLICATION_MANIFEST.json`, requires complete positive validation for
-all 40 method rows, and refuses to run if the manifest authorizes a figure or
-method-ranking claim. Rebuild from the repository root with:
+`plot_fixed_plate_results.py` renders the two primary coordinate-based metrics
+across the seven rotation angles: normalized spatial error and
+rotation-recovery error. Both use the rigid-alignment layer applied to every
+retained moving spot and are directly comparable between PASTE2 and Spateo.
+Coordinate-NN spot accuracy is retained in the plot-data CSV as a secondary,
+ceiling-prone metric; region accuracy, label-transfer ARI, expression
+correlation, and partial-coupling `transport_*` diagnostics remain auxiliary.
+`plot_spatial.py` renders the 45-degree four-condition spatial comparison.
+Both write PDF, SVG, PNG, plot-data, and provenance files under `figures/`.
+Rebuild from the repository root with:
 
 ```bash
-python visualization/02_alignment/plot.py
+python visualization/02_alignment/plot_fixed_plate_results.py
+python visualization/02_alignment/plot_spatial.py
 ```
 
-`plot.py` produces `alignment_sensitivity_diagnostic.{pdf,svg,png}` together
-with `plot_data.csv` and `figure_provenance.json`. The compact 2 × 2 layout
-uses rows for the alignment method and columns for the two direct alignment
-errors. Lines retain every validated rotation job; colour and marker encode the
-four simulated conditions. Mean spatial error uses a shared log scale across
-methods. Rotation-recovery panels retain raw linear units with a separate
-within-method range so zero-valued solutions remain legible. GE correlation is
-retained in `plot_data.csv`, but is not a plotted alignment outcome because it
-is invariant across methods and input rotations in this design.
+`plot_fixed_plate_rotation.py` creates the method-neutral illustration of the
+fixed-plate rotation setup. `plot_spatial.py` is the corresponding result
+figure: every row shows one registered expression condition (baseline, mean
+×0.5, variance ×2.0, sparsity ×0.5), and its columns show the Spateo and
+PASTE2 outputs. Every cell uses the same two-plane view: the full gray target
+slice lies below the aligned moving slice, with sampled exact barcode-pair
+connectors. Result spots use shared exact barcode-pair residual bins: blue
+≤0.005, orange 0.005–0.01, and red >0.01 reference spot spacings. These bins
+describe coordinate residuals, not failed transport matches.
 
-`plot_spatial.py` produces `alignment_spatial.{pdf,svg,png}` with the
-plot-ready `alignment_spatial_plot_data.csv` and its own provenance record. It
-shows the four registered conditions at the prespecified 45° input rotation.
-Every panel shares the same coordinate limits and reference-x colour scale;
-the light-gray background is the target reference geometry. The script checks
-every displayed H5AD against the rotation and method manifests before reading
-coordinates.
+## Archived superseded material
 
-Both are **unpromoted** descriptive diagnostics. They preserve raw condition
-and method results but make no cross-alteration aggregate, method ranking, or
-winner claim. They must not be used as publication figures until the author
-declares the panel, metric, alteration strata, and claim.
+The superseded fixed-plate results and their prior figures are retained only
+for traceability under the repository-root
+`.archive/code-only-cleanup-20260913/visualization/02_alignment/archive/` and
+`../../02_alignment/outputs/archive/paste_fixed_plate_20260806_v1/`.  They are
+not inputs to active scripts and must not appear in current Study 02 figures.

@@ -33,6 +33,7 @@ jobs:
           03_deconvolution
           04_batch_effect_removal
           scripts
+          preprocessing
           visualization
       - name: Parse active shell scripts
         run: git ls-files -z '*.sh' | xargs -0 -r bash -n

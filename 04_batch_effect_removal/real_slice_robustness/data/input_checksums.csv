@@ -1,0 +1,3 @@
+slice_id,relative_path,sha256,n_spots,n_genes,donor_id
+151675,data/local/151675.h5ad,3a62bcd92055bfba5fd7a505b46c1f414660cfb554071caad61ee13e692705b9,3565,18641,Br8100
+151676,data/local/151676.h5ad,8080cafb777fc8f45bc90ec33afbe27a0074e2d6cb70a7c3f8563c28aff55fb1,3431,18661,Br8100

@@ -1,4 +1,0 @@
-density_name,gap,trajectory_unit,targets_are_biological_replicates,generated_target_z_coherence_n_pairs,generated_target_z_coherence_mean,generated_target_z_coherence_median,real_split_half_z_coherence_n_pairs,real_split_half_z_coherence_mean,real_split_half_z_coherence_median,normalized_z_coherence
-dense_gap3,3,class-gene across ordered z levels,False,37209,0.2366017806887335,0.2063470163965119,36915,0.4489034008631918,0.517994217102116,0.3983577607312038
-medium_gap5,5,class-gene across ordered z levels,False,36995,0.3230991809622745,0.3504335428088961,35519,0.4646020371106372,0.5841456965160516,0.5999077711244708
-sparse_gap10,10,class-gene across ordered z levels,False,32762,0.3804849514402422,0.4823964100201661,32706,0.4893766283673665,0.6902192516847693,0.6989031511982251
