@@ -15,7 +15,7 @@ set -euo pipefail
 article_id="${FIGSHARE_ARTICLE_ID:-26377171}"
 dataset_key="DevCCFv1"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-dataset_dir="$(cd "${script_dir}/.." && pwd)"
+dataset_dir="${DATASET_DIR:-${script_dir}}"
 out_dir="${1:-${dataset_dir}/components}"
 check_only="${CHECK_ONLY:-0}"
 manifest="${MANIFEST:-${dataset_dir}/manifest/raw_urls.tsv}"

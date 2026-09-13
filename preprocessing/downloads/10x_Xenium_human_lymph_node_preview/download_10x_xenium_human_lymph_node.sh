@@ -13,7 +13,7 @@ set -euo pipefail
 #   CHECK_ONLY=1 bash download_10x_xenium_human_lymph_node.sh
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-dataset_dir="$(cd "${script_dir}/.." && pwd)"
+dataset_dir="${DATASET_DIR:-${script_dir}}"
 out_dir="${1:-${dataset_dir}/samples}"
 check_only="${CHECK_ONLY:-0}"
 manifest="${MANIFEST:-${dataset_dir}/manifest/raw_urls.tsv}"

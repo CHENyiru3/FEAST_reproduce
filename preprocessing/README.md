@@ -4,11 +4,10 @@ Upstream data preparation for the FEAST reproduction studies. This directory
 contains the 12 Python scripts originally maintained in
 `Reproduce/Preprocess_helper`, plus eight dataset download scripts and their
 URL tables. Processing rules, QC thresholds, label logic, seeds, overwrite
-checks, and existing provenance recording are preserved. Machine-specific
-path defaults were replaced with paths relative to the checkout.
+checks, and existing provenance recording are preserved. Path defaults are
+relative to the checkout; downloaders accept `DATASET_DIR`.
 
-No raw data, processed matrices, annotation tables, or execution logs are
-included. The scripts were copied and checked without rerunning preprocessing.
+Raw data, processed matrices, annotation tables, and logs stay local.
 
 ## Dataset-to-study map
 
@@ -50,9 +49,28 @@ RAW="$DATA_ROOT/Raw"
 PROCESSED="$DATA_ROOT/Processed"
 ```
 
-Download preparation is documented in [downloads/README.md](downloads/README.md).
-The copied URL tables identify the recorded upstream files; remote availability
-has not been rechecked during this code migration.
+## Download inputs
+
+Each `downloads/<dataset>/` folder contains one downloader and its `raw_urls.tsv`.
+Initialize the raw-data URL tables, then run the selected downloader with its
+external dataset directory:
+
+```bash
+for source_dir in preprocessing/downloads/*/; do
+  dataset="$(basename "$source_dir")"
+  mkdir -p "$RAW/$dataset/manifest"
+  cp "$source_dir/raw_urls.tsv" "$RAW/$dataset/manifest/"
+done
+DATASET_DIR="$RAW/spatialLIBD_DLPFC_Visium" \
+  bash preprocessing/downloads/spatialLIBD_DLPFC_Visium/download_spatialLIBD_raw_data.sh
+```
+
+Choose the matching script for another dataset. Allen, GSE269617, and DevCCF
+write `components/`; the others write `samples/`. Keep downloads outside the
+source tree. `CHECK_ONLY=1` checks remote links/sizes but still makes network
+requests and may save metadata/logs. Tencent and DevCCF can refresh URL tables;
+preserve the recorded versions for an existing reproduction. Original remote
+checks, path checks, and checksum behavior remain in the downloaders.
 
 ## Expression datasets
 
@@ -134,7 +152,6 @@ adjust the supported input-path arguments. Study 00 uses benchmark aliases such
 as `DLPFC_151675.h5ad` and `MERFISH_007.h5ad`; preprocessing retains dataset-native
 filenames. The study's input table records the required correspondence.
 
-Copying the scripts does not establish byte-identical regeneration of the
-existing article inputs. The original processed manifests remain local in
-`Datasets/Processed/*/manifest/` and record the settings and code used at that
-time. No datasets, labels, or scientific outputs were changed by this migration.
+For exact article inputs, consult the original settings and code recorded in
+local `Datasets/Processed/*/manifest/` files; script availability alone does not
+establish byte-identical regeneration.

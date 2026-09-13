@@ -14,7 +14,7 @@ set -euo pipefail
 #   MANIFEST=/path/to/raw_urls.tsv bash download_spatialLIBD_raw_data.sh
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-dataset_dir="$(cd "${script_dir}/.." && pwd)"
+dataset_dir="${DATASET_DIR:-${script_dir}}"
 out_dir="${1:-${dataset_dir}/samples}"
 manifest="${MANIFEST:-${dataset_dir}/manifest/raw_urls.tsv}"
 check_only="${CHECK_ONLY:-0}"

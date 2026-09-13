@@ -78,3 +78,42 @@ methods use the true slice cluster count as the declared clustering target.
 Leiden selects the maximum weighted Newman-Girvan modularity at fixed gamma 1,
 breaking exact ties toward the lower resolution; labels are never read during
 its resolution sweep.
+
+## Extended mean/variance sensitivity
+
+`expanded_config.yaml` adds requested fold changes 0.2 and 5.0 for mean and
+variance on the same slices, gene panels, seed, and method settings. From this
+study directory, use a new output root and run:
+
+```bash
+OUTPUT=outputs/expanded_mean_variance_fc_0_20_5_20260806
+python run_expanded_sensitivity.py --config expanded_config.yaml --output-root "$OUTPUT" simulate --raw-dir data/local
+python run_expanded_sensitivity.py --config expanded_config.yaml --output-root "$OUTPUT" panels
+python run_expanded_sensitivity.py --config expanded_config.yaml --output-root "$OUTPUT" method --method GraphST --python "$GRAPHST_PYTHON"
+python run_expanded_sensitivity.py --config expanded_config.yaml --output-root "$OUTPUT" method --method STAGATE_mclust --python "$STAGATE_PYTHON"
+python run_expanded_sensitivity.py --config expanded_config.yaml --output-root "$OUTPUT" method --method Leiden_unsupervised --python "$FEAST_PYTHON"
+python run_expanded_sensitivity.py --config expanded_config.yaml --output-root "$OUTPUT" score
+python validate_expanded_sensitivity.py --config expanded_config.yaml --output-root "$OUTPUT"
+```
+
+STAGATE must inherit the CUDA library path from its recorded environment.
+Interpret requested fold changes with `realized_alteration_diagnostics.csv`;
+count decoding need not realize the nominal intervention exactly.
+
+## Figures
+
+Run from the repository root after validation.
+
+```bash
+python visualization/01_clustering/plot.py
+python visualization/01_clustering/plot_spatial_expression.py
+python visualization/01_clustering/plot_clustering_spatial.py
+python visualization/01_clustering/plot_intervention_profile.py
+python visualization/01_clustering/plot_clustering_stability.py
+python visualization/01_clustering/plot_main_figure.py
+```
+
+Inputs are `outputs/final_rerun_20260718_report/` and the validated extension's
+`report/`. Sensitivity uses all three slices; spatial examples use 151676.
+Cluster colors are panel-local. Stability is descriptive baseline-relative
+`1 − ARI`, not a cross-method winner ranking.

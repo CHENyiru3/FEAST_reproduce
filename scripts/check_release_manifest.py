@@ -56,7 +56,7 @@ def main() -> int:
     for rule in ('**/data/local/', '**/outputs/', '**/runs/', '**/logs/'):
         if rule not in ignore:
             raise ValueError(f'missing required artifact ignore rule: {rule}')
-    environment_snapshot = ROOT / 'environments' / 'feast_py311_68816e5' / 'pip-list.txt'
+    environment_snapshot = ROOT / 'environments' / 'feast_py311_68816e5-pip-list.txt'
     snapshot = environment_snapshot.read_text(encoding='utf-8')
     for package in ('FEAST-py==1.0.2', 'numpy==1.26.4', 'POT==0.9.7'):
         if package not in snapshot:

@@ -84,3 +84,18 @@ incomplete rows are preserved below the method root's `failures/` directory.
 Use `run.py --methods spateo --dry-run ...` to validate the 28-job Spateo
 matrix without creating an output directory or starting a method. PASTE2 has a
 separate 28-job grid runner and scorer as shown above.
+
+## Figures
+
+Run from the repository root after validation.
+
+```bash
+python visualization/02_alignment/plot_fixed_plate_results.py
+python visualization/02_alignment/plot_spatial.py
+python visualization/02_alignment/plot_fixed_plate_rotation.py
+```
+
+Current plots read `outputs/paste2_rerun_20260807_v1/` and
+`outputs/fixed_plate_rerun_20260806_v1/`. The primary metrics are normalized
+spatial error and rotation-recovery error. The spatial comparison uses 45°
+across four registered expression conditions. Older PASTE figures are archived.

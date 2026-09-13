@@ -52,3 +52,19 @@ aggregation read `frozen_config.yaml` from that output root; they do not accept
 `config_reference_density.yaml` and `config_1.0.6.yaml` are retained for prior
 runs and existing validation tools. Do not infer the intended run from defaults.
 Historical launch commands and session logs are local archive material.
+
+## Figures
+
+Run from the repository root after validation.
+
+```bash
+python visualization/06_3d_stack/plot.py \
+  --input-root 06_3d_stack/outputs/generative_five_reference_1.0.6_precision_v1 \
+  --output-dir visualization/06_3d_stack/figures/precision
+```
+
+This requires that run's completed validation and evaluation artifacts; completion
+has not been established by this cleanup. Other plotting scripts retain older
+93-target defaults and must not be presented as results for the corrected
+144-position stacks. Ordered z levels are not independent biological replicates;
+no composite, winner claim, or automatic figure promotion is authorized.

@@ -1,207 +1,93 @@
-# Study 05: 2D conditional transfer and half-slice generation
+# Study 05: 2D conditional transfer
 
-This clean workflow evaluates FEAST on two distinct conditional-generation
-tasks and two technologies. It declares exactly 45 fresh FEAST candidates:
+The design has 45 FEAST candidates: 40 cross-slice outputs over five assignment-
+randomness values, plus five half-slice outputs at the primary value 0.3.
+DLPFC slices are 151670, 151675, and 151676; MERFISH slices are 006 and 007.
+The fixed panels contain 17,391 and 1,122 genes respectively.
 
-| Dataset | Slices | Cross-slice jobs | Half-slice jobs |
-|---|---|---:|---:|
-| DLPFC Visium | `151670`, `151675`, `151676` | 6 directions × 5 assignment-randomness settings = 30 | 3 |
-| MERFISH Zhuang-ABCA-1 | `006`, `007` | 2 directions × 5 settings = 10 | 2 |
+DLPFC 151670 is from donor Br5595; 151675/151676 are from Br8100. Keep
+within-donor, cross-donor, and within-slice results separate. MERFISH donor
+identity is not declared and must not be inferred from adjacent slice IDs.
 
-The DLPFC selection contains two donors: `151670` is from `Br5595`, while
-`151675` and `151676` are from `Br8100`. Results must therefore retain the
-within-donor versus cross-donor direction stratum. The fixed ordered panels are
-17,391 DLPFC genes and 1,122 MERFISH genes.
+## Inputs and method
 
-## Source-only support contract
+Run from `05_2d_conditional_transfer/` with the FEAST 1.0.2 environment recorded
+in [FEAST_BUILD.txt](../FEAST_BUILD.txt). Supply the five inputs under
+`data/local/dlpfc/` and `data/local/merfish/`, matching `data/input_checksums.csv`.
 
-FEAST can condition only on labels represented in its reference. A target
-label is retained only when the source contains at least 20 spots with that
-label. This rule is applied before generation using labels, never target
-expression, and every excluded target label and spot is recorded.
+A target label is supported only when the source has at least 20 spots with
+that label. All excluded labels/spots are recorded. The half-slice task uses
+`x <= median(x)` as visible reference and `x > median(x)` as the masked target.
+Generation receives target coordinates and labels; target expression is loaded
+only for evaluation. This is conditional generation given known labels.
 
-In particular, `151670` does not contain Layers 1–2. Its outgoing targets
-retain 2,963/3,565 spots for `151675` and 2,888/3,431 for `151676`. MERFISH
-cross-slice directions retain 9,660/9,693 and 10,409/10,442 target spots. These
-support differences are reported per direction and must not be hidden by a
-pooled score.
-
-## Deterministic half-slice experiment
-
-Each of the five slices is split at the median of `obsm['spatial'][:, 0]`:
-
-- visible reference: `x <= median(x)`;
-- masked target: `x > median(x)`;
-- assignment randomness: the primary value 0.3 only.
-
-The split is disjoint, exhaustive, and frozen before generation. The runner
-loads expression only for retained visible-reference rows. It creates an
-expression-free target contract containing the masked spot IDs, coordinates,
-and known conditional labels. Masked expression is first loaded by `score.py`,
-after all 45 generation candidates have independently validated.
-
-All three DLPFC masked halves retain 100% of geometrically masked spots after
-the source-label gate. MERFISH `006` and `007` retain 5,210/5,221 and
-4,821/4,846 spots. The visible DLPFC halves contain 97, 146, and 129 genes with
-zero reference counts. FEAST retains the fixed 17,391-gene panel with
-`min_gene_spots=0`; those zero-evidence genes are explicitly identified, and
-scores are reported both for the complete panel and for the
-reference-observed-gene sensitivity subset.
-
-This is conditional half-slice expression generation given known labels. It
-is not label-free spatial imputation.
-
-## Inputs and preflight
-
-The five ignored local inputs are hardlinks below `data/local/dlpfc/` and
-`data/local/merfish/`. Exact IDs, shapes, and paths are declared in
-`data/input_checksums.csv`.
-
-Use the clean wheel interpreter recorded in `../FEAST_BUILD.txt`:
+Zero-evidence reference genes remain in the fixed panel (`min_gene_spots=0`).
+Scores retain both the full panel and a reference-observed-gene sensitivity
+subset. The conditional API uses explicit unified OT, 1,000 Sinkhorn iterations,
+and `transport_nonconvergence="raise"`.
 
 ```bash
 FEAST_PY=/path/to/clean-feast-environment/bin/python
-REPRO_ROOT="$(git rev-parse --show-toplevel)"
-
-"$FEAST_PY" "$REPRO_ROOT/scripts/verify_feast_install.py"
+"$FEAST_PY" ../scripts/verify_feast_install.py
 "$FEAST_PY" -m pip check
-cd "$REPRO_ROOT/05_2d_conditional_transfer"
 "$FEAST_PY" preflight.py
+"$FEAST_PY" run.py --mode cross_slice --dataset dlpfc \
+  --source 151675 --target 151676 --assignment-randomness 0.3
+"$FEAST_PY" run.py --mode mask_half --dataset dlpfc --slice 151675
 ```
 
-## Run one candidate
+Run one strict cross-slice and half-slice canary per dataset before completing
+the remaining candidates declared in `config.yaml`. Each candidate contains
+`generated.h5ad`, provenance, and transport diagnostics below
+`outputs/final/<mode>/<dataset>/<direction>/ar_<value>/`.
+Use the documented resume behavior; never replace a completed candidate with
+another configuration.
 
-Cross-slice example:
+## Validation and controls
 
 ```bash
-"$FEAST_PY" run.py \
-  --mode cross_slice --dataset dlpfc \
-  --source 151675 --target 151676 \
-  --assignment-randomness 0.3
-```
-
-Half-slice example:
-
-```bash
-"$FEAST_PY" run.py \
-  --mode mask_half --dataset dlpfc --slice 151675
-```
-
-Run one strict cross-slice canary and one strict half-slice canary per dataset
-before dispatching the remaining independent CPU jobs. A candidate is exposed
-atomically as:
-
-```text
-outputs/final/<mode>/<dataset>/<direction>/ar_<value>/
-├── generated.h5ad
-├── provenance.json
-└── transport_diagnostics.csv
-```
-
-The runner refuses replacement. Interrupted or failed work remains under
-ignored `.work/`. Every candidate records the input/config/runner paths, source-only
-support, target identity and coordinates, public seed, and
-positive convergence diagnostics. Target IDs are verified from the blueprint
-column before FEAST's internal row index is rebound to public `obs_names`.
-
-The public FEAST conditional implementation is CPU/NumPy based; it has no CUDA
-backend selector. Before fitting, the runner caches the immutable reference
-`counts` layer once in the same dense float32 representation FEAST requests
-internally. This is a value-preserving wrapper optimization that avoids
-repeated sparse densification in the empirical decoder. Its strategy, original
-storage type, dtype, and shape are recorded in every candidate's provenance.
-
-Study 05 is explicitly two-dimensional. Some MERFISH inputs also carry a
-`spatial_3d` alias, which the public FEAST coordinate resolver would otherwise
-prefer. The wrapper removes that alias only from the in-memory reference copy
-and passes the frozen two-column `obsm['spatial']` coordinates on both sides;
-the removal and dimensionality are recorded in the support provenance.
-
-## Validate, score, and compare
-
-```bash
-"$FEAST_PY" validate.py --all \
-  --report outputs/study05_validation.json
-
-"$FEAST_PY" score.py \
-  --generation-dir outputs/final \
-  --output-dir outputs/scores
-
-"$FEAST_PY" validate.py --all \
-  --scores-dir outputs/scores \
+"$FEAST_PY" validate.py --all --report outputs/study05_validation.json
+"$FEAST_PY" score.py --generation-dir outputs/final --output-dir outputs/scores
+"$FEAST_PY" validate.py --all --scores-dir outputs/scores \
   --report outputs/study05_complete_validation.json
+"$FEAST_PY" conditional_resampling_baseline.py
+"$FEAST_PY" evaluate_resampling_metrics.py
+"$FEAST_PY" linear_baseline.py
 ```
 
-The score root contains a 45-row summary, the complete per-gene table, a
-45-row support audit, and provenance. Dataset, mode, donor stratum, direction,
-assignment randomness, and support fraction remain explicit; no across-mode
-or across-technology composite is created.
+The primary empirical control uses ten whole-spot draws conditioned on source
+labels. `evaluate_resampling_metrics.py` compares conditional expression and
+zero-fraction Wasserstein distances, Moran-I profiles, and label-residual Moran-I
+profiles. Results are in `outputs/baselines/conditional_metric_comparison/`.
+The label-mean linear control is a separate lower-bound diagnostic.
 
-For DLPFC, `donor_stratum` is `within_donor` for `151675↔151676`,
-`cross_donor` for directions involving `151670`, and `within_slice` for the
-mask experiment. MERFISH donor identity is not declared by these inputs and is
-recorded as `donor_not_declared`, not inferred from adjacent slice names.
+`compare_historical.py` accepts `--historical-root`, `--fresh-score-dir`, and
+`--output`; only the original ten 151675↔151676 cross-slice rows have valid
+historical counterparts. Historical masked-half results are leakage-tainted.
+The [publication decision](PUBLICATION_DECISION.md) is retained because the
+plotting and publication records consume it. High distributional similarity
+does not establish accurate coordinate-wise prediction or authorize a winner.
 
-Historical numerical comparison is restricted to the original ten
-`151675`↔`151676` cross-slice rows:
+## Figures
+
+Run from the repository root after the required analysis/control stages:
 
 ```bash
-"$FEAST_PY" compare_historical.py \
-  --historical-root <historical-cross-slice-root> \
-  --fresh-score-dir outputs/scores \
-  --output <old-versus-new.csv>
+python visualization/05_2d_conditional_transfer/plot_resampling_comparison.py
+python visualization/05_2d_conditional_transfer/plot_expanded_report.py
+python visualization/05_2d_conditional_transfer/plot_selected_cross_slice.py
+python visualization/05_2d_conditional_transfer/plot_mixed_transfer_4x4.py
 ```
 
-The other 35 candidates have no valid historical numerical counterpart. The
-legacy masked-half implementation passed the held-out target AnnData into
-generation, so its masking scores are leakage-tainted and noncanonical.
+The expanded report requires `pdfunite` and supplies intermediate article-style
+plot data used by the selected panels. Resampling ranges are empirical 5–95%
+ranges over ten runs, not confidence intervals. Selected marker panels include
+examples chosen using held-out agreement and are illustrative, not typical-gene
+accuracy estimates. The 4×4 panels share an unclipped log1p-count scale.
 
-Fresh candidates use the public unified API `fit_reference` plus
-`simulate_from_reference`, strict nonconvergence policy `raise`, and 1,000
-Sinkhorn iterations rather than the historical 200. Passing validation creates
-evidence only; publication-canonical status still requires metric review and
-author approval.
-
-## Primary conditional empirical baseline
-
-`conditional_resampling_baseline.py` samples one complete source count vector
-with replacement for every target spot, restricted to the same conditional
-label. This retains real source sparsity, library sizes, gene covariance, and
-within-label heterogeneity, but adds no target-spatial organization. Ten fixed
-replicates quantify Monte Carlo uncertainty:
-
-```bash
-python conditional_resampling_baseline.py
-```
-
-Results are written to
-`outputs/baselines/conditional_whole_spot_resampling/`. This is the primary
-baseline for asking whether FEAST adds information beyond the known label and
-an empirical reference expression distribution.
-
-`evaluate_resampling_metrics.py` recomputes the same ten resampling draws and
-compares them with FEAST using conditional expression Wasserstein,
-zero-fraction Wasserstein, Moran-I profile correlation, and label-residual
-Moran-I profile correlation:
-
-```bash
-python evaluate_resampling_metrics.py
-```
-
-The additive results are written to
-`outputs/baselines/conditional_metric_comparison/`.
-
-## Label-mean lower-bound diagnostic
-
-`linear_baseline.py` fits a one-hot ordinary least-squares model on reference
-expression. Its prediction for each target spot is therefore the mean source
-expression of that spot's known conditional label. It uses the same source
-support and held-out scoring metrics as FEAST, ignores spatial coordinates,
-and compares only with the primary FEAST assignment-randomness setting:
-
-```bash
-python linear_baseline.py
-```
-
-Results are written separately to
-`outputs/baselines/label_mean_linear/`; no FEAST candidate or score is changed.
+Additional diagnostics are `plot.py`, `plot_simulation_effect.py`,
+`plot_ar_spatial_effect.py`, and `plot_expression_matrix.py` in the same folder.
+The AR view deliberately selects best-case agreement. The expression matrix
+uses reference-selected spatial markers and its recorded per-column scale.
+These displays have distinct selection rules and cannot be treated as the same
+accuracy claim. Output tables, captions, and figures remain local.

@@ -21,7 +21,7 @@ set -euo pipefail
 #   JOBS=4 bash scripts/download_mosta_single_slice_h5ad.sh
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-dataset_dir="$(cd "${script_dir}/.." && pwd)"
+dataset_dir="${DATASET_DIR:-${script_dir}}"
 out_dir="${1:-${dataset_dir}/samples}"
 check_only="${CHECK_ONLY:-0}"
 jobs="${JOBS:-1}"

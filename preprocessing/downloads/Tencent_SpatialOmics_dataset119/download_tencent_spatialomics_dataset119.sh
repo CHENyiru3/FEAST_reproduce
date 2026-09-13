@@ -17,7 +17,7 @@ set -euo pipefail
 
 dataset_id="${DATASET_ID:-119}"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-dataset_dir="$(cd "${script_dir}/.." && pwd)"
+dataset_dir="${DATASET_DIR:-${script_dir}}"
 out_dir="${1:-${dataset_dir}/samples}"
 check_only="${CHECK_ONLY:-0}"
 api_base="https://gene.ai.tencent.com/SpatialOmics/api"
