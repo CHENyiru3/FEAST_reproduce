@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -15,6 +16,7 @@ import matplotlib as mpl
 
 mpl.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib import font_manager
 from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
@@ -50,9 +52,11 @@ GROUPS = (
 
 
 def configure_matplotlib() -> None:
+    for filename in ("arial.ttf", "arialbd.ttf", "ariali.ttf", "arialbi.ttf"):
+        font_manager.fontManager.addfont(Path(sys.prefix) / "fonts" / filename)
     mpl.rcParams.update(
         {
-            "font.family": "DejaVu Sans",
+            "font.family": "Arial",
             "font.size": 12,
             "axes.titlesize": 15,
             "axes.labelsize": 12,

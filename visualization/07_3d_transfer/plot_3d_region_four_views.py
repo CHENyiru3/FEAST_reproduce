@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Render complete Study 07 DevCCF region labels from four 3D views."""
+"""Show oblique DevCCF targets and their extracted FEAST virtual sections."""
 from __future__ import annotations
 
 import argparse
 import json
 import os
+import sys
 from pathlib import Path
 
 os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
@@ -17,6 +18,7 @@ mpl.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib import font_manager
 from matplotlib.patches import Patch
 
 
@@ -33,14 +35,9 @@ SCHEMA_PATH = (
 )
 DEFAULT_OUTPUT = Path(__file__).resolve().parent / "figures"
 AGES = ("E15.5", "E18.5")
-SAMPLE_CAP_PER_SLICE = 700
-SAMPLE_SEED = 2026
-VIEWS = (
-    ("Oblique", 25.0, -55.0, 0.0),
-    ("Coronal", 90.0, -90.0, 0.0),
-    ("Sagittal", 0.0, 0.0, 0.0),
-    ("Dorsal", 0.0, -90.0, 0.0),
-)
+OBLIQUE_VIEW = (25.0, -55.0, 0.0)
+SECTION_QUANTILES = (0.2, 0.5, 0.8)
+SECTION_COLORS = ("#5E3C99", "#1B9E77", "#E66101")
 
 
 def parse_args() -> argparse.Namespace:
@@ -52,9 +49,19 @@ def parse_args() -> argparse.Namespace:
 
 
 def configure_matplotlib() -> None:
+    arial_paths = (
+        Path(sys.prefix) / "fonts" / "arial.ttf",
+        Path(sys.prefix) / "fonts" / "arialbd.ttf",
+    )
+    if not all(path.is_file() for path in arial_paths):
+        raise FileNotFoundError(
+            f"Arial Regular and Bold are required for this figure: {arial_paths}"
+        )
+    for path in arial_paths:
+        font_manager.fontManager.addfont(path)
     mpl.rcParams.update(
         {
-            "font.family": "DejaVu Sans",
+            "font.family": "Arial",
             "font.size": 8.5,
             "axes.titlesize": 9.5,
             "axes.titleweight": "bold",
@@ -67,16 +74,6 @@ def configure_matplotlib() -> None:
             "axes.facecolor": "white",
             "savefig.facecolor": "white",
         }
-    )
-
-
-def sampled_indices(size: int, seed: int) -> np.ndarray:
-    if size <= SAMPLE_CAP_PER_SLICE:
-        return np.arange(size)
-    return np.sort(
-        np.random.default_rng(seed).choice(
-            size, size=SAMPLE_CAP_PER_SLICE, replace=False
-        )
     )
 
 
@@ -128,9 +125,7 @@ def collect_plot_data(
                 unknown = sorted(set(regions) - set(region_colors))
                 if unknown:
                     raise ValueError(f"unmapped regions in {path}: {unknown}")
-                selected = sampled_indices(
-                    data.n_obs, SAMPLE_SEED + age_index * 100_000 + int(row.z_index)
-                )
+                selected = np.arange(data.n_obs)
                 records.append(
                     pd.DataFrame(
                         {
@@ -182,6 +177,51 @@ def style_3d(
         pane.set_edgecolor((0.72, 0.72, 0.72, 0.65))
 
 
+def select_sections(subset: pd.DataFrame) -> list[dict[str, float | int]]:
+    levels = subset[["z_index", "z"]].drop_duplicates().sort_values("z_index")
+    positions = np.rint((len(levels) - 1) * np.asarray(SECTION_QUANTILES)).astype(int)
+    return [
+        {
+            "z_index": int(levels.iloc[position]["z_index"]),
+            "z_world": float(levels.iloc[position]["z"]),
+            "color": SECTION_COLORS[index],
+        }
+        for index, position in enumerate(positions)
+    ]
+
+
+def draw_section_planes(
+    axis: plt.Axes,
+    limits: tuple[tuple[float, float], ...],
+    sections: list[dict[str, float | int]],
+) -> None:
+    x_values, y_values = np.meshgrid(limits[0], limits[1])
+    for section in sections:
+        z_values = np.full_like(x_values, float(section["z_world"]))
+        axis.plot_surface(
+            x_values,
+            y_values,
+            z_values,
+            color=str(section["color"]),
+            alpha=0.18,
+            shade=False,
+            linewidth=0,
+            rcount=2,
+            ccount=2,
+        )
+
+
+def style_section(axis: plt.Axes, limits: tuple[tuple[float, float], ...]) -> None:
+    axis.set_xlim(*limits[0])
+    axis.set_ylim(*limits[1])
+    axis.set_aspect("equal")
+    axis.set_xticks([])
+    axis.set_yticks([])
+    for spine in axis.spines.values():
+        spine.set_color("#AAAAAA")
+        spine.set_linewidth(0.5)
+
+
 def render_age(
     frame: pd.DataFrame,
     age: str,
@@ -189,35 +229,60 @@ def render_age(
     region_colors: dict[str, str],
     output_stem: Path,
     dpi: int,
-) -> None:
+) -> list[dict[str, float | int]]:
     subset = frame.loc[frame["age"].eq(age)]
     point_colors = subset["region"].map(region_colors).to_numpy()
-    figure = plt.figure(figsize=(7.6, 7.2))
+    sections = select_sections(subset)
+    figure = plt.figure(figsize=(10.4, 5.8))
     grid = figure.add_gridspec(
+        3,
         2,
-        2,
+        width_ratios=[2.1, 1.0],
         left=0.035,
-        right=0.965,
-        bottom=0.035,
-        top=0.85,
-        hspace=0.10,
-        wspace=0.07,
+        right=0.975,
+        bottom=0.12,
+        top=0.84,
+        hspace=0.22,
+        wspace=0.10,
     )
-    for index, (view, elev, azim, roll) in enumerate(VIEWS):
-        axis = figure.add_subplot(grid[index // 2, index % 2], projection="3d")
+    volume_axis = figure.add_subplot(grid[:, 0], projection="3d")
+    volume_axis.scatter(
+        subset["x"],
+        subset["y"],
+        subset["z"],
+        c=point_colors,
+        s=0.20,
+        alpha=0.22,
+        linewidths=0,
+        depthshade=False,
+        rasterized=True,
+    )
+    draw_section_planes(volume_axis, limits, sections)
+    style_3d(volume_axis, limits, *OBLIQUE_VIEW)
+    volume_axis.set_title("Oblique 3D DevCCF target", pad=4)
+
+    for index, section in enumerate(sections):
+        axis = figure.add_subplot(grid[index, 1])
+        section_data = subset.loc[
+            subset["z_index"].eq(int(section["z_index"]))
+        ].sort_values("spot_index")
         axis.scatter(
-            subset["x"],
-            subset["y"],
-            subset["z"],
-            c=point_colors,
-            s=0.34,
-            alpha=0.72,
+            section_data["x"],
+            section_data["y"],
+            c=section_data["region"].map(region_colors),
+            marker="s",
+            s=0.75,
             linewidths=0,
-            depthshade=False,
             rasterized=True,
         )
-        style_3d(axis, limits, elev, azim, roll)
-        axis.set_title(view, pad=2)
+        style_section(axis, limits)
+        axis.set_title(
+            f"Virtual section {index + 1}: z = {float(section['z_world']):.2f}",
+            color=str(section["color"]),
+            fontsize=7.2,
+            loc="left",
+            pad=2,
+        )
 
     region_order = list(region_colors)
     handles = [
@@ -226,28 +291,38 @@ def render_age(
     ]
     figure.legend(
         handles=handles,
-        loc="upper center",
-        ncol=4,
-        bbox_to_anchor=(0.5, 0.925),
-        columnspacing=1.25,
+        loc="lower center",
+        ncol=8,
+        bbox_to_anchor=(0.5, 0.035),
+        columnspacing=1.0,
         handlelength=0.9,
         handletextpad=0.4,
     )
     figure.suptitle(
-        f"{age} complete FEAST target volume · DevCCF broad-region labels",
+        f"{age} FEAST virtual-section extraction overview",
         y=0.985,
-        fontsize=11.5,
+        fontsize=12,
         fontweight="bold",
     )
     figure.text(
+        0.67,
+        0.50,
+        "extract\n→",
+        ha="center",
+        va="center",
+        fontsize=8,
+        fontweight="bold",
+        color="#444444",
+    )
+    figure.text(
         0.5,
-        0.012,
-        "Atlas labels are exact target geometry; displayed points are a fixed uniform within-slice sample.",
+        0.085,
+        "All generated target positions are shown. Transparent planes mark three z levels; panels at right show the corresponding FEAST virtual sections.",
         ha="center",
         fontsize=7.0,
         color="#555555",
     )
-    title = f"FEAST Study 07 {age} DevCCF broad-region four-view volume"
+    title = f"FEAST Study 07 {age} oblique DevCCF virtual-section overview"
     figure.savefig(
         output_stem.with_suffix(".pdf"),
         metadata={
@@ -268,9 +343,10 @@ def render_age(
     figure.savefig(
         output_stem.with_suffix(".png"),
         dpi=dpi,
-        metadata={"Software": "FEAST Study 07 four-view region plotting script"},
+        metadata={"Software": "FEAST Study 07 virtual-section overview plotting script"},
     )
     plt.close(figure)
+    return sections
 
 
 def main() -> None:
@@ -296,33 +372,31 @@ def main() -> None:
     frame = collect_plot_data(manifests, region_colors)
     limits = spatial_limits(frame)
     configure_matplotlib()
-    for age in AGES:
-        render_age(frame, age, limits, region_colors, stems[age], int(args.dpi))
+    sections = {
+        age: render_age(frame, age, limits, region_colors, stems[age], int(args.dpi))
+        for age in AGES
+    }
 
     provenance = {
         "schema_version": 1,
         "study": "07_3d_transfer",
         "configuration_id": validation["configuration_id"],
         "status": "candidate_author_review_required",
-        "interpretation": "complete generated target geometry shown from four matched views using exact DevCCF broad-region labels",
+        "interpretation": "oblique generated target geometry with transparent z planes linked to exact FEAST virtual spatial-transcriptomics sections",
         "target_expression_accuracy_claim_authorized": False,
         "ages": list(AGES),
-        "views": [
-            {"name": name, "elev": elev, "azim": azim, "roll": roll}
-            for name, elev, azim, roll in VIEWS
-        ],
+        "view": {"name": "Oblique", "elev": OBLIQUE_VIEW[0], "azim": OBLIQUE_VIEW[1], "roll": OBLIQUE_VIEW[2]},
+        "virtual_sections": sections,
         "regions": region_colors,
         "spatial_limits": {
             axis: list(limit)
             for axis, limit in zip(("x", "y", "z"), limits, strict=True)
         },
         "sampling": {
-            "method": "uniform without replacement within each generated z slice",
-            "seed": SAMPLE_SEED,
-            "maximum_spots_per_slice": SAMPLE_CAP_PER_SLICE,
-            "sampled_spots": int(len(frame)),
+            "method": "all generated target positions",
+            "displayed_spots": int(len(frame)),
             "selection_by_region": False,
-            "shared_coordinates_across_views": True,
+            "section_selection": "three z levels at 20%, 50%, and 80% of each age's ordered generated slices",
         },
         "inputs": {
             "validation": str(FINAL_ROOT / "validation.json"),
@@ -332,6 +406,7 @@ def main() -> None:
             "region_schema": "Datasets/Processed/DevCCFv1_figshare_26377171/coordinate_system/GSE269617_region_merged/gse269617_region_schema.tsv",
         },
         "outputs": [path.name for path in figure_paths],
+        "font_family": "Arial",
         "editable_text": {"pdf_fonttype": 42, "svg_fonttype": "none"},
         "png_dpi": int(args.dpi),
     }

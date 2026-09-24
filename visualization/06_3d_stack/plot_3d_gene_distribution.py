@@ -342,7 +342,7 @@ def render_genes(frame: pd.DataFrame, stem: Path, dpi: int) -> dict[str, float]:
         fontsize=12,
         fontweight="bold",
     )
-    figure.legend(handles=[mpl.lines.Line2D([], [], color="#555555", marker="^", linestyle="None", label="Retained real slice"), mpl.lines.Line2D([], [], color="#555555", marker="o", linestyle="None", label="FEAST-simulated slice")], loc="lower center", ncol=2, frameon=False)
+    figure.legend(handles=[mpl.lines.Line2D([], [], color="#555555", marker="^", linestyle="None", label="Retained real slice"), mpl.lines.Line2D([], [], color="#555555", marker="o", linestyle="None", label="FEAST-simulated slice")], loc="lower center", bbox_to_anchor=(0.5, 0.028), ncol=2, frameon=False)
     figure.text(
         0.5,
         0.012,

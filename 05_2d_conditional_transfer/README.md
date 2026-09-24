@@ -68,6 +68,19 @@ The [publication decision](PUBLICATION_DECISION.md) is retained because the
 plotting and publication records consume it. High distributional similarity
 does not establish accurate coordinate-wise prediction or authorize a winner.
 
+## Layer/class GO enrichment
+
+The [pathway analysis](pathway_analysis/README.md) compares real, FEAST, and ten
+conditional-resampling draws across all 13 primary tasks. It uses fixed target
+labels and supported spots, matched gene panels, layer-versus-rest Wilcoxon
+rankings, and species-specific GO Biological Process gene sets. The approved
+adaptive multilevel GSEA analysis is separate from the initial permutation run.
+Scripts, annotation sources, full enrichment tables, coverage audits, and an
+Arial figure bundle are organized under `pathway_analysis/`. Use the corrected
+[GSEApy 1.3.1 report](pathway_analysis/results_multilevel_gseapy131/REPORT.md)
+and [figure bundle](pathway_analysis/figures_gseapy131/study05_go_pathway_analysis.pdf);
+the provisional 1.3.0 adaptive outputs are preserved separately with a validation note.
+
 ## Figures
 
 Run from the repository root after the required analysis/control stages:

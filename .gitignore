@@ -36,6 +36,11 @@ visualization/**/candidate_figures/
 publication/final_freeze_*/
 validation/
 
+# Pathway analysis outputs and downloaded gene-set inputs stay local.
+**/pathway_analysis/figures*/
+**/pathway_analysis/results*/
+**/pathway_analysis/gene_sets/
+
 # Superseded scripts and machine-local work.
 **/archive/
 .ruff_cache/

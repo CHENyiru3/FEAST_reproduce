@@ -15,6 +15,7 @@ import matplotlib as mpl
 
 mpl.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib import font_manager
 from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
@@ -397,7 +398,12 @@ def expression_distribution_page(cases, dataset, pages):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    mpl.rcParams.update({"font.family": "DejaVu Sans", "font.size": 10,
+    for filename in ("arial.ttf", "arialbd.ttf", "ariali.ttf", "arialbi.ttf"):
+        font_manager.fontManager.addfont(Path(sys.prefix) / "fonts" / filename)
+    mpl.rcParams.update({"font.family": "Arial", "font.size": 10,
+        "mathtext.fontset": "custom", "mathtext.rm": "Arial", "mathtext.it": "Arial:italic",
+        "mathtext.bf": "Arial:bold", "mathtext.sf": "Arial", "mathtext.tt": "Arial",
+        "mathtext.cal": "Arial", "mathtext.fallback": None,
         "axes.spines.top": False, "axes.spines.right": False, "legend.frameon": False,
         "axes.linewidth": 1.1, "axes.labelsize": 10, "axes.titlesize": 11,
         "xtick.labelsize": 9, "ytick.labelsize": 9, "axes.edgecolor": "#444444",
@@ -462,7 +468,7 @@ def main():
         label_palette=palettes, pages=[p.name for p in pages], combined_pdf=combined.name,
         style_references=["visualization/00_simulator_benchmark/plot_spatial_comparison.py",
                           "visualization/01_clustering/plot_main_figure.py"],
-        export=dict(dpi=600, pdf_fonttype=42, svg_text="editable", spatial_points="rasterized"),
+        export=dict(font="Arial", dpi=600, pdf_fonttype=42, svg_text="editable", spatial_points="rasterized"),
         limitations=["Known target labels and coordinates are supplied", "Selected genes are illustrative",
                      "AR sweep uses one FEAST seed", "Directions share slices", "Unsupported target spots excluded"])
     (OUT / "provenance.json").write_text(json.dumps(provenance, indent=2) + "\n")
@@ -473,7 +479,7 @@ def main():
         + "\n".join(f"{i}. `{p.name}`" for i, p in enumerate(pages, 1))
         + "\n\nRebuild from the repository root: `python visualization/05_2d_conditional_transfer/plot_expanded_report.py`.\n"
         "Requires the existing Python analysis environment and Poppler's `pdfunite`. No FEAST simulations are rerun.\n"
-        "Style follows Study 00 spatial matrices and Study 01 compact panels: DejaVu Sans, bold panel headings, "
+        "Style follows Study 00 spatial matrices and Study 01 compact panels: Arial, bold panel headings, "
         "blue FEAST, gray resampling, viridis expression and external legends.\n"
         "Each new figure has PDF, editable SVG and 600-DPI PNG exports. Dense spatial points are rasterized at 600 DPI.\n"
         "Full methodological notes and interpretation limits are in `captions.md`.\n"
