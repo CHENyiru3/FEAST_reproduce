@@ -1,0 +1,18 @@
+method: spatialz
+recipe: real_3d_evaluation_with_reference_inferred_cell_count
+tutorial: https://spatialz-tutorial.readthedocs.io/en/latest/Evaluation%20on%20a%20real%203D%20spatial%20transcriptomics%20data.html
+coordinates:
+  input_unit: mm
+  working_unit: um
+  input_to_working_scale: 1000.0
+generation:
+  n_cell: null
+  n_mag: 1.0
+  k_neighbors: 1
+  lr: 100000.0
+  nb_iter_max: 1000
+  num_projections: 200
+  syn_mode: default
+  k_sam: 50
+  micro_env_key: mender
+  Beta: 100

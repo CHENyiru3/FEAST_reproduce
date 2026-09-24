@@ -1,4 +1,4 @@
-"""Render the Study 06 FEAST-versus-resampling metric comparison."""
+"""Render the Study 06 FEAST, five-reference resampling and SpatialZ comparison."""
 
 from __future__ import annotations
 
@@ -18,15 +18,18 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 import numpy as np
 import pandas as pd
+from plot_results import configure_style
+from plot_spatialz_comparison import load_comparison, COLORS, NAMES, METHODS
 
 
 REPRO_ROOT = Path(__file__).resolve().parents[2]
 STUDY_ROOT = REPRO_ROOT / "06_3d_stack"
 METRIC_ROOT = (
-    STUDY_ROOT / "outputs" / "reference_density_rank_v1" / "baselines" / "conditional_metric_comparison"
+    STUDY_ROOT / "outputs" / "generative_five_reference_1.0.6_precision_v1"
+    / "baselines" / "five_reference_conditional_resampling"
 )
 DEFAULT_OUTPUT = (
-    Path(__file__).resolve().parent / "candidate_figures" / "conditional_resampling"
+    Path(__file__).resolve().parent / "figures" / "three_method_resampling_spatialz_v1"
 )
 METRICS = (
     ("conditional_expression_wasserstein", "Conditional expression\nWasserstein ↓"),
@@ -41,43 +44,17 @@ TARGET_KEYS = ("density_name", "gap", "target_index", "target_slice", "target_z"
 
 
 def configure_matplotlib() -> None:
-    mpl.rcParams.update(
-        {
-            "font.family": "DejaVu Sans",
-            "font.size": 12,
-            "axes.titlesize": 15,
-            "axes.labelsize": 12,
-            "xtick.labelsize": 11,
-            "ytick.labelsize": 11,
-            "legend.fontsize": 12,
-            "pdf.fonttype": 42,
-            "ps.fonttype": 42,
-            "svg.fonttype": "none",
-            "figure.facecolor": "white",
-            "axes.facecolor": "white",
-            "savefig.facecolor": "white",
-        }
-    )
+    configure_style()
 
 
 def panel(axis: plt.Axes, frame: pd.DataFrame, metric: str, title: str) -> None:
     gaps = [3, 5, 10]
     positions = np.arange(len(gaps), dtype=float)
-    colors = {"feast": "#0072B2", "conditional_whole_spot_resampling": "#999999"}
-    feast = frame[frame["method"] == "feast"]
-    baseline = (
-        frame[frame["method"] == "conditional_whole_spot_resampling"]
-        .groupby(list(TARGET_KEYS), as_index=False)[metric]
-        .mean()
-    )
-    method_frames = {
-        "conditional_whole_spot_resampling": baseline,
-        "feast": feast,
-    }
-    for method, offset in (
-        ("conditional_whole_spot_resampling", -0.14),
-        ("feast", 0.14),
-    ):
+    if metric.startswith('conditional_'):
+        supported = frame.pivot(index=['gap','target_slice'], columns='method', values=metric).dropna().index
+        frame = frame.set_index(['gap','target_slice']).loc[lambda x: x.index.isin(supported)].reset_index()
+    method_frames = {method: frame[frame.method == method] for method in METHODS}
+    for method, offset in zip(METHODS, (-.24, 0, .24)):
         data = [
             method_frames[method][method_frames[method]["gap"] == gap][metric].to_numpy(
                 dtype=float
@@ -87,17 +64,18 @@ def panel(axis: plt.Axes, frame: pd.DataFrame, metric: str, title: str) -> None:
         box = axis.boxplot(
             data,
             positions=positions + offset,
-            widths=0.22,
+            widths=0.19,
             patch_artist=True,
             showfliers=False,
-            medianprops={"color": "#D97946", "linewidth": 1.2},
+            medianprops={"color": "#24313F", "linewidth": 1.5},
             whiskerprops={"color": "#444444", "linewidth": 0.8},
             capprops={"color": "#444444", "linewidth": 0.8},
             boxprops={"edgecolor": "#444444", "linewidth": 0.8},
         )
         for patch in box["boxes"]:
-            patch.set_facecolor(colors[method])
-            patch.set_alpha(0.72)
+            patch.set_facecolor(COLORS[method])
+            patch.set_alpha(0.20)
+            patch.set_edgecolor(COLORS[method])
         for gap_index, values in enumerate(data):
             jitter = (
                 np.zeros(1)
@@ -107,15 +85,16 @@ def panel(axis: plt.Axes, frame: pd.DataFrame, metric: str, title: str) -> None:
             axis.scatter(
                 np.full(len(values), positions[gap_index] + offset) + jitter,
                 values,
-                s=20,
-                c=colors[method],
+                s=12,
+                c=COLORS[method],
                 edgecolors="white",
-                linewidths=0.4,
-                alpha=0.88,
+                linewidths=0.2,
+                alpha=0.55,
                 zorder=3,
             )
-    axis.set_title(title, fontsize=15, fontweight="bold", pad=9)
-    axis.set_xticks(positions, ["3", "5", "10"])
+    axis.set_title(title, fontsize=12, fontweight="bold", pad=12, loc='left')
+    counts = method_frames['spatialz'].groupby('gap').size()
+    axis.set_xticks(positions, [f'{gap}\nn={counts[gap]}' for gap in gaps])
     axis.set_xlabel("Reference gap")
     axis.grid(axis="y", color="#DDDDDD", linewidth=0.6, alpha=0.65)
     axis.set_axisbelow(True)
@@ -129,6 +108,7 @@ def panel(axis: plt.Axes, frame: pd.DataFrame, metric: str, title: str) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input-dir", type=Path, default=METRIC_ROOT)
+    parser.add_argument('--spatialz-root', type=Path, default=STUDY_ROOT / 'outputs/spatialz_native_evaluation_cuda_v1')
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--dpi", type=int, default=600)
     args = parser.parse_args()
@@ -140,47 +120,41 @@ def main() -> None:
     if any(path.exists() for path in targets):
         raise FileExistsError("fresh-only Study 06 candidate figure already exists")
 
-    metrics = pd.read_csv(args.input_dir / "method_metrics.csv")
+    metrics, _ = load_comparison(args.spatialz_root / 'evaluation', args.input_dir / 'method_metrics.csv')
     metrics.to_csv(output / "plot_data.csv", index=False)
     configure_matplotlib()
-    figure, axes = plt.subplots(1, 4, figsize=(18.0, 5.4))
-    for axis, (metric, title) in zip(axes, METRICS, strict=True):
-        panel(axis, metrics, metric, title)
-    handles = [
-        Patch(facecolor="#0072B2", edgecolor="none", alpha=0.85, label="FEAST"),
-        Patch(
-            facecolor="#999999",
-            edgecolor="none",
-            alpha=0.85,
-            label="Conditional resampling",
-        ),
-    ]
-    axes[0].set_ylabel("Metric value", fontsize=16)
+    figure, axes = plt.subplots(1, 4, figsize=(14.0, 4.6))
+    for letter, axis, (metric, title) in zip('ABCD', axes, METRICS, strict=True):
+        panel(axis, metrics, metric, f'{letter}  {title}')
+    handles = [Patch(facecolor=COLORS[m], edgecolor='none', alpha=.85, label=NAMES[m]) for m in METHODS]
+    for axis, ylabel in zip(axes, ('Wasserstein distance', 'Wasserstein distance',
+                                 "Moran's I profile correlation", 'Residual profile correlation')):
+        axis.set_ylabel(ylabel)
     figure.suptitle(
-        "Conditional 3D stack vs empirical resampling",
-        fontsize=20,
+        "FEAST, conditional resampling and SpatialZ",
+        fontsize=17,
         fontweight="bold",
-        y=0.985,
+        y=0.985, x=0.06, ha='left',
     )
     figure.legend(
         handles=handles,
-        loc="lower center",
-        ncol=2,
-        bbox_to_anchor=(0.5, 0.025),
+        loc="upper right",
+        ncol=3,
+        bbox_to_anchor=(0.985, 0.925),
         frameon=False,
         handlelength=0.9,
         handletextpad=0.5,
     )
     figure.text(
-        0.5,
-        0.91,
-        "Matched target distributions; each baseline point is the ten-run resampling mean and ordered z targets are not biological replicates.",
-        ha="center",
+        0.06,
+        0.90,
+        "One point per target; resampling averaged over 10 repeats. Conditional panels use common supported targets.",
+        ha="left",
         va="top",
-        fontsize=12,
+        fontsize=10,
         color="#4F4F4F",
     )
-    figure.tight_layout(rect=(0.015, 0.17, 1, 0.80), w_pad=1.4)
+    figure.tight_layout(rect=(0.005, 0.02, 1, 0.80), w_pad=1.4)
     figure.savefig(
         stem.with_suffix(".pdf"),
         bbox_inches="tight",
@@ -210,10 +184,12 @@ def main() -> None:
         "exact_spot_metrics_displayed": False,
         "targets_are_biological_replicates": False,
         "publication_canonical": False,
-        "visual_style_reference": "visualization/00_simulator_benchmark/plot.py",
+        "visual_style_reference": "visualization/06_3d_stack/plot_results.py",
         "visual_layout": "one_by_four_matched_target_boxplots_with_resampling_means",
         "resampling_display_unit": "per_target_mean_across_ten_runs",
-        "inputs": [str(args.input_dir / "method_metrics.csv")],
+        'conditional_population': 'identical supported targets across methods within each gap',
+        'spatial_population': 'all 336 targets, independent native spatial graphs',
+        "inputs": [str(args.input_dir / "method_metrics.csv"), str(args.spatialz_root / 'evaluation/metrics.csv')],
         "outputs": [path.name for path in targets[:-1]],
         "completed_at_utc": datetime.now(timezone.utc).isoformat(),
     }

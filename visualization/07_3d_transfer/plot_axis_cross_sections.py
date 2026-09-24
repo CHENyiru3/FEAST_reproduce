@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.colors import Normalize
+from matplotlib import font_manager
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
@@ -35,9 +36,19 @@ EXPRESSION_CMAP = "magma"
 
 
 def configure_matplotlib() -> None:
+    arial_paths = (
+        Path(sys.prefix) / "fonts" / "arial.ttf",
+        Path(sys.prefix) / "fonts" / "arialbd.ttf",
+    )
+    if not all(path.is_file() for path in arial_paths):
+        raise FileNotFoundError(
+            f"Arial Regular and Bold are required for this figure: {arial_paths}"
+        )
+    for path in arial_paths:
+        font_manager.fontManager.addfont(path)
     mpl.rcParams.update(
         {
-            "font.family": "DejaVu Sans",
+            "font.family": "Arial",
             "font.size": 8.5,
             "axes.titlesize": 9.5,
             "axes.titleweight": "bold",
@@ -464,6 +475,7 @@ def main() -> None:
             ],
         },
         "outputs": [path.name for path in targets if path != provenance_path],
+        "font_family": "Arial",
         "editable_text": {"pdf_fonttype": 42, "svg_fonttype": "none"},
         "png_dpi": int(args.dpi),
     }
